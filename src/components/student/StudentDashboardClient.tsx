@@ -144,7 +144,12 @@ export default function StudentDashboardClient() {
 
   // Load major status
   const loadMajorStatus = useCallback(async (studentData: StudentData) => {
-    if (!studentData?.id) return;
+    if (!studentData?.id) {
+      console.warn("⚠️ StudentData or studentData.id is missing:", studentData);
+      return;
+    }
+
+    console.log("🔍 Loading major status for student ID:", studentData.id);
 
     try {
       const response = await studentApiService.checkMajorStatus(studentData.id);

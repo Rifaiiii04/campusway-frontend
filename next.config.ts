@@ -8,7 +8,7 @@ const nextConfig: NextConfig = {
       "http://127.0.0.1:8000/api/school",
     NEXT_PUBLIC_STUDENT_API_BASE_URL:
       process.env.NEXT_PUBLIC_STUDENT_API_BASE_URL ||
-      "http://127.0.0.1:8000/api/optimized",
+      "http://127.0.0.1:8000/api/web",
   },
 
   // Performance optimizations
@@ -21,16 +21,17 @@ const nextConfig: NextConfig = {
       "@/components",
       "@/utils",
     ],
-    turbo: {
-      rules: {
-        "*.svg": {
-          loaders: ["@svgr/webpack"],
-          as: "*.js",
-        },
+    esmExternals: true,
+  },
+
+  // Turbopack configuration (moved from experimental.turbo)
+  turbopack: {
+    rules: {
+      "*.svg": {
+        loaders: ["@svgr/webpack"],
+        as: "*.js",
       },
     },
-    esmExternals: true,
-    bundlePagesRouterDependencies: true,
   },
 
   // Image optimization

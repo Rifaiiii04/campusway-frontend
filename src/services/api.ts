@@ -4,9 +4,14 @@ import { apiPerformance } from "@/utils/performanceMonitor";
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:8000/api/school";
 
-const STUDENT_API_BASE_URL =
-  process.env.NEXT_PUBLIC_STUDENT_API_BASE_URL ||
-  "http://127.0.0.1:8000/api/optimized";
+const STUDENT_API_BASE_URL = "http://127.0.0.1:8000/api/web";
+
+// Debug logging
+console.log("🔧 STUDENT_API_BASE_URL:", STUDENT_API_BASE_URL);
+console.log(
+  "🔧 NEXT_PUBLIC_STUDENT_API_BASE_URL env:",
+  process.env.NEXT_PUBLIC_STUDENT_API_BASE_URL
+);
 
 // Enhanced fetch with caching and performance monitoring
 async function fetchWithCache<T>(
@@ -27,9 +32,14 @@ async function fetchWithCache<T>(
   // Start performance monitoring
   const endTiming = apiPerformance.startRequest(url);
 
+  let timeoutId: NodeJS.Timeout | null = null;
+
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
+    timeoutId = setTimeout(() => {
+      console.warn(`Request timeout for ${url}`);
+      controller.abort();
+    }, 15000); // Increased to 15 seconds
 
     const response = await fetch(url, {
       ...options,
@@ -40,7 +50,12 @@ async function fetchWithCache<T>(
       },
     });
 
-    clearTimeout(timeoutId);
+    // Clear timeout on successful response
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+      timeoutId = null;
+    }
+
     endTiming();
 
     if (!response.ok) {
@@ -56,7 +71,26 @@ async function fetchWithCache<T>(
 
     return data;
   } catch (error) {
+    // Always clear timeout and end timing
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
     endTiming();
+
+    // Handle specific error types
+    if (error instanceof Error) {
+      if (error.name === "AbortError") {
+        throw new Error(
+          `Request timeout: Server tidak merespons dalam 15 detik`
+        );
+      }
+      if (error.message.includes("Failed to fetch")) {
+        throw new Error(
+          `Koneksi gagal: Pastikan server backend berjalan di http://127.0.0.1:8000`
+        );
+      }
+    }
+
     throw error;
   }
 }
@@ -501,8 +535,10 @@ export const studentApiService = {
   // Get All Active Majors
   async getMajors(): Promise<{ success: boolean; data: Major[] }> {
     try {
+      const url = `${STUDENT_API_BASE_URL}/majors?t=${Date.now()}`;
+      console.log("🔍 getMajors URL:", url);
       return fetchWithCache(
-        `${STUDENT_API_BASE_URL}/majors`,
+        url,
         {},
         cacheKeys.majors(),
         10 * 60 * 1000 // 10 minutes cache (majors don't change often)
@@ -558,8 +594,13 @@ export const studentApiService = {
     data: { has_choice: boolean; selected_major_id: number | null };
   }> {
     try {
+      const url = `${STUDENT_API_BASE_URL}/major-status/${studentId}?t=${Date.now()}`;
+      console.log("🔍 checkMajorStatus URL:", url);
+      console.log("🔍 STUDENT_API_BASE_URL:", STUDENT_API_BASE_URL);
+      console.log("🔍 studentId:", studentId);
+
       return fetchWithCache(
-        `${STUDENT_API_BASE_URL}/major-status/${studentId}`,
+        url,
         {},
         cacheKeys.majorStatus(studentId),
         1 * 60 * 1000 // 1 minute cache (status can change frequently)
