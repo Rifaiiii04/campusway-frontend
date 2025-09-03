@@ -1,0 +1,49 @@
+{
+    "guru": [
+        {
+            "id": 1,
+            "npsn": "20212345",
+            "name": "SMA Negeri 1 Jakarta",
+            "password": "guru123",
+            "email": "admin@sman1jakarta.sch.id",
+            "created_at": "2024-01-01T00:00:00.000Z"
+        },
+        {
+            "id": 2,
+            "npsn": "20212346",
+            "name": "SMA Negeri 2 Bandung",
+            "password": "guru456",
+            "email": "admin@sman2bandung.sch.id",
+            "created_at": "2024-01-01T00:00:00.000Z"
+        },
+        {
+            "id": 3,
+            "npsn": "20212347",
+            "name": "SMA Negeri 3 Surabaya",
+            "password": "guru789",
+            "email": "admin@sman3surabaya.sch.id",
+            "created_at": "2024-01-01T00:00:00.000Z"
+        },
+        {
+            "id": 4,
+            "npsn": "20212348",
+            "name": "SMA Negeri 4 Yogyakarta",
+            "password": "guru101",
+            "email": "admin@sman4yogyakarta.sch.id",
+            "created_at": "2024-01-01T00:00:00.000Z"
+        },
+        {
+            "id": 5,
+            "npsn": "20212349",
+            "name": "SMA Negeri 5 Semarang",
+            "password": "guru202",
+            "email": "admin@sman5semarang.sch.id",
+            "created_at": "2024-01-01T00:00:00.000Z"
+        }
+    ],
+    "demo_account": {
+        "npsn": "20212345",
+        "password": "guru123",
+        "description": "Akun demo untuk testing - SMA Negeri 1 Jakarta"
+    }
+}

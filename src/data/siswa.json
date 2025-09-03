@@ -1,0 +1,119 @@
+{
+  "siswa": [
+    {
+      "id": 1,
+      "school_id": 1,
+      "nisn": "2024001",
+      "name": "Ahmad Rizki",
+      "class": "X IPA 1",
+      "phone": "081234567890",
+      "email": "ahmad.rizki@student.sch.id",
+      "parent_phone": "081234567891",
+      "created_at": "2024-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 2,
+      "school_id": 1,
+      "nisn": "2024002",
+      "name": "Siti Nurhaliza",
+      "class": "X IPA 1",
+      "phone": "081234567892",
+      "email": "siti.nurhaliza@student.sch.id",
+      "parent_phone": "081234567893",
+      "created_at": "2024-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 3,
+      "school_id": 1,
+      "nisn": "2024003",
+      "name": "Budi Santoso",
+      "class": "X IPA 2",
+      "phone": "081234567894",
+      "email": "budi.santoso@student.sch.id",
+      "parent_phone": "081234567895",
+      "created_at": "2024-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 4,
+      "school_id": 1,
+      "nisn": "2024004",
+      "name": "Dewi Sartika",
+      "class": "X IPA 2",
+      "phone": "081234567896",
+      "email": "dewi.sartika@student.sch.id",
+      "parent_phone": "081234567897",
+      "created_at": "2024-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 5,
+      "school_id": 1,
+      "nisn": "2024005",
+      "name": "Rizki Pratama",
+      "class": "X IPS 1",
+      "phone": "081234567898",
+      "email": "rizki.pratama@student.sch.id",
+      "parent_phone": "081234567899",
+      "created_at": "2024-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 6,
+      "school_id": 2,
+      "nisn": "2024006",
+      "name": "Nina Safitri",
+      "class": "X IPA 1",
+      "phone": "081234567800",
+      "email": "nina.safitri@student.sch.id",
+      "parent_phone": "081234567801",
+      "created_at": "2024-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 7,
+      "school_id": 2,
+      "nisn": "2024007",
+      "name": "Muhammad Fajar",
+      "class": "X IPA 2",
+      "phone": "081234567802",
+      "email": "muhammad.fajar@student.sch.id",
+      "parent_phone": "081234567803",
+      "created_at": "2024-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 8,
+      "school_id": 3,
+      "nisn": "2024008",
+      "name": "Putri Wulandari",
+      "class": "X IPS 1",
+      "phone": "081234567804",
+      "email": "putri.wulandari@student.sch.id",
+      "parent_phone": "081234567805",
+      "created_at": "2024-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 9,
+      "school_id": 3,
+      "nisn": "2024009",
+      "name": "Aditya Nugraha",
+      "class": "X Bahasa 1",
+      "phone": "081234567806",
+      "email": "aditya.nugraha@student.sch.id",
+      "parent_phone": "081234567807",
+      "created_at": "2024-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 10,
+      "school_id": 4,
+      "nisn": "2024010",
+      "name": "Anisa Rahmawati",
+      "class": "X Agama 1",
+      "phone": "081234567808",
+      "email": "anisa.rahmawati@student.sch.id",
+      "parent_phone": "081234567809",
+      "created_at": "2024-01-01T00:00:00.000Z"
+    }
+  ],
+  "demo_student": {
+    "nisn": "2024001",
+    "password": "siswa123",
+    "description": "Akun demo siswa - Ahmad Rizki (SMA Negeri 1 Jakarta)"
+  }
+}

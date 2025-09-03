@@ -1,0 +1,437 @@
+{
+  "questions": [
+    {
+      "id": 1,
+      "subject": "Matematika",
+      "question_text": "Berapakah hasil dari 15 × 8 + 12 ÷ 3?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "option_label": "A",
+          "option_text": "124",
+          "is_correct": false
+        },
+        {
+          "option_label": "B",
+          "option_text": "126",
+          "is_correct": true
+        },
+        {
+          "option_label": "C",
+          "option_text": "128",
+          "is_correct": false
+        },
+        {
+          "option_label": "D",
+          "option_text": "130",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "subject": "Matematika",
+      "question_text": "Jika x + y = 10 dan x - y = 4, maka nilai x adalah...",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "option_label": "A",
+          "option_text": "3",
+          "is_correct": false
+        },
+        {
+          "option_label": "B",
+          "option_text": "5",
+          "is_correct": false
+        },
+        {
+          "option_label": "C",
+          "option_text": "7",
+          "is_correct": true
+        },
+        {
+          "option_label": "D",
+          "option_text": "9",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "subject": "Matematika",
+      "question_text": "Berapakah hasil dari √144 + √25?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "option_label": "A",
+          "option_text": "17",
+          "is_correct": true
+        },
+        {
+          "option_label": "B",
+          "option_text": "19",
+          "is_correct": false
+        },
+        {
+          "option_label": "C",
+          "option_text": "21",
+          "is_correct": false
+        },
+        {
+          "option_label": "D",
+          "option_text": "23",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "subject": "Matematika",
+      "question_text": "Berapakah nilai dari 2³ × 3²?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "option_label": "A",
+          "option_text": "36",
+          "is_correct": false
+        },
+        {
+          "option_label": "B",
+          "option_text": "48",
+          "is_correct": false
+        },
+        {
+          "option_label": "C",
+          "option_text": "72",
+          "is_correct": true
+        },
+        {
+          "option_label": "D",
+          "option_text": "96",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "subject": "Matematika",
+      "question_text": "Berapakah hasil dari 0.25 × 80?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "option_label": "A",
+          "option_text": "15",
+          "is_correct": false
+        },
+        {
+          "option_label": "B",
+          "option_text": "20",
+          "is_correct": true
+        },
+        {
+          "option_label": "C",
+          "option_text": "25",
+          "is_correct": false
+        },
+        {
+          "option_label": "D",
+          "option_text": "30",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "subject": "Bahasa Indonesia",
+      "question_text": "Dalam kalimat 'Siswa yang rajin belajar akan berhasil', kata 'yang' berfungsi sebagai...",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "option_label": "A",
+          "option_text": "Konjungsi",
+          "is_correct": false
+        },
+        {
+          "option_label": "B",
+          "option_text": "Preposisi",
+          "is_correct": false
+        },
+        {
+          "option_label": "C",
+          "option_text": "Pronomina relatif",
+          "is_correct": true
+        },
+        {
+          "option_label": "D",
+          "option_text": "Adverbia",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "subject": "Bahasa Indonesia",
+      "question_text": "Sinonim dari kata 'cerdas' adalah...",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "option_label": "A",
+          "option_text": "Bodoh",
+          "is_correct": false
+        },
+        {
+          "option_label": "B",
+          "option_text": "Pintar",
+          "is_correct": true
+        },
+        {
+          "option_label": "C",
+          "option_text": "Malas",
+          "is_correct": false
+        },
+        {
+          "option_label": "D",
+          "option_text": "Rajin",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "subject": "Bahasa Indonesia",
+      "question_text": "Kata 'menggunakan' termasuk dalam jenis kata...",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "option_label": "A",
+          "option_text": "Nomina",
+          "is_correct": false
+        },
+        {
+          "option_label": "B",
+          "option_text": "Verba",
+          "is_correct": true
+        },
+        {
+          "option_label": "C",
+          "option_text": "Adjektiva",
+          "is_correct": false
+        },
+        {
+          "option_label": "D",
+          "option_text": "Adverbia",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "subject": "Bahasa Indonesia",
+      "question_text": "Kalimat 'Buku itu sangat menarik' memiliki pola...",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "option_label": "A",
+          "option_text": "S-P-O",
+          "is_correct": false
+        },
+        {
+          "option_label": "B",
+          "option_text": "S-P-K",
+          "is_correct": true
+        },
+        {
+          "option_label": "C",
+          "option_text": "S-P-O-K",
+          "is_correct": false
+        },
+        {
+          "option_label": "D",
+          "option_text": "S-P-Pel",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "subject": "Bahasa Indonesia",
+      "question_text": "Antonim dari kata 'besar' adalah...",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "option_label": "A",
+          "option_text": "Tinggi",
+          "is_correct": false
+        },
+        {
+          "option_label": "B",
+          "option_text": "Lebar",
+          "is_correct": false
+        },
+        {
+          "option_label": "C",
+          "option_text": "Kecil",
+          "is_correct": true
+        },
+        {
+          "option_label": "D",
+          "option_text": "Panjang",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "subject": "Bahasa Inggris",
+      "question_text": "The word 'beautiful' is a/an...",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "option_label": "A",
+          "option_text": "Noun",
+          "is_correct": false
+        },
+        {
+          "option_label": "B",
+          "option_text": "Verb",
+          "is_correct": false
+        },
+        {
+          "option_label": "C",
+          "option_text": "Adjective",
+          "is_correct": true
+        },
+        {
+          "option_label": "D",
+          "option_text": "Adverb",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "subject": "Bahasa Inggris",
+      "question_text": "Choose the correct form: 'She _____ to school every day.'",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "option_label": "A",
+          "option_text": "go",
+          "is_correct": false
+        },
+        {
+          "option_label": "B",
+          "option_text": "goes",
+          "is_correct": true
+        },
+        {
+          "option_label": "C",
+          "option_text": "going",
+          "is_correct": false
+        },
+        {
+          "option_label": "D",
+          "option_text": "gone",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "subject": "Bahasa Inggris",
+      "question_text": "What is the past tense of 'write'?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "option_label": "A",
+          "option_text": "wrote",
+          "is_correct": true
+        },
+        {
+          "option_label": "B",
+          "option_text": "written",
+          "is_correct": false
+        },
+        {
+          "option_label": "C",
+          "option_text": "writed",
+          "is_correct": false
+        },
+        {
+          "option_label": "D",
+          "option_text": "writing",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "subject": "Bahasa Inggris",
+      "question_text": "Which word is a synonym for 'happy'?",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "option_label": "A",
+          "option_text": "Sad",
+          "is_correct": false
+        },
+        {
+          "option_label": "B",
+          "option_text": "Joyful",
+          "is_correct": true
+        },
+        {
+          "option_label": "C",
+          "option_text": "Angry",
+          "is_correct": false
+        },
+        {
+          "option_label": "D",
+          "option_text": "Tired",
+          "is_correct": false
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "subject": "Bahasa Inggris",
+      "question_text": "Complete the sentence: 'I _____ a student.'",
+      "type": "multiple_choice",
+      "options": [
+        {
+          "option_label": "A",
+          "option_text": "am",
+          "is_correct": true
+        },
+        {
+          "option_label": "B",
+          "option_text": "is",
+          "is_correct": false
+        },
+        {
+          "option_label": "C",
+          "option_text": "are",
+          "is_correct": false
+        },
+        {
+          "option_label": "D",
+          "option_text": "be",
+          "is_correct": false
+        }
+      ]
+    }
+  ],
+  "test_config": {
+    "duration_minutes": 60,
+    "total_questions": 15,
+    "questions_per_subject": {
+      "Matematika": 5,
+      "Bahasa Indonesia": 5,
+      "Bahasa Inggris": 5
+    },
+    "scoring": {
+      "correct_answer": 20,
+      "max_score": 100
+    }
+  }
+}
