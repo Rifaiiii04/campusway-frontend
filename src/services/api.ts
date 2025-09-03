@@ -20,6 +20,7 @@ export interface Student {
   email?: string;
   phone?: string;
   parent_phone?: string;
+  password?: string;
   has_choice: boolean;
   chosen_major?: {
     id: number;
@@ -288,6 +289,56 @@ export const apiService = {
       throw new Error(
         data.message || "Gagal mengambil siswa yang belum memilih"
       );
+    }
+
+    return data;
+  },
+
+  // Add New Student
+  async addStudent(studentData: {
+    name: string;
+    nisn: string;
+    kelas: string;
+    email?: string;
+    phone?: string;
+    parent_phone?: string;
+    password: string;
+  }) {
+    const response = await fetch(`${API_BASE_URL}/students`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(studentData),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || "Gagal menambahkan siswa");
+    }
+
+    return data;
+  },
+
+  // Update Student
+  async updateStudent(studentId: number, studentData: {
+    name: string;
+    nisn: string;
+    kelas: string;
+    email?: string;
+    phone?: string;
+    parent_phone?: string;
+    password?: string;
+  }) {
+    const response = await fetch(`${API_BASE_URL}/students/${studentId}`, {
+      method: "PUT",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(studentData),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || "Gagal memperbarui data siswa");
     }
 
     return data;

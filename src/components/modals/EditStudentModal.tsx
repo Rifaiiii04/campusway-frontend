@@ -19,6 +19,9 @@ export default function EditStudentModal({
   darkMode,
 }: EditStudentModalProps) {
   const [editedStudent, setEditedStudent] = useState<Student | null>(null);
+  const [showPasswordSection, setShowPasswordSection] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   useEffect(() => {
     if (student) {
@@ -35,7 +38,29 @@ export default function EditStudentModal({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (editedStudent) {
-      onSave(editedStudent);
+      // If password section is shown and passwords are provided, include password
+      if (showPasswordSection && newPassword && confirmPassword) {
+        if (newPassword !== confirmPassword) {
+          alert("Password dan konfirmasi password tidak sama!");
+          return;
+        }
+        if (newPassword.length < 6) {
+          alert("Password minimal 6 karakter!");
+          return;
+        }
+        onSave({ ...editedStudent, password: newPassword });
+      } else {
+        onSave(editedStudent);
+      }
+    }
+  };
+
+  const handlePasswordChange = () => {
+    setShowPasswordSection(!showPasswordSection);
+    if (showPasswordSection) {
+      // Reset password fields when hiding section
+      setNewPassword("");
+      setConfirmPassword("");
     }
   };
 
@@ -244,6 +269,97 @@ export default function EditStudentModal({
                   }`}
                 />
               </div>
+            </div>
+
+            {/* Password Change Section */}
+            <div className="mt-8 mb-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3
+                  className={`text-lg font-semibold ${
+                    darkMode ? "text-gray-200" : "text-gray-800"
+                  }`}
+                >
+                  Ganti Password
+                </h3>
+                <button
+                  type="button"
+                  onClick={handlePasswordChange}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                    showPasswordSection
+                      ? "bg-red-100 text-red-700 hover:bg-red-200 border border-red-300"
+                      : "bg-blue-100 text-blue-700 hover:bg-blue-200 border border-blue-300"
+                  }`}
+                >
+                  {showPasswordSection ? "Batal" : "Ganti Password"}
+                </button>
+              </div>
+
+              {showPasswordSection && (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200">
+                  <div>
+                    <label
+                      className={`block text-sm font-semibold mb-2 ${
+                        darkMode ? "text-gray-200" : "text-gray-700"
+                      }`}
+                    >
+                      Password Baru <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="password"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      placeholder="Masukkan password baru (min. 6 karakter)"
+                      className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 ${
+                        darkMode
+                          ? "bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-300 hover:border-gray-500"
+                          : "bg-white border-gray-300 text-gray-900 placeholder-gray-500 hover:border-gray-400"
+                      }`}
+                    />
+                  </div>
+
+                  <div>
+                    <label
+                      className={`block text-sm font-semibold mb-2 ${
+                        darkMode ? "text-gray-200" : "text-gray-700"
+                      }`}
+                    >
+                      Konfirmasi Password <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="Konfirmasi password baru"
+                      className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 ${
+                        darkMode
+                          ? "bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-300 hover:border-gray-500"
+                          : "bg-white border-gray-300 text-gray-900 placeholder-gray-500 hover:border-gray-400"
+                      }`}
+                    />
+                  </div>
+
+                  <div className="lg:col-span-2">
+                    <div className="flex items-center space-x-2 text-sm text-blue-600">
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                      <span>
+                        Password minimal 6 karakter. Kosongkan jika tidak ingin mengubah password.
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </form>
         </div>
