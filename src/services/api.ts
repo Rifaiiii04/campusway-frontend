@@ -1,7 +1,65 @@
+import { clientCache, cacheKeys } from "@/utils/cache";
+import { apiPerformance } from "@/utils/performanceMonitor";
+
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:8000/api/school";
 
-const STUDENT_API_BASE_URL = "http://127.0.0.1:8000/api/web";
+const STUDENT_API_BASE_URL =
+  process.env.NEXT_PUBLIC_STUDENT_API_BASE_URL ||
+  "http://127.0.0.1:8000/api/optimized";
+
+// Enhanced fetch with caching and performance monitoring
+async function fetchWithCache<T>(
+  url: string,
+  options: RequestInit = {},
+  cacheKey?: string,
+  cacheTTL: number = 3 * 60 * 1000 // 3 minutes default
+): Promise<T> {
+  // Check cache first
+  if (cacheKey && clientCache.has(cacheKey)) {
+    const cachedData = clientCache.get<T>(cacheKey);
+    if (cachedData) {
+      console.log(`Cache hit for ${cacheKey}`);
+      return cachedData;
+    }
+  }
+
+  // Start performance monitoring
+  const endTiming = apiPerformance.startRequest(url);
+
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
+
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal,
+      headers: {
+        "Content-Type": "application/json",
+        ...options.headers,
+      },
+    });
+
+    clearTimeout(timeoutId);
+    endTiming();
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+
+    // Cache the response if cache key is provided
+    if (cacheKey && data.success !== false) {
+      clientCache.set(cacheKey, data, cacheTTL);
+    }
+
+    return data;
+  } catch (error) {
+    endTiming();
+    throw error;
+  }
+}
 
 // Types berdasarkan API documentation
 export interface School {
@@ -216,32 +274,48 @@ export const apiService = {
 
   // Get Dashboard Data
   async getDashboard(): Promise<{ success: boolean; data: DashboardData }> {
-    const response = await fetch(`${API_BASE_URL}/dashboard`, {
-      headers: getAuthHeaders(),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.message || "Gagal mengambil data dashboard");
+    const token = getToken();
+    if (!token) {
+      throw new Error("Token tidak ditemukan");
     }
 
-    return data;
+    const schoolData = localStorage.getItem("school_data");
+    const schoolId = schoolData ? JSON.parse(schoolData).id : "unknown";
+
+    return fetchWithCache(
+      `${API_BASE_URL}/dashboard`,
+      {
+        headers: {
+          ...getAuthHeaders(),
+          Authorization: `Bearer ${token}`,
+        },
+      },
+      cacheKeys.dashboard(schoolId),
+      5 * 60 * 1000 // 5 minutes cache
+    );
   },
 
   // Get All Students
   async getStudents(): Promise<{ success: boolean; data: StudentsResponse }> {
-    const response = await fetch(`${API_BASE_URL}/students`, {
-      headers: getAuthHeaders(),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.message || "Gagal mengambil data siswa");
+    const token = getToken();
+    if (!token) {
+      throw new Error("Token tidak ditemukan");
     }
 
-    return data;
+    const schoolData = localStorage.getItem("school_data");
+    const schoolId = schoolData ? JSON.parse(schoolData).id : "unknown";
+
+    return fetchWithCache(
+      `${API_BASE_URL}/students`,
+      {
+        headers: {
+          ...getAuthHeaders(),
+          Authorization: `Bearer ${token}`,
+        },
+      },
+      cacheKeys.students(schoolId),
+      3 * 60 * 1000 // 3 minutes cache
+    );
   },
 
   // Get Student Detail
@@ -320,15 +394,18 @@ export const apiService = {
   },
 
   // Update Student
-  async updateStudent(studentId: number, studentData: {
-    name: string;
-    nisn: string;
-    kelas: string;
-    email?: string;
-    phone?: string;
-    parent_phone?: string;
-    password?: string;
-  }) {
+  async updateStudent(
+    studentId: number,
+    studentData: {
+      name: string;
+      nisn: string;
+      kelas: string;
+      email?: string;
+      phone?: string;
+      parent_phone?: string;
+      password?: string;
+    }
+  ) {
     const response = await fetch(`${API_BASE_URL}/students/${studentId}`, {
       method: "PUT",
       headers: getAuthHeaders(),
@@ -424,19 +501,12 @@ export const studentApiService = {
   // Get All Active Majors
   async getMajors(): Promise<{ success: boolean; data: Major[] }> {
     try {
-      const response = await fetch(`${STUDENT_API_BASE_URL}/majors`);
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-
-      if (!data.success) {
-        throw new Error(data.message || "Gagal mengambil daftar jurusan");
-      }
-
-      return data;
+      return fetchWithCache(
+        `${STUDENT_API_BASE_URL}/majors`,
+        {},
+        cacheKeys.majors(),
+        10 * 60 * 1000 // 10 minutes cache (majors don't change often)
+      );
     } catch (error) {
       console.error("❌ Error in getMajors:", error);
 
@@ -455,15 +525,12 @@ export const studentApiService = {
   async getMajorDetails(
     majorId: number
   ): Promise<{ success: boolean; data: Major }> {
-    const response = await fetch(`${STUDENT_API_BASE_URL}/majors/${majorId}`);
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.message || "Gagal mengambil detail jurusan");
-    }
-
-    return data;
+    return fetchWithCache(
+      `${STUDENT_API_BASE_URL}/majors/${majorId}`,
+      {},
+      cacheKeys.majorDetails(majorId),
+      10 * 60 * 1000 // 10 minutes cache
+    );
   },
 
   // Choose Major
@@ -486,30 +553,17 @@ export const studentApiService = {
   },
 
   // Check Student's Major Status
-  async checkMajorStatus(
-    studentId: number
-  ): Promise<{
+  async checkMajorStatus(studentId: number): Promise<{
     success: boolean;
     data: { has_choice: boolean; selected_major_id: number | null };
   }> {
     try {
-      const response = await fetch(
-        `${STUDENT_API_BASE_URL}/major-status/${studentId}`
+      return fetchWithCache(
+        `${STUDENT_API_BASE_URL}/major-status/${studentId}`,
+        {},
+        cacheKeys.majorStatus(studentId),
+        1 * 60 * 1000 // 1 minute cache (status can change frequently)
       );
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-
-      if (!data.success) {
-        throw new Error(
-          data.message || "Gagal mengecek status pilihan jurusan"
-        );
-      }
-
-      return data;
     } catch (error) {
       console.error("❌ Error in checkMajorStatus:", error);
 
@@ -529,21 +583,12 @@ export const studentApiService = {
     studentId: number
   ): Promise<{ success: boolean; data: StudentChoice }> {
     try {
-      const response = await fetch(
-        `${STUDENT_API_BASE_URL}/student-choice/${studentId}`
+      return fetchWithCache(
+        `${STUDENT_API_BASE_URL}/student-choice/${studentId}`,
+        {},
+        cacheKeys.studentChoice(studentId),
+        2 * 60 * 1000 // 2 minutes cache
       );
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-
-      if (!data.success) {
-        throw new Error(data.message || "Gagal mengambil pilihan jurusan");
-      }
-
-      return data;
     } catch (error) {
       console.error("❌ Error in getStudentChoice:", error);
 

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { apiService } from "../../services/api";
 
 interface AddStudentModalProps {
   isOpen: boolean;
@@ -149,8 +148,8 @@ export default function AddStudentModal({
         onClose();
         setSuccess("");
       }, 2000);
-    } catch (err: any) {
-      setError(err.message || "Terjadi kesalahan saat menambahkan siswa");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Terjadi kesalahan saat menambahkan siswa");
     } finally {
       setLoading(false);
     }
