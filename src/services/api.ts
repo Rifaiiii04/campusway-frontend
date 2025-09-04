@@ -234,7 +234,7 @@ const getAuthHeaders = () => {
   const token = getToken();
   return {
     "Content-Type": "application/json",
-    ...(token && { Authorization: token }),
+    ...(token && { Authorization: `Bearer ${token}` }),
   };
 };
 
@@ -325,10 +325,7 @@ export const apiService = {
     return fetchWithCache(
       `${API_BASE_URL}/dashboard`,
       {
-        headers: {
-          ...getAuthHeaders(),
-          Authorization: `Bearer ${token}`,
-        },
+        headers: getAuthHeaders(),
       },
       cacheKeys.dashboard(schoolId),
       5 * 60 * 1000 // 5 minutes cache
@@ -348,10 +345,7 @@ export const apiService = {
     return fetchWithCache(
       `${API_BASE_URL}/students`,
       {
-        headers: {
-          ...getAuthHeaders(),
-          Authorization: `Bearer ${token}`,
-        },
+        headers: getAuthHeaders(),
       },
       cacheKeys.students(schoolId),
       3 * 60 * 1000 // 3 minutes cache
@@ -397,7 +391,13 @@ export const apiService = {
     const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
 
     try {
+      const token = getToken();
       console.log("🌐 Export API URL:", `${API_BASE_URL}/export-students`);
+      console.log("🔑 Token exists:", !!token);
+      console.log(
+        "🔑 Token value:",
+        token ? `${token.substring(0, 10)}...` : "null"
+      );
       console.log("🔑 Auth headers:", getAuthHeaders());
 
       const response = await fetch(`${API_BASE_URL}/export-students`, {

@@ -184,7 +184,12 @@ export default function TeacherDashboard() {
       const schoolData = localStorage.getItem("school_data");
 
       console.log("🔑 Token exists:", !!token);
+      console.log(
+        "🔑 Token value:",
+        token ? `${token.substring(0, 10)}...` : "null"
+      );
       console.log("🏫 School data exists:", !!schoolData);
+      console.log("🏫 School data:", schoolData);
 
       if (!token || !schoolData) {
         throw new Error(
