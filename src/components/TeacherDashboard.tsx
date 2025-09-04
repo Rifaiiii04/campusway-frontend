@@ -27,7 +27,9 @@ import {
   DashboardData,
   Student,
   MajorStatistics,
+  TkaSchedule,
 } from "../services/api";
+import TkaScheduleCard from "./TkaScheduleCard";
 
 // Interface untuk export data
 interface ExportStudentData {
@@ -84,6 +86,11 @@ export default function TeacherDashboard() {
   const [showAddStudentModal, setShowAddStudentModal] = useState(false);
   const [showAddClassModal, setShowAddClassModal] = useState(false);
   const [schoolId, setSchoolId] = useState<number | null>(null);
+
+  // TKA Schedules state
+  const [tkaSchedules, setTkaSchedules] = useState<TkaSchedule[]>([]);
+  const [upcomingSchedules, setUpcomingSchedules] = useState<TkaSchedule[]>([]);
+  const [loadingSchedules, setLoadingSchedules] = useState(false);
 
   // Dark mode detection and management
   useEffect(() => {
@@ -142,6 +149,34 @@ export default function TeacherDashboard() {
     } catch (err: unknown) {
       console.error("Error loading students:", err);
       setError(err instanceof Error ? err.message : "Gagal memuat data siswa");
+    }
+  };
+
+  // Load TKA Schedules
+  const loadTkaSchedules = async () => {
+    try {
+      setLoadingSchedules(true);
+      console.log("🔄 Loading TKA schedules...");
+
+      if (schoolId) {
+        const [schedulesResponse, upcomingResponse] = await Promise.all([
+          apiService.getTkaSchedules(schoolId),
+          apiService.getUpcomingTkaSchedules(schoolId),
+        ]);
+
+        setTkaSchedules(schedulesResponse.data);
+        setUpcomingSchedules(upcomingResponse.data);
+        console.log("✅ TKA schedules loaded:", schedulesResponse.data.length);
+        console.log(
+          "✅ Upcoming schedules loaded:",
+          upcomingResponse.data.length
+        );
+      }
+    } catch (err: unknown) {
+      console.error("❌ Error loading TKA schedules:", err);
+      setError(err instanceof Error ? err.message : "Gagal memuat jadwal TKA");
+    } finally {
+      setLoadingSchedules(false);
     }
   };
 
@@ -457,6 +492,11 @@ export default function TeacherDashboard() {
       // Load major statistics
       const majorStatsResponse = await apiService.getMajorStatistics();
       setMajorStatistics(majorStatsResponse.data.major_statistics);
+
+      // Load TKA schedules after schoolId is set
+      if (dashboardResponse.data.school.id) {
+        await loadTkaSchedules();
+      }
     } catch (err: unknown) {
       console.error("Error loading data:", err);
       setError(err instanceof Error ? err.message : "Gagal memuat data");
@@ -469,6 +509,7 @@ export default function TeacherDashboard() {
     { id: "dashboard", label: "Dashboard", icon: "📊", path: "/teacher" },
     { id: "students", label: "Data Siswa", icon: "👥", path: "/teacher" },
     { id: "classes", label: "Kelas", icon: "🏫", path: "/teacher" },
+    { id: "tka-schedules", label: "Jadwal TKA", icon: "🗓️", path: "/teacher" },
     { id: "tests", label: "Tes & Hasil", icon: "📝", path: "/teacher" },
     { id: "reports", label: "Laporan", icon: "📋", path: "/teacher" },
     { id: "settings", label: "Pengaturan", icon: "⚙️", path: "/teacher" },
@@ -500,6 +541,91 @@ export default function TeacherDashboard() {
             darkMode={darkMode}
             onAddClass={openAddClassModal}
           />
+        );
+      case "tka-schedules":
+        return (
+          <div className="space-y-6">
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900">
+                    Jadwal TKA
+                  </h2>
+                  <p className="text-gray-600">
+                    Jadwal pelaksanaan Tes Kemampuan Akademik
+                  </p>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="text-sm text-gray-500">
+                    Total: {tkaSchedules.length} jadwal
+                  </div>
+                  <div className="text-sm text-blue-600 font-medium">
+                    Mendatang: {upcomingSchedules.length} jadwal
+                  </div>
+                </div>
+              </div>
+
+              {loadingSchedules ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                  <span className="ml-2 text-gray-600">
+                    Memuat jadwal TKA...
+                  </span>
+                </div>
+              ) : upcomingSchedules.length > 0 ? (
+                <div className="grid gap-6">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                      <span className="text-blue-600">📅</span>
+                      Jadwal Mendatang
+                    </h3>
+                    <div className="grid gap-4">
+                      {upcomingSchedules.map((schedule) => (
+                        <TkaScheduleCard
+                          key={schedule.id}
+                          schedule={schedule}
+                          showActions={false}
+                        />
+                      ))}
+                    </div>
+                  </div>
+
+                  {tkaSchedules.length > upcomingSchedules.length && (
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                        <span className="text-gray-600">📋</span>
+                        Semua Jadwal
+                      </h3>
+                      <div className="grid gap-4">
+                        {tkaSchedules
+                          .filter(
+                            (s) => !upcomingSchedules.some((u) => u.id === s.id)
+                          )
+                          .map((schedule) => (
+                            <TkaScheduleCard
+                              key={schedule.id}
+                              schedule={schedule}
+                              showActions={false}
+                            />
+                          ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <div className="text-6xl mb-4">📅</div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                    Belum ada jadwal TKA
+                  </h3>
+                  <p className="text-gray-500">
+                    Jadwal TKA akan muncul di sini setelah dibuat oleh Super
+                    Admin
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
         );
       case "tests":
         return <TestsContent students={students} darkMode={darkMode} />;

@@ -213,6 +213,29 @@ export interface StudentChoice {
   chosen_at: string;
 }
 
+// TKA Schedule interfaces
+export interface TkaSchedule {
+  id: number;
+  title: string;
+  description?: string;
+  start_date: string;
+  end_date: string;
+  status: "scheduled" | "ongoing" | "completed" | "cancelled";
+  type: "regular" | "makeup" | "special";
+  instructions?: string;
+  target_schools?: number[] | null;
+  is_active: boolean;
+  created_by?: string;
+  created_at: string;
+  updated_at: string;
+  // Accessors
+  formatted_start_date?: string;
+  formatted_end_date?: string;
+  duration?: string;
+  status_badge?: string;
+  type_badge?: string;
+}
+
 // Helper function untuk mendapatkan token
 const getToken = (): string | null => {
   if (typeof window !== "undefined") {
@@ -797,6 +820,73 @@ export const schoolLevelApiService = {
       );
     } catch (error) {
       console.error("❌ Error in getSchoolLevelStats:", error);
+      throw error;
+    }
+  },
+
+  // TKA Schedules API
+  async getTkaSchedules(
+    schoolId?: number
+  ): Promise<{ success: boolean; data: TkaSchedule[] }> {
+    try {
+      const url = schoolId
+        ? `${API_BASE_URL.replace(
+            "/school",
+            ""
+          )}/tka-schedules?school_id=${schoolId}`
+        : `${API_BASE_URL.replace("/school", "")}/tka-schedules`;
+
+      console.log("🌐 TKA Schedules API URL:", url);
+
+      const response = await fetch(url, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("📅 TKA Schedules response:", data);
+
+      return data;
+    } catch (error: unknown) {
+      console.error("❌ TKA Schedules API error:", error);
+      throw error;
+    }
+  },
+
+  async getUpcomingTkaSchedules(
+    schoolId?: number
+  ): Promise<{ success: boolean; data: TkaSchedule[] }> {
+    try {
+      const url = schoolId
+        ? `${API_BASE_URL.replace(
+            "/school",
+            ""
+          )}/tka-schedules/upcoming?school_id=${schoolId}`
+        : `${API_BASE_URL.replace("/school", "")}/tka-schedules/upcoming`;
+
+      console.log("🌐 Upcoming TKA Schedules API URL:", url);
+
+      const response = await fetch(url, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("📅 Upcoming TKA Schedules response:", data);
+
+      return data;
+    } catch (error: unknown) {
+      console.error("❌ Upcoming TKA Schedules API error:", error);
       throw error;
     }
   },

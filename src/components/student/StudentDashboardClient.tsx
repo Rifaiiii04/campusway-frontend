@@ -8,7 +8,8 @@ import React, {
   useRef,
 } from "react";
 import { useRouter } from "next/navigation";
-import { studentApiService, Major } from "@/services/api";
+import { studentApiService, Major, TkaSchedule } from "@/services/api";
+import TkaScheduleCard from "../TkaScheduleCard";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useApi } from "@/hooks/useApi";
 import { LoadingSpinner, SkeletonLoader } from "@/components/ui/LoadingSpinner";
@@ -73,6 +74,11 @@ export default function StudentDashboardClient() {
     parent_phone: "",
   });
 
+  // TKA Schedules state
+  const [tkaSchedules, setTkaSchedules] = useState<TkaSchedule[]>([]);
+  const [upcomingSchedules, setUpcomingSchedules] = useState<TkaSchedule[]>([]);
+  const [loadingSchedules, setLoadingSchedules] = useState(false);
+
   // Debounced search query
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
@@ -117,6 +123,30 @@ export default function StudentDashboardClient() {
     return filtered;
   }, [availableMajors?.data, debouncedSearchQuery, selectedCategory]);
 
+  // Load TKA Schedules
+  const loadTkaSchedules = useCallback(async () => {
+    try {
+      setLoadingSchedules(true);
+      console.log("🔄 Loading TKA schedules...");
+      
+      // Load all schedules and upcoming schedules
+      const [schedulesResponse, upcomingResponse] = await Promise.all([
+        studentApiService.getTkaSchedules(),
+        studentApiService.getUpcomingTkaSchedules()
+      ]);
+      
+      setTkaSchedules(schedulesResponse.data);
+      setUpcomingSchedules(upcomingResponse.data);
+      console.log("✅ TKA schedules loaded:", schedulesResponse.data.length);
+      console.log("✅ Upcoming schedules loaded:", upcomingResponse.data.length);
+    } catch (error) {
+      console.error("❌ Error loading TKA schedules:", error);
+      // Don't set error state for schedules as it's not critical
+    } finally {
+      setLoadingSchedules(false);
+    }
+  }, []);
+
   // Authentication check
   const checkAuthentication = useCallback(async () => {
     if (hasInitialized.current) return;
@@ -134,7 +164,11 @@ export default function StudentDashboardClient() {
         setIsAuthenticated(true);
 
         // Load data in parallel
-        await Promise.all([loadMajors(), loadMajorStatus(parsedData)]);
+        await Promise.all([
+          loadMajors(), 
+          loadMajorStatus(parsedData),
+          loadTkaSchedules()
+        ]);
       } else {
         router.push("/student");
       }
@@ -691,6 +725,81 @@ export default function StudentDashboardClient() {
             </div>
           </div>
         </div>
+
+        {/* TKA Schedules Notification */}
+        {upcomingSchedules.length > 0 && (
+          <div className="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl sm:rounded-3xl shadow-2xl p-6 sm:p-8 mb-6 sm:mb-8 border border-white/20">
+            <div className="text-center mb-6">
+              <div className="flex items-center justify-center mb-4">
+                <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
+                  <span className="text-3xl">📅</span>
+                </div>
+              </div>
+              <h3 className="text-2xl sm:text-3xl font-bold text-white mb-2">
+                Jadwal TKA Mendatang
+              </h3>
+              <p className="text-blue-100 text-base sm:text-lg">
+                Ada {upcomingSchedules.length} jadwal TKA yang akan datang
+              </p>
+            </div>
+            
+            <div className="space-y-4">
+              {upcomingSchedules.slice(0, 2).map((schedule) => (
+                <div key={schedule.id} className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="font-semibold text-white text-lg">{schedule.title}</h4>
+                      <p className="text-blue-100 text-sm">
+                        {new Date(schedule.start_date).toLocaleDateString('id-ID', {
+                          weekday: 'long',
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric'
+                        })}
+                      </p>
+                      <p className="text-blue-100 text-sm">
+                        {new Date(schedule.start_date).toLocaleTimeString('id-ID', {
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })} - {new Date(schedule.end_date).toLocaleTimeString('id-ID', {
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                        schedule.type === 'regular' ? 'bg-blue-100 text-blue-800' :
+                        schedule.type === 'makeup' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-purple-100 text-purple-800'
+                      }`}>
+                        {schedule.type === 'regular' ? 'Reguler' :
+                         schedule.type === 'makeup' ? 'Susulan' :
+                         'Khusus'}
+                      </span>
+                    </div>
+                  </div>
+                  {schedule.instructions && (
+                    <div className="mt-3 bg-white/10 rounded-lg p-3">
+                      <p className="text-blue-100 text-sm">
+                        <span className="font-medium">Instruksi: </span>
+                        {schedule.instructions}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+            
+            {upcomingSchedules.length > 2 && (
+              <div className="text-center mt-4">
+                <p className="text-blue-100 text-sm">
+                  +{upcomingSchedules.length - 2} jadwal lainnya
+                </p>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Search Section */}
         <div className="bg-white/70 backdrop-blur-sm rounded-2xl sm:rounded-3xl shadow-2xl p-6 sm:p-8 mb-6 sm:mb-8 border border-white/20">
