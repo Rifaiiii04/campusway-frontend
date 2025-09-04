@@ -6,7 +6,6 @@ import React, {
   useCallback,
   useMemo,
   useRef,
-  memo,
 } from "react";
 import { useRouter } from "next/navigation";
 import { studentApiService, Major } from "@/services/api";
@@ -346,7 +345,9 @@ export default function StudentDashboardClient() {
 
   // Optimized settings handler
   const handleSettingsClick = useCallback(() => {
-    console.log("🔧 Settings button clicked, setting showSettings to true");
+    if (process.env.NODE_ENV === "development") {
+      console.log("🔧 Settings button clicked, setting showSettings to true");
+    }
     setShowSettings(true);
   }, []);
 
@@ -369,16 +370,18 @@ export default function StudentDashboardClient() {
 
   // Debug useEffect for monitoring state changes (throttled)
   useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      console.log("🔍 State changes:", {
-        showSettings,
-        appliedMajors: appliedMajors.length,
-        studentData: studentData?.name,
-        loading,
-      });
-    }, 100); // Throttle logging
+    if (process.env.NODE_ENV === "development") {
+      const timeoutId = setTimeout(() => {
+        console.log("🔍 State changes:", {
+          showSettings,
+          appliedMajors: appliedMajors.length,
+          studentData: studentData?.name,
+          loading,
+        });
+      }, 100); // Throttle logging
 
-    return () => clearTimeout(timeoutId);
+      return () => clearTimeout(timeoutId);
+    }
   }, [showSettings, appliedMajors, studentData, loading]);
 
   // Handle password change
@@ -1414,7 +1417,7 @@ export default function StudentDashboardClient() {
 
         {/* Settings Modal - Lazy rendered */}
         {showSettings && (
-          <div 
+          <div
             className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
             onClick={(e) => {
               if (e.target === e.currentTarget) {
