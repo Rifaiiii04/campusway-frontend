@@ -6,6 +6,7 @@ import React, {
   useCallback,
   useMemo,
   useRef,
+  memo,
 } from "react";
 import { useRouter } from "next/navigation";
 import { studentApiService, Major } from "@/services/api";
@@ -55,6 +56,18 @@ export default function StudentDashboardClient() {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  const [showChangePassword, setShowChangePassword] = useState(false);
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [passwordError, setPasswordError] = useState("");
+  const [passwordSuccess, setPasswordSuccess] = useState("");
+  const [loadingPassword, setLoadingPassword] = useState(false);
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [settingsData, setSettingsData] = useState({
     email: "",
     phone: "",
@@ -171,6 +184,8 @@ export default function StudentDashboardClient() {
   const loadStudentChoice = useCallback(async (studentData: StudentData) => {
     if (!studentData?.id) return;
 
+    console.log("🔍 Loading student choice for student ID:", studentData.id);
+
     try {
       const response = await studentApiService.getStudentChoice(studentData.id);
 
@@ -184,11 +199,17 @@ export default function StudentDashboardClient() {
             "id-ID"
           ),
         };
+
+        console.log("✅ Setting applied majors:", [appliedMajor]);
         setAppliedMajors([appliedMajor]);
         setSelectedMajorId(response.data.major.id);
+      } else {
+        console.log("ℹ️ No student choice found");
+        setAppliedMajors([]);
       }
     } catch (error) {
-      console.error("Error loading student choice:", error);
+      console.error("❌ Error loading student choice:", error);
+      setAppliedMajors([]);
     }
   }, []);
 
@@ -241,11 +262,13 @@ export default function StudentDashboardClient() {
         }
 
         endTiming();
-      } catch (error: any) {
-        if (error.message.includes("sudah memilih jurusan sebelumnya")) {
+      } catch (error: unknown) {
+        const errorMessage =
+          error instanceof Error ? error.message : "Gagal memilih jurusan";
+        if (errorMessage.includes("sudah memilih jurusan sebelumnya")) {
           await handleChangeMajor(major);
         } else {
-          showSuccessNotification(error.message || "Gagal memilih jurusan");
+          showSuccessNotification(errorMessage);
         }
       }
     },
@@ -281,10 +304,12 @@ export default function StudentDashboardClient() {
         }
 
         endTiming();
-      } catch (error: any) {
-        showSuccessNotification(
-          error.message || "Gagal mengubah pilihan jurusan"
-        );
+      } catch (error: unknown) {
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : "Gagal mengubah pilihan jurusan";
+        showSuccessNotification(errorMessage);
       }
     },
     [studentData, startTiming]
@@ -318,6 +343,130 @@ export default function StudentDashboardClient() {
       setShowSuccessAnimation(false);
     }, 3000);
   }, []);
+
+  // Optimized settings handler
+  const handleSettingsClick = useCallback(() => {
+    console.log("🔧 Settings button clicked, setting showSettings to true");
+    setShowSettings(true);
+  }, []);
+
+  // Optimized close settings handler
+  const handleCloseSettings = useCallback(() => {
+    setShowSettings(false);
+  }, []);
+
+  // Optimized cancel password change handler
+  const handleCancelPasswordChange = useCallback(() => {
+    setShowChangePassword(false);
+    setPasswordData({
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    });
+    setPasswordError("");
+    setPasswordSuccess("");
+  }, []);
+
+  // Debug useEffect for monitoring state changes (throttled)
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      console.log("🔍 State changes:", {
+        showSettings,
+        appliedMajors: appliedMajors.length,
+        studentData: studentData?.name,
+        loading,
+      });
+    }, 100); // Throttle logging
+
+    return () => clearTimeout(timeoutId);
+  }, [showSettings, appliedMajors, studentData, loading]);
+
+  // Handle password change
+  const handlePasswordChange = useCallback(async () => {
+    setPasswordError("");
+    setPasswordSuccess("");
+
+    // Validation
+    if (!passwordData.currentPassword) {
+      setPasswordError("Password lama harus diisi");
+      return;
+    }
+
+    if (!passwordData.newPassword) {
+      setPasswordError("Password baru harus diisi");
+      return;
+    }
+
+    if (passwordData.newPassword.length < 6) {
+      setPasswordError("Password baru minimal 6 karakter");
+      return;
+    }
+
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      setPasswordError("Password baru dan konfirmasi password tidak sama");
+      return;
+    }
+
+    if (passwordData.currentPassword === passwordData.newPassword) {
+      setPasswordError("Password baru harus berbeda dengan password lama");
+      return;
+    }
+
+    setLoadingPassword(true);
+
+    try {
+      // Simulate API call - replace with actual API endpoint
+      const response = await fetch("/api/change-password", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          currentPassword: passwordData.currentPassword,
+          newPassword: passwordData.newPassword,
+        }),
+      });
+
+      if (response.ok) {
+        setPasswordSuccess("Password berhasil diubah!");
+        setPasswordData({
+          currentPassword: "",
+          newPassword: "",
+          confirmPassword: "",
+        });
+        setShowChangePassword(false);
+
+        // Show success notification
+        showSuccessNotification("Password berhasil diubah!");
+      } else {
+        const errorData = await response.json();
+        setPasswordError(errorData.message || "Gagal mengubah password");
+      }
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Terjadi kesalahan saat mengubah password";
+      setPasswordError(errorMessage);
+    } finally {
+      setLoadingPassword(false);
+    }
+  }, [passwordData, showSuccessNotification]);
+
+  // Handle password input change
+  const handlePasswordInputChange = useCallback(
+    (field: string, value: string) => {
+      setPasswordData((prev) => ({
+        ...prev,
+        [field]: value,
+      }));
+
+      // Clear errors when user starts typing
+      if (passwordError) setPasswordError("");
+      if (passwordSuccess) setPasswordSuccess("");
+    },
+    [passwordError, passwordSuccess]
+  );
 
   // Handle logout
   const handleLogout = useCallback(() => {
@@ -385,7 +534,7 @@ export default function StudentDashboardClient() {
             </div>
             <div className="flex items-center space-x-2 sm:space-x-3">
               <button
-                onClick={() => setShowSettings(true)}
+                onClick={handleSettingsClick}
                 className="flex items-center px-3 sm:px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg sm:rounded-xl transition-all duration-200 hover:scale-105"
               >
                 <svg
@@ -475,9 +624,66 @@ export default function StudentDashboardClient() {
                     {studentData.school_name}
                   </p>
                 )}
+                {/* Jurusan yang dipilih */}
+                {appliedMajors.length > 0 ? (
+                  <div className="mt-3 p-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
+                    <p className="text-green-800 text-sm font-medium mb-1 flex items-center">
+                      <svg
+                        className="w-4 h-4 mr-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                      Jurusan yang Dipilih:
+                    </p>
+                    <div className="space-y-1">
+                      {appliedMajors.map((appliedMajor, index) => (
+                        <p key={index} className="text-green-700 text-sm">
+                          <span className="font-medium">
+                            {index + 1}. {appliedMajor.major_name}
+                          </span>
+                          <span className="ml-2 px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">
+                            {appliedMajor.category}
+                          </span>
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="mt-3 p-3 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg border border-blue-200">
+                    <p className="text-blue-800 text-sm font-medium flex items-center">
+                      <svg
+                        className="w-4 h-4 mr-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                      Belum memilih jurusan
+                    </p>
+                    <p className="text-blue-600 text-xs mt-1">
+                      Jelajahi daftar jurusan di bawah untuk memilih yang sesuai
+                    </p>
+                  </div>
+                )}
               </div>
               <p className="text-gray-500 text-sm sm:text-base mt-2">
-                Mari temukan jurusan yang sesuai dengan minat dan bakatmu
+                {appliedMajors.length > 0
+                  ? "Selamat! Kamu sudah memilih jurusan impianmu"
+                  : "Mari temukan jurusan yang sesuai dengan minat dan bakatmu"}
               </p>
             </div>
           </div>
@@ -1197,6 +1403,622 @@ export default function StudentDashboardClient() {
                   <button
                     onClick={() => setShowMajorDetail(false)}
                     className="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors"
+                  >
+                    Tutup
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Settings Modal - Lazy rendered */}
+        {showSettings && (
+          <div 
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) {
+                setShowSettings(false);
+              }
+            }}
+          >
+            <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-white/20">
+              {/* Modal Header */}
+              <div className="sticky top-0 bg-gradient-to-r from-purple-50 to-pink-50 border-b border-gray-200 rounded-t-2xl px-6 py-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+                      <svg
+                        className="w-6 h-6 text-white"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                        />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                        />
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 className="text-2xl font-bold text-gray-900">
+                        Pengaturan
+                      </h3>
+                      <p className="text-gray-600 text-sm">
+                        Kelola pengaturan akun dan preferensi
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={handleCloseSettings}
+                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    <svg
+                      className="w-6 h-6 text-gray-500"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              {/* Modal Content */}
+              <div className="p-6 space-y-6">
+                {/* Profile Information */}
+                <div>
+                  <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                    <svg
+                      className="w-5 h-5 mr-2 text-blue-500"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                      />
+                    </svg>
+                    Informasi Profil
+                  </h4>
+                  <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Nama Lengkap
+                        </label>
+                        <p className="text-gray-900 font-medium">
+                          {studentData?.name || "Tidak tersedia"}
+                        </p>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          NISN
+                        </label>
+                        <p className="text-gray-900 font-medium">
+                          {studentData?.nisn || "Tidak tersedia"}
+                        </p>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Kelas
+                        </label>
+                        <p className="text-gray-900 font-medium">
+                          {studentData?.class ||
+                            studentData?.kelas ||
+                            "Belum ditentukan"}
+                        </p>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Sekolah
+                        </label>
+                        <p className="text-gray-900 font-medium">
+                          {studentData?.school_name || "Tidak tersedia"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Major Selection Status */}
+                <div>
+                  <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                    <svg
+                      className="w-5 h-5 mr-2 text-green-500"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                      />
+                    </svg>
+                    Status Pilihan Jurusan
+                  </h4>
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    {appliedMajors.length > 0 ? (
+                      <div className="space-y-3">
+                        <div className="flex items-center text-green-600">
+                          <svg
+                            className="w-5 h-5 mr-2"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
+                          </svg>
+                          <span className="font-medium">
+                            Sudah memilih jurusan
+                          </span>
+                        </div>
+                        <div className="space-y-2">
+                          {appliedMajors.map((appliedMajor, index) => (
+                            <div
+                              key={index}
+                              className="flex items-center justify-between bg-white rounded-lg p-3 border border-gray-200"
+                            >
+                              <div>
+                                <p className="font-medium text-gray-900">
+                                  {appliedMajor.major_name}
+                                </p>
+                                <p className="text-sm text-gray-600">
+                                  Kategori: {appliedMajor.category}
+                                </p>
+                              </div>
+                              <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+                                Dipilih
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex items-center text-blue-600">
+                        <svg
+                          className="w-5 h-5 mr-2"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
+                        </svg>
+                        <span className="font-medium">
+                          Belum memilih jurusan
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Change Password */}
+                <div>
+                  <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                    <svg
+                      className="w-5 h-5 mr-2 text-yellow-500"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"
+                      />
+                    </svg>
+                    <span className="text-black"> Ganti Password</span>
+                  </h4>
+
+                  {!showChangePassword ? (
+                    <div className="bg-gray-50 rounded-lg p-4">
+                      <p className="text-gray-600 text-sm mb-3">
+                        Untuk keamanan akun Anda, disarankan untuk mengganti
+                        password secara berkala.
+                      </p>
+                      <button
+                        onClick={() => setShowChangePassword(true)}
+                        className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white px-4 py-2 rounded-lg transition-all duration-200 flex items-center shadow-lg hover:shadow-xl hover:scale-105"
+                      >
+                        <svg
+                          className="w-4 h-4 mr-2"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"
+                          />
+                        </svg>
+                        Ganti Password
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="bg-gray-50 rounded-lg p-4 space-y-4">
+                      {/* Current Password */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Password Lama
+                        </label>
+                        <div className="relative">
+                          <input
+                            type={showCurrentPassword ? "text" : "password"}
+                            value={passwordData.currentPassword}
+                            onChange={(e) =>
+                              handlePasswordInputChange(
+                                "currentPassword",
+                                e.target.value
+                              )
+                            }
+                            className="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent text-black transition-all duration-200"
+                            placeholder="Masukkan password lama"
+                          />
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setShowCurrentPassword(!showCurrentPassword)
+                            }
+                            className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600 transition-colors duration-200"
+                          >
+                            {showCurrentPassword ? (
+                              <svg
+                                className="h-5 w-5"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"
+                                />
+                              </svg>
+                            ) : (
+                              <svg
+                                className="h-5 w-5"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                                />
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                                />
+                              </svg>
+                            )}
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* New Password */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Password Baru
+                        </label>
+                        <div className="relative">
+                          <input
+                            type={showNewPassword ? "text" : "password"}
+                            value={passwordData.newPassword}
+                            onChange={(e) =>
+                              handlePasswordInputChange(
+                                "newPassword",
+                                e.target.value
+                              )
+                            }
+                            className="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent text-black transition-all duration-200"
+                            placeholder="Masukkan password baru (minimal 6 karakter)"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowNewPassword(!showNewPassword)}
+                            className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600 transition-colors duration-200"
+                          >
+                            {showNewPassword ? (
+                              <svg
+                                className="h-5 w-5"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"
+                                />
+                              </svg>
+                            ) : (
+                              <svg
+                                className="h-5 w-5"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                                />
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                                />
+                              </svg>
+                            )}
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Confirm Password */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Konfirmasi Password Baru
+                        </label>
+                        <div className="relative">
+                          <input
+                            type={showConfirmPassword ? "text" : "password"}
+                            value={passwordData.confirmPassword}
+                            onChange={(e) =>
+                              handlePasswordInputChange(
+                                "confirmPassword",
+                                e.target.value
+                              )
+                            }
+                            className="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent text-black transition-all duration-200"
+                            placeholder="Ulangi password baru"
+                          />
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setShowConfirmPassword(!showConfirmPassword)
+                            }
+                            className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600 transition-colors duration-200"
+                          >
+                            {showConfirmPassword ? (
+                              <svg
+                                className="h-5 w-5"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"
+                                />
+                              </svg>
+                            ) : (
+                              <svg
+                                className="h-5 w-5"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                                />
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                                />
+                              </svg>
+                            )}
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Error Message */}
+                      {passwordError && (
+                        <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                          <div className="flex">
+                            <div className="flex-shrink-0">
+                              <svg
+                                className="h-5 w-5 text-red-400"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                />
+                              </svg>
+                            </div>
+                            <div className="ml-3">
+                              <p className="text-sm text-red-600">
+                                {passwordError}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Success Message */}
+                      {passwordSuccess && (
+                        <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                          <div className="flex">
+                            <div className="flex-shrink-0">
+                              <svg
+                                className="h-5 w-5 text-green-400"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                                />
+                              </svg>
+                            </div>
+                            <div className="ml-3">
+                              <p className="text-sm text-green-600">
+                                {passwordSuccess}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Action Buttons */}
+                      <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                        <button
+                          onClick={handlePasswordChange}
+                          disabled={loadingPassword}
+                          className="flex-1 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white px-4 py-2 rounded-lg transition-all duration-200 flex items-center justify-center shadow-lg hover:shadow-xl hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {loadingPassword ? (
+                            <svg
+                              className="animate-spin w-4 h-4 mr-2"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                            >
+                              <circle
+                                className="opacity-25"
+                                cx="12"
+                                cy="12"
+                                r="10"
+                                stroke="currentColor"
+                                strokeWidth="4"
+                              ></circle>
+                              <path
+                                className="opacity-75"
+                                fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                              ></path>
+                            </svg>
+                          ) : (
+                            <svg
+                              className="w-4 h-4 mr-2"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1721 9z"
+                              />
+                            </svg>
+                          )}
+                          {loadingPassword
+                            ? "Mengubah Password..."
+                            : "Ubah Password"}
+                        </button>
+                        <button
+                          onClick={handleCancelPasswordChange}
+                          className="px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                        >
+                          Batal
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Account Actions */}
+                <div>
+                  <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                    <svg
+                      className="w-5 h-5 mr-2 text-red-500"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                      />
+                    </svg>
+                    Aksi Akun
+                  </h4>
+                  <div className="space-y-3">
+                    <button
+                      onClick={handleLogout}
+                      className="w-full bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white px-6 py-3 rounded-xl transition-all duration-200 flex items-center justify-center shadow-lg hover:shadow-xl hover:scale-105"
+                    >
+                      <svg
+                        className="w-5 h-5 mr-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                        />
+                      </svg>
+                      Keluar dari Akun
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Modal Footer */}
+              <div className="sticky bottom-0 bg-gray-50 border-t border-gray-200 rounded-b-2xl px-6 py-4">
+                <div className="flex justify-end">
+                  <button
+                    onClick={handleCloseSettings}
+                    className="px-6 py-2 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
                   >
                     Tutup
                   </button>
