@@ -15,6 +15,31 @@ export default function StudentDetailModal({
   student,
   darkMode,
 }: StudentDetailModalProps) {
+  // Helper function to format subjects with proper spacing
+  const formatSubjects = (subjects: string | string[] | null | undefined) => {
+    if (!subjects) return "";
+
+    if (Array.isArray(subjects)) {
+      return subjects.join(", ");
+    }
+
+    if (typeof subjects === "string") {
+      // If it's a JSON string, try to parse it
+      try {
+        const parsed = JSON.parse(subjects);
+        if (Array.isArray(parsed)) {
+          return parsed.join(", ");
+        }
+      } catch (e) {
+        // If parsing fails, return as is
+        return subjects;
+      }
+
+      return subjects;
+    }
+
+    return "";
+  };
   if (!isOpen || !student) return null;
 
   return (
@@ -433,7 +458,7 @@ export default function StudentDetailModal({
                           darkMode ? "text-gray-300" : "text-gray-700"
                         }`}
                       >
-                        {student.chosen_major.required_subjects}
+                        {formatSubjects(student.chosen_major.required_subjects)}
                       </p>
                     </div>
                   )}
@@ -452,7 +477,9 @@ export default function StudentDetailModal({
                           darkMode ? "text-gray-300" : "text-gray-700"
                         }`}
                       >
-                        {student.chosen_major.preferred_subjects}
+                        {formatSubjects(
+                          student.chosen_major.preferred_subjects
+                        )}
                       </p>
                     </div>
                   )}
@@ -471,7 +498,9 @@ export default function StudentDetailModal({
                           darkMode ? "text-gray-300" : "text-gray-700"
                         }`}
                       >
-                        {student.chosen_major.kurikulum_merdeka_subjects}
+                        {formatSubjects(
+                          student.chosen_major.kurikulum_merdeka_subjects
+                        )}
                       </p>
                     </div>
                   )}
@@ -490,7 +519,9 @@ export default function StudentDetailModal({
                           darkMode ? "text-gray-300" : "text-gray-700"
                         }`}
                       >
-                        {student.chosen_major.kurikulum_2013_ipa_subjects}
+                        {formatSubjects(
+                          student.chosen_major.kurikulum_2013_ipa_subjects
+                        )}
                       </p>
                     </div>
                   )}
@@ -509,7 +540,9 @@ export default function StudentDetailModal({
                           darkMode ? "text-gray-300" : "text-gray-700"
                         }`}
                       >
-                        {student.chosen_major.kurikulum_2013_ips_subjects}
+                        {formatSubjects(
+                          student.chosen_major.kurikulum_2013_ips_subjects
+                        )}
                       </p>
                     </div>
                   )}
@@ -528,7 +561,9 @@ export default function StudentDetailModal({
                           darkMode ? "text-gray-300" : "text-gray-700"
                         }`}
                       >
-                        {student.chosen_major.kurikulum_2013_bahasa_subjects}
+                        {formatSubjects(
+                          student.chosen_major.kurikulum_2013_bahasa_subjects
+                        )}
                       </p>
                     </div>
                   )}

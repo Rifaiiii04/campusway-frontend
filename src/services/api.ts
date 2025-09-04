@@ -8,6 +8,10 @@ const STUDENT_API_BASE_URL =
   process.env.NEXT_PUBLIC_STUDENT_API_BASE_URL ||
   "http://127.0.0.1:8000/api/web";
 
+const SCHOOL_LEVEL_API_BASE_URL =
+  process.env.NEXT_PUBLIC_SCHOOL_LEVEL_API_BASE_URL ||
+  "http://127.0.0.1:8000/api/school-level";
+
 // Debug logging
 console.log("🔧 STUDENT_API_BASE_URL:", STUDENT_API_BASE_URL);
 console.log(
@@ -733,5 +737,67 @@ export const studentApiService = {
     }
 
     return data;
+  },
+};
+
+// School Level API Service
+export const schoolLevelApiService = {
+  // Get major recommendations by school level
+  async getMajorsBySchoolLevel(
+    schoolLevel: "SMA/MA" | "SMK/MAK" = "SMA/MA"
+  ): Promise<{
+    success: boolean;
+    data: any[];
+    school_level: string;
+    total_subjects: number;
+  }> {
+    try {
+      return fetchWithCache(
+        `${SCHOOL_LEVEL_API_BASE_URL}/majors?school_level=${schoolLevel}`,
+        {},
+        `majors_${schoolLevel}`,
+        5 * 60 * 1000 // 5 minutes cache
+      );
+    } catch (error) {
+      console.error("❌ Error in getMajorsBySchoolLevel:", error);
+      throw error;
+    }
+  },
+
+  // Get subjects by school level
+  async getSubjectsBySchoolLevel(
+    schoolLevel: "SMA/MA" | "SMK/MAK" = "SMA/MA"
+  ): Promise<{
+    success: boolean;
+    data: any[];
+    school_level: string;
+    total: number;
+  }> {
+    try {
+      return fetchWithCache(
+        `${SCHOOL_LEVEL_API_BASE_URL}/subjects?school_level=${schoolLevel}`,
+        {},
+        `subjects_${schoolLevel}`,
+        5 * 60 * 1000 // 5 minutes cache
+      );
+    } catch (error) {
+      console.error("❌ Error in getSubjectsBySchoolLevel:", error);
+      throw error;
+    }
+  },
+
+  // Get school level statistics
+  async getSchoolLevelStats(): Promise<{ success: boolean; data: any }> {
+    try {
+      return fetchWithCache(
+        `${SCHOOL_LEVEL_API_BASE_URL}/stats`,
+        {},
+        "school_level_stats",
+        10 * 60 * 1000 // 10 minutes cache
+      );
+    } catch (error) {
+      console.error("❌ Error in getSchoolLevelStats:", error);
+      throw error;
+    }
   },
 };
