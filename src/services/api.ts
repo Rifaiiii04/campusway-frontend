@@ -387,6 +387,59 @@ export const apiService = {
     return data;
   },
 
+  // Export Students Data - Fixed function
+  async exportStudents(): Promise<{ success: boolean; data: unknown }> {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
+    try {
+      console.log("🌐 Export API URL:", `${API_BASE_URL}/export-students`);
+      console.log("🔑 Auth headers:", getAuthHeaders());
+
+      const response = await fetch(`${API_BASE_URL}/export-students`, {
+        headers: getAuthHeaders(),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+      console.log("📡 Export response status:", response.status);
+
+      // Check if response is JSON
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        const textResponse = await response.text();
+        console.error("❌ Non-JSON response:", textResponse);
+        throw new Error(
+          "Server mengembalikan response yang tidak valid. Pastikan server backend berjalan dengan benar."
+        );
+      }
+
+      const data = await response.json();
+      console.log("📊 Export response data:", data);
+
+      if (!response.ok) {
+        throw new Error(data.message || "Gagal mengekspor data siswa");
+      }
+
+      return data;
+    } catch (error: unknown) {
+      clearTimeout(timeoutId);
+      console.error("❌ Export API error:", error);
+
+      if (error instanceof Error && error.name === "AbortError") {
+        throw new Error("Timeout: Server tidak merespons dalam 30 detik");
+      }
+
+      if (error instanceof TypeError && error.message === "Failed to fetch") {
+        throw new Error(
+          "Server tidak dapat diakses. Pastikan server backend berjalan di http://127.0.0.1:8000"
+        );
+      }
+
+      throw error;
+    }
+  },
+
   // Get Students Without Choice
   async getStudentsWithoutChoice() {
     const response = await fetch(`${API_BASE_URL}/students-without-choice`, {

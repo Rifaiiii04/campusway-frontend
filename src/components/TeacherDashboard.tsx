@@ -29,6 +29,33 @@ import {
   MajorStatistics,
 } from "../services/api";
 
+// Interface untuk export data
+interface ExportStudentData {
+  nama_siswa: string;
+  nisn: string;
+  kelas: string;
+  email: string;
+  no_handphone: string;
+  no_orang_tua: string;
+  status_pilihan_jurusan: string;
+  tanggal_memilih: string;
+  nama_jurusan: string;
+  kategori_jurusan: string;
+  prospek_karir: string;
+  mata_pelajaran_wajib: string;
+  mata_pelajaran_diutamakan: string;
+  mata_pelajaran_kurikulum_merdeka: string;
+  mata_pelajaran_kurikulum_2013_ipa: string;
+  mata_pelajaran_kurikulum_2013_ips: string;
+  mata_pelajaran_kurikulum_2013_bahasa: string;
+}
+
+interface SchoolInfo {
+  id: number;
+  npsn: string;
+  name: string;
+}
+
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -143,6 +170,232 @@ export default function TeacherDashboard() {
   const handleLogout = () => {
     localStorage.removeItem("school_token");
     router.push("/login");
+  };
+
+  // Export data siswa ke Excel/CSV
+  const handleExportData = async () => {
+    console.log("🚀 Starting export process...");
+    try {
+      setLoading(true);
+      console.log("📊 Loading state set to true");
+
+      // Check authentication first
+      const token = localStorage.getItem("school_token");
+      const schoolData = localStorage.getItem("school_data");
+
+      console.log("🔑 Token exists:", !!token);
+      console.log("🏫 School data exists:", !!schoolData);
+
+      if (!token || !schoolData) {
+        throw new Error(
+          "Anda belum login atau session telah expired. Silakan login ulang."
+        );
+      }
+
+      // Ambil data export dari API - Fixed call
+      console.log("🌐 Calling API to get export data...");
+      console.log("🔑 Current token:", localStorage.getItem("school_token"));
+      console.log(
+        "🏫 Current school data:",
+        localStorage.getItem("school_data")
+      );
+
+      const response = await apiService.exportStudents();
+      console.log("✅ API response received:", response);
+
+      if (response.success && response.data) {
+        console.log("📊 Response data structure:", response.data);
+
+        const responseData = response.data as {
+          export_data: ExportStudentData[];
+          school: SchoolInfo;
+          export_date: string;
+        };
+
+        console.log("📋 Export data:", responseData.export_data);
+        console.log("🏫 School data:", responseData.school);
+        console.log("📅 Export date:", responseData.export_date);
+
+        const { export_data, school, export_date } = responseData;
+
+        // Konversi data ke format CSV
+        const csvContent = convertToCSV(export_data);
+
+        // Download file CSV dengan format Excel
+        downloadCSV(
+          csvContent,
+          `Data_Siswa_${school.name}_${export_date
+            .split(" ")[0]
+            .replace(/\//g, "-")}.csv`
+        );
+
+        // Tampilkan notifikasi sukses
+        alert(`Data berhasil diekspor! Total ${export_data.length} siswa.`);
+      } else {
+        throw new Error("Gagal mengambil data untuk export");
+      }
+    } catch (error) {
+      console.error("❌ Export error:", error);
+
+      // Fallback: try to export with existing data
+      if (students && students.length > 0) {
+        console.log("🔄 Trying fallback export with existing data...");
+        try {
+          const fallbackData = students.map((student) => ({
+            nama_siswa: student.name || "",
+            nisn: student.nisn || "",
+            kelas: student.class || "",
+            email: student.email || "",
+            no_handphone: student.phone || "",
+            no_orang_tua: student.parent_phone || "",
+            status_pilihan_jurusan: student.has_choice
+              ? "Sudah Memilih"
+              : "Belum Memilih",
+            tanggal_memilih: student.choice_date
+              ? new Date(student.choice_date).toLocaleDateString("id-ID")
+              : "-",
+            nama_jurusan: student.chosen_major?.name || "-",
+            kategori_jurusan: student.chosen_major?.category || "-",
+            prospek_karir: student.chosen_major?.career_prospects || "-",
+            mata_pelajaran_wajib:
+              student.chosen_major?.required_subjects || "-",
+            mata_pelajaran_diutamakan:
+              student.chosen_major?.preferred_subjects || "-",
+            mata_pelajaran_kurikulum_merdeka:
+              student.chosen_major?.kurikulum_merdeka_subjects || "-",
+            mata_pelajaran_kurikulum_2013_ipa:
+              student.chosen_major?.kurikulum_2013_ipa_subjects || "-",
+            mata_pelajaran_kurikulum_2013_ips:
+              student.chosen_major?.kurikulum_2013_ips_subjects || "-",
+            mata_pelajaran_kurikulum_2013_bahasa:
+              student.chosen_major?.kurikulum_2013_bahasa_subjects || "-",
+          }));
+
+          const schoolData = localStorage.getItem("school_data");
+          const school = schoolData
+            ? JSON.parse(schoolData)
+            : { name: "Unknown School", npsn: "Unknown" };
+
+          const csvContent = convertToCSV(fallbackData);
+          downloadCSV(
+            csvContent,
+            `Data_Siswa_${school.name}_${
+              new Date().toISOString().split("T")[0]
+            }.csv`
+          );
+
+          alert(
+            `Data berhasil diekspor (mode fallback)! Total ${fallbackData.length} siswa.`
+          );
+          return;
+        } catch (fallbackError) {
+          console.error("❌ Fallback export also failed:", fallbackError);
+        }
+      }
+
+      alert(
+        `Gagal mengekspor data: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
+    } finally {
+      console.log("🏁 Export process finished, setting loading to false");
+      setLoading(false);
+    }
+  };
+
+  // Konversi data ke format CSV dengan styling dan pemisahan kolom yang benar
+  const convertToCSV = (data: ExportStudentData[]) => {
+    if (!data || data.length === 0) return "";
+
+    // Header CSV dengan pemisahan yang benar
+    const headers = [
+      "Nama Siswa",
+      "NISN",
+      "Kelas",
+      "Email",
+      "No Handphone",
+      "No Orang Tua",
+      "Status Pilihan Jurusan",
+      "Tanggal Memilih",
+      "Nama Jurusan",
+      "Kategori Jurusan",
+      "Prospek Karir",
+      "Mata Pelajaran Wajib",
+      "Mata Pelajaran Diutamakan",
+      "Mata Pelajaran Kurikulum Merdeka",
+      "Mata Pelajaran Kurikulum 2013 IPA",
+      "Mata Pelajaran Kurikulum 2013 IPS",
+      "Mata Pelajaran Kurikulum 2013 Bahasa",
+    ];
+
+    // Data rows dengan pemisahan yang benar
+    const rows = data.map((student) => [
+      student.nama_siswa || "",
+      student.nisn || "",
+      student.kelas || "",
+      student.email || "",
+      student.no_handphone || "",
+      student.no_orang_tua || "",
+      student.status_pilihan_jurusan || "",
+      student.tanggal_memilih || "",
+      student.nama_jurusan || "",
+      student.kategori_jurusan || "",
+      student.prospek_karir || "",
+      student.mata_pelajaran_wajib || "",
+      student.mata_pelajaran_diutamakan || "",
+      student.mata_pelajaran_kurikulum_merdeka || "",
+      student.mata_pelajaran_kurikulum_2013_ipa || "",
+      student.mata_pelajaran_kurikulum_2013_ips || "",
+      student.mata_pelajaran_kurikulum_2013_bahasa || "",
+    ]);
+
+    // Fungsi untuk escape CSV field - format standar CSV
+    const escapeCSVField = (field: any) => {
+      // Pastikan field adalah string
+      const stringField = String(field || "");
+      // Selalu wrap dengan quotes untuk memastikan Excel mengenali sebagai field terpisah
+      const cleanField = stringField.replace(/"/g, '""'); // Escape quotes
+      return `"${cleanField}"`;
+    };
+
+    // Gabungkan header dan data dengan pemisahan yang benar
+    // Format seperti super admin backend dengan semicolon sebagai separator
+    const csvContent = [
+      // Header kolom - gunakan semicolon seperti super admin
+      headers.map(escapeCSVField).join(";"),
+      // Data rows - gunakan semicolon seperti super admin
+      ...rows.map((row) => row.map(escapeCSVField).join(";")),
+    ].join("\n");
+
+    return csvContent;
+  };
+
+  // Download file CSV dengan format Excel yang benar (seperti super admin backend)
+  const downloadCSV = (content: string, filename: string) => {
+    // Tambahkan BOM (Byte Order Mark) untuk UTF-8 seperti super admin backend
+    const BOM = "\uFEFF";
+    const csvWithBOM = BOM + content;
+
+    // Gunakan MIME type yang sama seperti super admin backend
+    const blob = new Blob([csvWithBOM], {
+      type: "text/csv; charset=UTF-8",
+    });
+
+    const link = document.createElement("a");
+
+    if (link.download !== undefined) {
+      const url = URL.createObjectURL(blob);
+      link.setAttribute("href", url);
+      link.setAttribute("download", filename); // Tetap gunakan .csv
+      link.style.visibility = "hidden";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      // Clean up URL object
+      URL.revokeObjectURL(url);
+    }
   };
 
   // Data untuk title dan description setiap halaman
@@ -411,8 +664,22 @@ export default function TeacherDashboard() {
                     </svg>
                   )}
                 </button>
-                <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                  Export Data
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log("Export button clicked!");
+                    handleExportData();
+                  }}
+                  disabled={loading}
+                  className={`px-4 py-2 rounded-lg transition-colors cursor-pointer relative z-30 ${
+                    loading
+                      ? "bg-gray-400 text-gray-200 cursor-not-allowed"
+                      : "bg-blue-600 text-white hover:bg-blue-700"
+                  }`}
+                  style={{ pointerEvents: loading ? "none" : "auto" }}
+                >
+                  {loading ? "Exporting..." : "Export Data"}
                 </button>
                 <button
                   onClick={handleLogout}
