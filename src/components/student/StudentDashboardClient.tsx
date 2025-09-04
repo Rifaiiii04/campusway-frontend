@@ -50,6 +50,7 @@ export default function StudentDashboardClient() {
   const [showSettings, setShowSettings] = useState(false);
   const [showMajorDetail, setShowMajorDetail] = useState(false);
   const [selectedMajor, setSelectedMajor] = useState<Major | null>(null);
+  const [loadingMajorDetail, setLoadingMajorDetail] = useState(false);
   const [error, setError] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
@@ -75,12 +76,6 @@ export default function StudentDashboardClient() {
       setError(error.message);
     },
   });
-
-  const {
-    data: majorDetails,
-    loading: loadingMajorDetail,
-    execute: loadMajorDetails,
-  } = useApi((majorId: number) => studentApiService.getMajorDetails(majorId));
 
   // Memoized filtered majors
   const filteredMajors = useMemo(() => {
@@ -296,20 +291,24 @@ export default function StudentDashboardClient() {
   );
 
   // Handle major detail
-  const handleShowMajorDetail = useCallback(
-    async (major: Major) => {
-      try {
-        const response = await loadMajorDetails(major.id);
-        if (response) {
-          setSelectedMajor(response.data);
-          setShowMajorDetail(true);
-        }
-      } catch (error) {
+  const handleShowMajorDetail = useCallback(async (major: Major) => {
+    setLoadingMajorDetail(true);
+    try {
+      // Load detailed major information including subjects
+      const response = await studentApiService.getMajorDetails(major.id);
+      if (response.success) {
+        setSelectedMajor(response.data);
+        setShowMajorDetail(true);
+      } else {
         setError("Gagal memuat detail jurusan");
       }
-    },
-    [loadMajorDetails]
-  );
+    } catch (error) {
+      console.error("Error loading major details:", error);
+      setError("Gagal memuat detail jurusan");
+    } finally {
+      setLoadingMajorDetail(false);
+    }
+  }, []);
 
   // Show success notification
   const showSuccessNotification = useCallback((message: string) => {
@@ -681,25 +680,47 @@ export default function StudentDashboardClient() {
                           disabled={loadingMajorDetail}
                           className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl hover:from-blue-600 hover:to-cyan-600 transition-all duration-200 flex items-center justify-center shadow-lg hover:shadow-xl hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                          <svg
-                            className="w-4 h-4 sm:w-5 sm:h-5 mr-2"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                            />
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                            />
-                          </svg>
+                          {loadingMajorDetail ? (
+                            <svg
+                              className="animate-spin w-4 h-4 sm:w-5 sm:h-5 mr-2"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                            >
+                              <circle
+                                className="opacity-25"
+                                cx="12"
+                                cy="12"
+                                r="10"
+                                stroke="currentColor"
+                                strokeWidth="4"
+                              ></circle>
+                              <path
+                                className="opacity-75"
+                                fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                              ></path>
+                            </svg>
+                          ) : (
+                            <svg
+                              className="w-4 h-4 sm:w-5 sm:h-5 mr-2"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                              />
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                              />
+                            </svg>
+                          )}
                           <span className="font-bold text-sm sm:text-base">
                             {loadingMajorDetail ? "Loading..." : "Lihat Detail"}
                           </span>
@@ -790,6 +811,394 @@ export default function StudentDashboardClient() {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* Major Detail Modal */}
+        {showMajorDetail && selectedMajor && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-white/20">
+              {/* Modal Header */}
+              <div className="sticky top-0 bg-gradient-to-r from-purple-50 to-pink-50 border-b border-gray-200 rounded-t-2xl px-6 py-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+                      <svg
+                        className="w-6 h-6 text-white"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                        />
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 className="text-2xl font-bold text-gray-900">
+                        {selectedMajor.major_name}
+                      </h3>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span
+                          className={`px-3 py-1 rounded-lg text-sm font-bold ${
+                            selectedMajor.category === "Saintek"
+                              ? "bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-800 border border-blue-200"
+                              : selectedMajor.category === "Soshum"
+                              ? "bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border border-green-200"
+                              : "bg-gradient-to-r from-orange-100 to-yellow-100 text-orange-800 border border-orange-200"
+                          }`}
+                        >
+                          {selectedMajor.category === "Saintek"
+                            ? "🔬"
+                            : selectedMajor.category === "Soshum"
+                            ? "📚"
+                            : "🎨"}{" "}
+                          {selectedMajor.category}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setShowMajorDetail(false)}
+                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    <svg
+                      className="w-6 h-6 text-gray-500"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              {/* Modal Content */}
+              <div className="p-6 space-y-6">
+                {/* Description */}
+                {selectedMajor.description && (
+                  <div>
+                    <h4 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                      <svg
+                        className="w-5 h-5 mr-2 text-purple-500"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                      Deskripsi Program
+                    </h4>
+                    <p className="text-gray-700 leading-relaxed">
+                      {selectedMajor.description}
+                    </p>
+                  </div>
+                )}
+
+                {/* Career Prospects */}
+                {selectedMajor.career_prospects && (
+                  <div>
+                    <h4 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                      <svg
+                        className="w-5 h-5 mr-2 text-green-500"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2V6"
+                        />
+                      </svg>
+                      Prospek Karir
+                    </h4>
+                    <p className="text-gray-700 leading-relaxed">
+                      {selectedMajor.career_prospects}
+                    </p>
+                  </div>
+                )}
+
+                {/* Subjects */}
+                {selectedMajor.subjects && (
+                  <div>
+                    <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                      <svg
+                        className="w-5 h-5 mr-2 text-blue-500"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                        />
+                      </svg>
+                      Mata Pelajaran yang Perlu Dipelajari
+                    </h4>
+
+                    {/* Required and Preferred Subjects */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                      {selectedMajor.subjects.required &&
+                        selectedMajor.subjects.required.length > 0 && (
+                          <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                            <h5 className="font-semibold text-blue-900 mb-3 flex items-center">
+                              <svg
+                                className="w-4 h-4 mr-2"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                                />
+                              </svg>
+                              Mata Pelajaran Wajib
+                            </h5>
+                            <ul className="space-y-2">
+                              {selectedMajor.subjects.required.map(
+                                (subject, index) => (
+                                  <li
+                                    key={index}
+                                    className="text-blue-800 text-sm flex items-center"
+                                  >
+                                    <span className="w-2 h-2 bg-blue-500 rounded-full mr-3 flex-shrink-0"></span>
+                                    {subject}
+                                  </li>
+                                )
+                              )}
+                            </ul>
+                          </div>
+                        )}
+
+                      {selectedMajor.subjects.preferred &&
+                        selectedMajor.subjects.preferred.length > 0 && (
+                          <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                            <h5 className="font-semibold text-green-900 mb-3 flex items-center">
+                              <svg
+                                className="w-4 h-4 mr-2"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M13 10V3L4 14h7v7l9-11h-7z"
+                                />
+                              </svg>
+                              Mata Pelajaran Pilihan
+                            </h5>
+                            <ul className="space-y-2">
+                              {selectedMajor.subjects.preferred.map(
+                                (subject, index) => (
+                                  <li
+                                    key={index}
+                                    className="text-green-800 text-sm flex items-center"
+                                  >
+                                    <span className="w-2 h-2 bg-green-500 rounded-full mr-3 flex-shrink-0"></span>
+                                    {subject}
+                                  </li>
+                                )
+                              )}
+                            </ul>
+                          </div>
+                        )}
+                    </div>
+
+                    {/* Curriculum-based Subjects */}
+                    <div className="space-y-4">
+                      <h5 className="text-md font-semibold text-gray-800 mb-3 flex items-center">
+                        <svg
+                          className="w-4 h-4 mr-2 text-purple-500"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                          />
+                        </svg>
+                        Berdasarkan Kurikulum
+                      </h5>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {/* Kurikulum Merdeka */}
+                        {selectedMajor.subjects.kurikulum_merdeka &&
+                          selectedMajor.subjects.kurikulum_merdeka.length >
+                            0 && (
+                            <div className="bg-purple-50 rounded-lg p-4 border border-purple-200">
+                              <h6 className="font-semibold text-purple-900 mb-2 text-sm">
+                                Kurikulum Merdeka
+                              </h6>
+                              <ul className="space-y-1">
+                                {selectedMajor.subjects.kurikulum_merdeka.map(
+                                  (subject, index) => (
+                                    <li
+                                      key={index}
+                                      className="text-purple-800 text-xs flex items-center"
+                                    >
+                                      <span className="w-1.5 h-1.5 bg-purple-500 rounded-full mr-2 flex-shrink-0"></span>
+                                      {subject}
+                                    </li>
+                                  )
+                                )}
+                              </ul>
+                            </div>
+                          )}
+
+                        {/* Kurikulum 2013 IPA */}
+                        {selectedMajor.subjects.kurikulum_2013_ipa &&
+                          selectedMajor.subjects.kurikulum_2013_ipa.length >
+                            0 && (
+                            <div className="bg-orange-50 rounded-lg p-4 border border-orange-200">
+                              <h6 className="font-semibold text-orange-900 mb-2 text-sm">
+                                Kurikulum 2013 - IPA
+                              </h6>
+                              <ul className="space-y-1">
+                                {selectedMajor.subjects.kurikulum_2013_ipa.map(
+                                  (subject, index) => (
+                                    <li
+                                      key={index}
+                                      className="text-orange-800 text-xs flex items-center"
+                                    >
+                                      <span className="w-1.5 h-1.5 bg-orange-500 rounded-full mr-2 flex-shrink-0"></span>
+                                      {subject}
+                                    </li>
+                                  )
+                                )}
+                              </ul>
+                            </div>
+                          )}
+
+                        {/* Kurikulum 2013 IPS */}
+                        {selectedMajor.subjects.kurikulum_2013_ips &&
+                          selectedMajor.subjects.kurikulum_2013_ips.length >
+                            0 && (
+                            <div className="bg-teal-50 rounded-lg p-4 border border-teal-200">
+                              <h6 className="font-semibold text-teal-900 mb-2 text-sm">
+                                Kurikulum 2013 - IPS
+                              </h6>
+                              <ul className="space-y-1">
+                                {selectedMajor.subjects.kurikulum_2013_ips.map(
+                                  (subject, index) => (
+                                    <li
+                                      key={index}
+                                      className="text-teal-800 text-xs flex items-center"
+                                    >
+                                      <span className="w-1.5 h-1.5 bg-teal-500 rounded-full mr-2 flex-shrink-0"></span>
+                                      {subject}
+                                    </li>
+                                  )
+                                )}
+                              </ul>
+                            </div>
+                          )}
+
+                        {/* Kurikulum 2013 Bahasa */}
+                        {selectedMajor.subjects.kurikulum_2013_bahasa &&
+                          selectedMajor.subjects.kurikulum_2013_bahasa.length >
+                            0 && (
+                            <div className="bg-indigo-50 rounded-lg p-4 border border-indigo-200">
+                              <h6 className="font-semibold text-indigo-900 mb-2 text-sm">
+                                Kurikulum 2013 - Bahasa
+                              </h6>
+                              <ul className="space-y-1">
+                                {selectedMajor.subjects.kurikulum_2013_bahasa.map(
+                                  (subject, index) => (
+                                    <li
+                                      key={index}
+                                      className="text-indigo-800 text-xs flex items-center"
+                                    >
+                                      <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full mr-2 flex-shrink-0"></span>
+                                      {subject}
+                                    </li>
+                                  )
+                                )}
+                              </ul>
+                            </div>
+                          )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Action Buttons */}
+                <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-200">
+                  {!isMajorSelected(selectedMajor.id) ? (
+                    <button
+                      onClick={() => {
+                        handleApplyMajor(selectedMajor);
+                        setShowMajorDetail(false);
+                      }}
+                      className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-6 py-3 rounded-xl transition-all duration-200 flex items-center justify-center shadow-lg hover:shadow-xl hover:scale-105"
+                    >
+                      <svg
+                        className="w-5 h-5 mr-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                        />
+                      </svg>
+                      Pilih Jurusan Ini
+                    </button>
+                  ) : (
+                    <div className="flex-1 bg-gradient-to-r from-green-100 to-emerald-100 border-2 border-green-300 text-green-800 px-6 py-3 rounded-xl flex items-center justify-center">
+                      <svg
+                        className="w-5 h-5 mr-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                      Jurusan Sudah Dipilih
+                    </div>
+                  )}
+                  <button
+                    onClick={() => setShowMajorDetail(false)}
+                    className="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors"
+                  >
+                    Tutup
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         )}
