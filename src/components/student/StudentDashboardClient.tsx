@@ -974,7 +974,10 @@ export default function StudentDashboardClient() {
                                   d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
                                 />
                               </svg>
-                              Mata Pelajaran Wajib
+                              <span className="text-black">
+                                {" "}
+                                Mata Pelajaran Wajib
+                              </span>
                             </h5>
                             <ul className="space-y-2">
                               {selectedMajor.subjects.required.map(
@@ -1053,7 +1056,7 @@ export default function StudentDashboardClient() {
                           selectedMajor.subjects.kurikulum_merdeka.length >
                             0 && (
                             <div className="bg-purple-50 rounded-lg p-4 border border-purple-200">
-                              <h6 className="font-semibold text-purple-900 mb-2 text-sm">
+                              <h6 className="font-semibold text-black mb-2 text-sm">
                                 Kurikulum Merdeka
                               </h6>
                               <ul className="space-y-1">
@@ -1061,7 +1064,7 @@ export default function StudentDashboardClient() {
                                   (subject, index) => (
                                     <li
                                       key={index}
-                                      className="text-purple-800 text-xs flex items-center"
+                                      className="text-black text-xs flex items-center"
                                     >
                                       <span className="w-1.5 h-1.5 bg-purple-500 rounded-full mr-2 flex-shrink-0"></span>
                                       {subject}
@@ -1077,7 +1080,7 @@ export default function StudentDashboardClient() {
                           selectedMajor.subjects.kurikulum_2013_ipa.length >
                             0 && (
                             <div className="bg-orange-50 rounded-lg p-4 border border-orange-200">
-                              <h6 className="font-semibold text-orange-900 mb-2 text-sm">
+                              <h6 className="font-semibold text-black mb-2 text-sm">
                                 Kurikulum 2013 - IPA
                               </h6>
                               <ul className="space-y-1">
@@ -1085,7 +1088,7 @@ export default function StudentDashboardClient() {
                                   (subject, index) => (
                                     <li
                                       key={index}
-                                      className="text-orange-800 text-xs flex items-center"
+                                      className="text-black text-xs flex items-center"
                                     >
                                       <span className="w-1.5 h-1.5 bg-orange-500 rounded-full mr-2 flex-shrink-0"></span>
                                       {subject}
@@ -1101,7 +1104,7 @@ export default function StudentDashboardClient() {
                           selectedMajor.subjects.kurikulum_2013_ips.length >
                             0 && (
                             <div className="bg-teal-50 rounded-lg p-4 border border-teal-200">
-                              <h6 className="font-semibold text-teal-900 mb-2 text-sm">
+                              <h6 className="font-semibold text-black mb-2 text-sm">
                                 Kurikulum 2013 - IPS
                               </h6>
                               <ul className="space-y-1">
@@ -1109,7 +1112,7 @@ export default function StudentDashboardClient() {
                                   (subject, index) => (
                                     <li
                                       key={index}
-                                      className="text-teal-800 text-xs flex items-center"
+                                      className="text-black text-xs flex items-center"
                                     >
                                       <span className="w-1.5 h-1.5 bg-teal-500 rounded-full mr-2 flex-shrink-0"></span>
                                       {subject}
@@ -1125,7 +1128,7 @@ export default function StudentDashboardClient() {
                           selectedMajor.subjects.kurikulum_2013_bahasa.length >
                             0 && (
                             <div className="bg-indigo-50 rounded-lg p-4 border border-indigo-200">
-                              <h6 className="font-semibold text-indigo-900 mb-2 text-sm">
+                              <h6 className="font-semibold text-black mb-2 text-sm">
                                 Kurikulum 2013 - Bahasa
                               </h6>
                               <ul className="space-y-1">
@@ -1133,7 +1136,7 @@ export default function StudentDashboardClient() {
                                   (subject, index) => (
                                     <li
                                       key={index}
-                                      className="text-indigo-800 text-xs flex items-center"
+                                      className="text-black text-xs flex items-center"
                                     >
                                       <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full mr-2 flex-shrink-0"></span>
                                       {subject}
