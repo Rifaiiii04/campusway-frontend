@@ -2,14 +2,11 @@
 
 ## 📋 **Feature Overview**
 
-Menambahkan fitur collapsible (bisa di-hide dan unhide) untuk setiap kurikulum di modal detail siswa, dengan default state **unhide** (terbuka).
+Fitur collapsible curriculum memungkinkan pengguna untuk menyembunyikan dan menampilkan bagian kurikulum tertentu dengan default state **HIDDEN**. Ini membantu mengurangi clutter pada modal dan memberikan kontrol lebih kepada pengguna.
 
-## 🎯 **Problem Solved**
+## 🎯 **User Request**
 
-- **Space Management**: Modal detail siswa menjadi terlalu panjang dengan banyak kurikulum
-- **User Experience**: User bisa memilih kurikulum mana yang ingin dilihat
-- **Readability**: Interface lebih clean dan organized
-- **Customization**: User bisa customize tampilan sesuai kebutuhan
+> "di bagian kurikulum merdeka - Mata Pelajaran Kurikulum 2013 - Bahasa itu tetap ada tapi coba di buat kayak bisa di hide dan unhide tapi defaultnya hide"
 
 ## 🔧 **Implementation**
 
@@ -17,10 +14,10 @@ Menambahkan fitur collapsible (bisa di-hide dan unhide) untuk setiap kurikulum d
 
 ```typescript
 const [expandedCurriculums, setExpandedCurriculums] = useState({
-  merdeka: true, // Default: expanded
-  kurikulum_2013_ipa: true, // Default: expanded
-  kurikulum_2013_ips: true, // Default: expanded
-  kurikulum_2013_bahasa: true, // Default: expanded
+  merdeka: false, // Default: HIDDEN
+  kurikulum_2013_ipa: false, // Default: HIDDEN
+  kurikulum_2013_ips: false, // Default: HIDDEN
+  kurikulum_2013_bahasa: false, // Default: HIDDEN
 });
 ```
 
@@ -35,9 +32,9 @@ const toggleCurriculum = (curriculum: keyof typeof expandedCurriculums) => {
 };
 ```
 
-### **3. UI Components**
+### **3. Collapsible UI Design**
 
-#### **Collapsible Header**
+#### **Button Structure**
 
 ```tsx
 <button
@@ -67,7 +64,7 @@ const toggleCurriculum = (curriculum: keyof typeof expandedCurriculums) => {
 </button>
 ```
 
-#### **Collapsible Content**
+#### **Content Display**
 
 ```tsx
 {
@@ -84,41 +81,44 @@ const toggleCurriculum = (curriculum: keyof typeof expandedCurriculums) => {
 ### **Color Coding**
 
 1. **Kurikulum Merdeka**: Purple gradient (`from-purple-50 to-indigo-50`)
-2. **Kurikulum 2013 - IPA**: Orange gradient (`from-orange-50 to-red-50`)
-3. **Kurikulum 2013 - IPS**: Teal gradient (`from-teal-50 to-cyan-50`)
-4. **Kurikulum 2013 - Bahasa**: Indigo gradient (`from-indigo-50 to-blue-50`)
+2. **Kurikulum 2013 IPA**: Orange gradient (`from-orange-50 to-red-50`)
+3. **Kurikulum 2013 IPS**: Teal gradient (`from-teal-50 to-cyan-50`)
+4. **Kurikulum 2013 Bahasa**: Indigo gradient (`from-indigo-50 to-blue-50`)
 
 ### **Icons**
 
 - **Kurikulum Merdeka**: 📚 (Books)
-- **Kurikulum 2013 - IPA**: 🧪 (Test Tube)
-- **Kurikulum 2013 - IPS**: 📊 (Chart)
-- **Kurikulum 2013 - Bahasa**: 📝 (Memo)
+- **Kurikulum 2013 IPA**: 🧪 (Test Tube)
+- **Kurikulum 2013 IPS**: 📊 (Chart)
+- **Kurikulum 2013 Bahasa**: 📝 (Memo)
 
 ### **Animation**
 
-- **Chevron Rotation**: Smooth 200ms transition
-- **Content Fade**: Smooth expand/collapse
-- **Hover Effects**: Subtle hover states
+- **Arrow Rotation**: Smooth 200ms transition
+- **Content Fade**: Instant show/hide
+- **Hover Effects**: Subtle button interactions
 
-## 📱 **Responsive Design**
+## 📱 **User Experience**
 
-### **Mobile**
+### **Default State**
 
-- Full width collapsible sections
-- Touch-friendly button sizes
-- Readable text on small screens
+- **All sections HIDDEN** by default
+- **Clean, minimal interface**
+- **Easy to scan available sections**
 
-### **Desktop**
+### **Interaction**
 
-- Optimal spacing and padding
-- Hover effects for better UX
-- Clean visual hierarchy
+- **Click to expand** any curriculum section
+- **Click again to collapse**
+- **Visual feedback** with rotating arrow
+- **Smooth animations** for better UX
 
-### **Tablet**
+### **Accessibility**
 
-- Balanced layout for medium screens
-- Touch-optimized interactions
+- **Keyboard navigation** supported
+- **Screen reader friendly**
+- **Clear visual indicators**
+- **Consistent interaction patterns**
 
 ## 🔍 **Technical Details**
 
@@ -137,149 +137,130 @@ interface ExpandedCurriculums {
 
 ```typescript
 // Toggle specific curriculum
-toggleCurriculum("merdeka"); // Toggles Kurikulum Merdeka
+toggleCurriculum("merdeka"); // Toggles merdeka section
 
-// Toggle all curriculums
-const toggleAll = () => {
-  const allExpanded = Object.values(expandedCurriculums).every(Boolean);
-  setExpandedCurriculums({
-    merdeka: !allExpanded,
-    kurikulum_2013_ipa: !allExpanded,
-    kurikulum_2013_ips: !allExpanded,
-    kurikulum_2013_bahasa: !allExpanded,
-  });
-};
+// State update
+setExpandedCurriculums((prev) => ({
+  ...prev,
+  [curriculum]: !prev[curriculum],
+}));
 ```
 
 ### **Conditional Rendering**
 
 ```tsx
+// Only render content when expanded
 {
-  student.chosen_major.kurikulum_merdeka_subjects && (
-    <div className="collapsible-section">
-      {/* Header with toggle button */}
-      {/* Content with conditional rendering */}
-    </div>
-  );
+  expandedCurriculums.merdeka && <div>Content here</div>;
 }
 ```
 
 ## 🚀 **Benefits**
 
-### **1. Space Efficiency**
+### **1. Reduced Clutter**
 
-- **Before**: Modal height ~800px dengan semua kurikulum
-- **After**: Modal height ~400px dengan kurikulum yang di-collapse
-- **Space Saving**: 50% reduction in modal height
+- **Cleaner interface** with hidden sections
+- **Focus on essential information**
+- **Better visual hierarchy**
 
 ### **2. User Control**
 
-- **Customizable View**: User bisa pilih kurikulum yang ingin dilihat
-- **Progressive Disclosure**: Informasi ditampilkan sesuai kebutuhan
-- **Clean Interface**: Interface lebih organized dan tidak overwhelming
+- **Users choose** what to see
+- **Progressive disclosure** of information
+- **Customizable viewing experience**
 
 ### **3. Performance**
 
-- **Lazy Rendering**: Content hanya di-render saat expanded
-- **Memory Efficient**: State management yang optimal
-- **Smooth Animation**: 60fps transitions
+- **Lazy rendering** of content
+- **Reduced DOM elements** when hidden
+- **Smoother interactions**
 
-### **4. Accessibility**
+### **4. Mobile Friendly**
 
-- **Keyboard Navigation**: Support untuk keyboard navigation
-- **Screen Reader**: Proper ARIA labels dan roles
-- **Focus Management**: Focus management yang baik
+- **Less scrolling** required
+- **Better space utilization**
+- **Touch-friendly interactions**
 
-## 🧪 **Testing**
+## 🧪 **Testing Scenarios**
 
-### **Test Cases**
+### **1. Default State**
 
-1. **Default State**:
+- ✅ All sections should be hidden
+- ✅ Arrows should point down
+- ✅ No content should be visible
 
-   ```typescript
-   // All curriculums should be expanded by default
-   expect(expandedCurriculums.merdeka).toBe(true);
-   expect(expandedCurriculums.kurikulum_2013_ipa).toBe(true);
-   expect(expandedCurriculums.kurikulum_2013_ips).toBe(true);
-   expect(expandedCurriculums.kurikulum_2013_bahasa).toBe(true);
-   ```
+### **2. Toggle Functionality**
 
-2. **Toggle Functionality**:
+- ✅ Click to expand section
+- ✅ Click again to collapse
+- ✅ Arrow rotates correctly
+- ✅ Content appears/disappears
 
-   ```typescript
-   // Toggle should work correctly
-   toggleCurriculum("merdeka");
-   expect(expandedCurriculums.merdeka).toBe(false);
+### **3. Multiple Sections**
 
-   toggleCurriculum("merdeka");
-   expect(expandedCurriculums.merdeka).toBe(true);
-   ```
+- ✅ Each section independent
+- ✅ Can have multiple expanded
+- ✅ State persists during session
 
-3. **Content Rendering**:
+### **4. Edge Cases**
 
-   ```typescript
-   // Content should only render when expanded
-   expect(
-     screen.queryByText("Mata Pelajaran Kurikulum Merdeka")
-   ).toBeInTheDocument();
-   expect(
-     screen.queryByText("Bahasa Indonesia, Matematika")
-   ).toBeInTheDocument();
-   ```
+- ✅ Empty content handled
+- ✅ Long content scrollable
+- ✅ Responsive design works
 
-4. **Animation**:
-   ```typescript
-   // Chevron should rotate correctly
-   const chevron = screen.getByRole("button");
-   expect(chevron).toHaveClass("rotate-180");
-   ```
+## 📊 **Before vs After**
+
+### **Before (Always Visible)**
+
+```
+Mata Pelajaran Kurikulum Merdeka
+Bahasa Indonesia, Matematika, Bahasa Inggris, Teknik Mesin...
+
+Mata Pelajaran Kurikulum 2013 - IPA
+Bahasa Indonesia, Matematika, Bahasa Inggris, Teknik Mesin...
+
+Mata Pelajaran Kurikulum 2013 - IPS
+Bahasa Indonesia, Matematika, Bahasa Inggris, Teknik Mesin...
+
+Mata Pelajaran Kurikulum 2013 - Bahasa
+Bahasa Indonesia, Matematika, Bahasa Inggris, Teknik Mesin...
+```
+
+### **After (Collapsible)**
+
+```
+📚 Mata Pelajaran Kurikulum Merdeka ▼
+🧪 Mata Pelajaran Kurikulum 2013 - IPA ▼
+📊 Mata Pelajaran Kurikulum 2013 - IPS ▼
+📝 Mata Pelajaran Kurikulum 2013 - Bahasa ▼
+```
 
 ## 🔮 **Future Enhancements**
 
-### **1. Advanced Features**
+### **1. Persistence**
 
-- **Expand All/Collapse All**: Button untuk expand/collapse semua sekaligus
-- **Remember State**: State tersimpan di localStorage
-- **Keyboard Shortcuts**: Shortcut keys untuk toggle
-- **Search**: Search dalam kurikulum yang expanded
+- **Remember user preferences**
+- **Local storage** for expanded states
+- **Session persistence**
 
-### **2. UI Improvements**
+### **2. Bulk Actions**
 
-- **Smooth Height Animation**: Animate height changes
-- **Loading States**: Loading indicator saat content di-load
-- **Error Handling**: Error states untuk content yang gagal load
-- **Tooltips**: Tooltips untuk explain kurikulum
+- **Expand All** button
+- **Collapse All** button
+- **Quick access** to all content
 
-### **3. Performance**
+### **3. Search Integration**
 
-- **Virtual Scrolling**: Untuk kurikulum dengan banyak mata pelajaran
-- **Lazy Loading**: Load content saat di-expand
-- **Caching**: Cache expanded state
-- **Debouncing**: Debounce toggle actions
+- **Search within sections**
+- **Auto-expand** matching sections
+- **Highlight search results**
 
-## 📊 **Usage Statistics**
+### **4. Customization**
 
-### **Before Implementation**
-
-- **Modal Height**: ~800px
-- **Scroll Required**: Yes (90% of users)
-- **User Satisfaction**: 6/10
-- **Time to Find Info**: ~30 seconds
-
-### **After Implementation**
-
-- **Modal Height**: ~400px (collapsed)
-- **Scroll Required**: No (collapsed state)
-- **User Satisfaction**: 9/10
-- **Time to Find Info**: ~10 seconds
-
-## 🎯 **Success Metrics**
-
-1. **User Engagement**: 40% increase in modal usage
-2. **Task Completion**: 60% faster information finding
-3. **User Satisfaction**: 50% improvement in UX rating
-4. **Performance**: 30% reduction in modal load time
+- **User-defined defaults**
+- **Custom colors** per section
+- **Personalized icons**
 
 ---
 
-**Kurikulum sekarang bisa di-collapse dan expand sesuai kebutuhan user!** ✅
+**Kurikulum sections sekarang bisa di-hide dan di-unhide dengan default HIDDEN!** ✅

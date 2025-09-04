@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { Student } from "../../services/api";
 
 interface StudentDetailModalProps {
@@ -18,10 +18,10 @@ export default function StudentDetailModal({
 }: StudentDetailModalProps) {
   // State for collapsible curriculum sections
   const [expandedCurriculums, setExpandedCurriculums] = useState({
-    merdeka: true,
-    kurikulum_2013_ipa: true,
-    kurikulum_2013_ips: true,
-    kurikulum_2013_bahasa: true,
+    merdeka: false,
+    kurikulum_2013_ipa: false,
+    kurikulum_2013_ips: false,
+    kurikulum_2013_bahasa: false,
   });
 
   // Helper function to format subjects with proper spacing
@@ -39,7 +39,7 @@ export default function StudentDetailModal({
         if (Array.isArray(parsed)) {
           return parsed.join(", ");
         }
-      } catch {
+      } catch (e) {
         // If parsing fails, return as is
         return subjects;
       }
@@ -462,9 +462,9 @@ export default function StudentDetailModal({
                   )}
 
                   {student.chosen_major.required_subjects && (
-                    <div>
+                    <div className="border border-gray-200 rounded-lg p-4 bg-gradient-to-r from-red-50 to-pink-50">
                       <p
-                        className={`text-sm font-medium ${
+                        className={`text-lg font-bold ${
                           darkMode ? "text-gray-400" : "text-gray-600"
                         }`}
                       >
@@ -481,9 +481,9 @@ export default function StudentDetailModal({
                   )}
 
                   {student.chosen_major.preferred_subjects && (
-                    <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    <div className="border border-gray-200 rounded-lg p-4 bg-gradient-to-r from-blue-50 to-cyan-50">
                       <p
-                        className={`text-sm font-medium ${
+                        className={`text-lg font-bold ${
                           darkMode ? "text-gray-400" : "text-gray-600"
                         }`}
                       >
