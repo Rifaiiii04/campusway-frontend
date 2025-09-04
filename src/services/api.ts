@@ -4,7 +4,9 @@ import { apiPerformance } from "@/utils/performanceMonitor";
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:8000/api/school";
 
-const STUDENT_API_BASE_URL = "http://127.0.0.1:8000/api/web";
+const STUDENT_API_BASE_URL =
+  process.env.NEXT_PUBLIC_STUDENT_API_BASE_URL ||
+  "http://127.0.0.1:8000/api/web";
 
 // Debug logging
 console.log("🔧 STUDENT_API_BASE_URL:", STUDENT_API_BASE_URL);
