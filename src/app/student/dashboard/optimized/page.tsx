@@ -22,7 +22,7 @@ interface StudentData {
 interface AppliedMajor {
   id: number;
   major_name: string;
-  category: string;
+  rumpun_ilmu: string;
   description: string;
   appliedDate?: string;
 }
@@ -38,11 +38,11 @@ export default function OptimizedStudentDashboardPage() {
   const [selectedMajor, setSelectedMajor] = useState<{
     id: number;
     major_name: string;
-    category?: string;
+    rumpun_ilmu?: string;
     description?: string;
   } | null>(null);
   const [error, setError] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedRumpunIlmu, setSelectedRumpunIlmu] = useState("all");
 
   // Use SWR hooks for data fetching with caching
   const { majors: availableMajors, isLoading: loadingMajors } = useMajors();
@@ -54,10 +54,10 @@ export default function OptimizedStudentDashboardPage() {
 
     let filtered = availableMajors;
 
-    // Filter by category
-    if (selectedCategory !== "all") {
+    // Filter by rumpun ilmu
+    if (selectedRumpunIlmu !== "all") {
       filtered = filtered.filter(
-        (major) => major.category === selectedCategory
+        (major) => major.rumpun_ilmu === selectedRumpunIlmu
       );
     }
 
@@ -71,15 +71,15 @@ export default function OptimizedStudentDashboardPage() {
     }
 
     return filtered;
-  }, [availableMajors, selectedCategory, searchQuery]);
+  }, [availableMajors, selectedRumpunIlmu, searchQuery]);
 
-  // Get unique categories for filter
-  const categories = useMemo(() => {
+  // Get unique rumpun ilmu for filter
+  const rumpunIlmuList = useMemo(() => {
     if (!availableMajors) return [];
-    const uniqueCategories = [
-      ...new Set(availableMajors.map((major) => major.category)),
+    const uniqueRumpunIlmu = [
+      ...new Set(availableMajors.map((major) => major.rumpun_ilmu)),
     ];
-    return uniqueCategories.sort();
+    return uniqueRumpunIlmu.sort();
   }, [availableMajors]);
 
   const loadAppliedMajors = useCallback(async (studentId: number) => {
@@ -89,7 +89,7 @@ export default function OptimizedStudentDashboardPage() {
         const appliedMajor: AppliedMajor = {
           id: response.data.major.id,
           major_name: response.data.major.major_name,
-          category: response.data.major.category || "",
+          rumpun_ilmu: response.data.major.rumpun_ilmu || "",
           description: response.data.major.description || "",
           appliedDate: response.data.chosen_at,
         };
@@ -147,7 +147,7 @@ export default function OptimizedStudentDashboardPage() {
           const appliedMajor: AppliedMajor = {
             id: selectedMajor.id,
             major_name: selectedMajor.major_name,
-            category: selectedMajor.category || "",
+            rumpun_ilmu: selectedMajor.rumpun_ilmu || "",
             description: selectedMajor.description || "",
             appliedDate: new Date().toISOString(),
           };
@@ -258,7 +258,9 @@ export default function OptimizedStudentDashboardPage() {
                       <h3 className="font-semibold text-green-800">
                         {major.major_name}
                       </h3>
-                      <p className="text-green-600 text-sm">{major.category}</p>
+                      <p className="text-green-600 text-sm">
+                        {major.rumpun_ilmu}
+                      </p>
                       {major.appliedDate && (
                         <p className="text-green-500 text-xs mt-1">
                           Dipilih pada:{" "}
@@ -285,17 +287,17 @@ export default function OptimizedStudentDashboardPage() {
               Pilih Jurusan
             </h2>
 
-            {/* Category Filter */}
+            {/* Rumpun Ilmu Filter */}
             <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
               <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
+                value={selectedRumpunIlmu}
+                onChange={(e) => setSelectedRumpunIlmu(e.target.value)}
                 className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="all">Semua Kategori</option>
-                {categories.map((category) => (
-                  <option key={category} value={category}>
-                    {category}
+                <option value="all">Semua Rumpun Ilmu</option>
+                {rumpunIlmuList.map((rumpunIlmu) => (
+                  <option key={rumpunIlmu} value={rumpunIlmu}>
+                    {rumpunIlmu}
                   </option>
                 ))}
               </select>
@@ -332,7 +334,7 @@ export default function OptimizedStudentDashboardPage() {
                   </p>
                   <div className="flex items-center justify-between">
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                      {major.category}
+                      {major.rumpun_ilmu}
                     </span>
                     <div className="flex space-x-2">
                       <button
@@ -397,9 +399,9 @@ export default function OptimizedStudentDashboardPage() {
 
               <div className="space-y-4">
                 <div>
-                  <h4 className="font-medium text-gray-900">Kategori</h4>
+                  <h4 className="font-medium text-gray-900">Rumpun Ilmu</h4>
                   <p className="text-gray-600">
-                    {selectedMajor.category || "Tidak tersedia"}
+                    {selectedMajor.rumpun_ilmu || "Tidak tersedia"}
                   </p>
                 </div>
 

@@ -125,7 +125,7 @@ export interface Student {
     name: string;
     description?: string;
     career_prospects?: string;
-    category?: string;
+    rumpun_ilmu?: string;
     choice_date?: string;
     required_subjects?: string;
     preferred_subjects?: string;
@@ -209,7 +209,7 @@ export interface Major {
   major_name: string;
   description?: string;
   career_prospects?: string;
-  category?: string;
+  rumpun_ilmu?: string; // Changed from category to rumpun_ilmu
   subjects?: {
     required?: string[];
     preferred?: string[];
@@ -224,6 +224,39 @@ export interface Major {
   kurikulum_2013_ipa_subjects?: string[];
   kurikulum_2013_ips_subjects?: string[];
   kurikulum_2013_bahasa_subjects?: string[];
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface Subject {
+  id: number;
+  subject_number: string;
+  name: string;
+  code: string;
+  type: "wajib" | "pilihan";
+  is_required: boolean;
+  is_active: boolean;
+  description?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface RumpunIlmu {
+  id: number;
+  name: string;
+  description?: string;
+  is_active: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface ProgramStudi {
+  id: number;
+  rumpun_ilmu_id: number;
+  name: string;
+  description?: string;
+  is_active: boolean;
+  rumpun_ilmu?: RumpunIlmu;
   created_at?: string;
   updated_at?: string;
 }
@@ -948,36 +981,6 @@ export const studentApiService = {
     return data;
   },
 
-  // TKA Schedules API
-  async getTkaSchedules(
-    schoolId?: number
-  ): Promise<{ success: boolean; data: TkaSchedule[] }> {
-    try {
-      const url = schoolId
-        ? `${STUDENT_API_BASE_URL}/tka-schedules?school_id=${schoolId}`
-        : `${STUDENT_API_BASE_URL}/tka-schedules`;
-
-      console.log("🌐 Student TKA Schedules API URL:", url);
-
-      const response = await fetch(url, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      console.log("✅ TKA Schedules loaded:", data);
-
-      return data;
-    } catch (error: unknown) {
-      console.error("❌ TKA Schedules API error:", error);
-      throw error;
-    }
-  },
 
   async getUpcomingTkaSchedules(
     schoolId?: number
@@ -1093,39 +1096,6 @@ export const schoolLevelApiService = {
     }
   },
 
-  // TKA Schedules API
-  async getTkaSchedules(
-    schoolId?: number
-  ): Promise<{ success: boolean; data: TkaSchedule[] }> {
-    try {
-      const url = schoolId
-        ? `${API_BASE_URL.replace(
-            "/school",
-            ""
-          )}/tka-schedules?school_id=${schoolId}`
-        : `${API_BASE_URL.replace("/school", "")}/tka-schedules`;
-
-      console.log("🌐 TKA Schedules API URL:", url);
-
-      const response = await fetch(url, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      console.log("📅 TKA Schedules response:", data);
-
-      return data;
-    } catch (error: unknown) {
-      console.error("❌ TKA Schedules API error:", error);
-      throw error;
-    }
-  },
 
   async getUpcomingTkaSchedules(
     schoolId?: number

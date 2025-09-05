@@ -42,7 +42,7 @@ interface ExportStudentData {
   status_pilihan_jurusan: string;
   tanggal_memilih: string;
   nama_jurusan: string;
-  kategori_jurusan: string;
+  rumpun_ilmu: string;
   prospek_karir: string;
   mata_pelajaran_wajib: string;
   mata_pelajaran_diutamakan: string;
@@ -336,7 +336,7 @@ export default function TeacherDashboard() {
               ? new Date(student.choice_date).toLocaleDateString("id-ID")
               : "-",
             nama_jurusan: student.chosen_major?.name || "-",
-            kategori_jurusan: student.chosen_major?.category || "-",
+            rumpun_ilmu: student.chosen_major?.rumpun_ilmu || "-",
             prospek_karir: student.chosen_major?.career_prospects || "-",
             mata_pelajaran_wajib:
               student.chosen_major?.required_subjects || "-",
@@ -421,7 +421,7 @@ export default function TeacherDashboard() {
       student.status_pilihan_jurusan || "",
       student.tanggal_memilih || "",
       student.nama_jurusan || "",
-      student.kategori_jurusan || "",
+      student.rumpun_ilmu || "",
       student.prospek_karir || "",
       student.mata_pelajaran_wajib || "",
       student.mata_pelajaran_diutamakan || "",

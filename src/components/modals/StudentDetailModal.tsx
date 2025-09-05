@@ -336,17 +336,27 @@ export default function StudentDetailModal({
                         >
                           {student.chosen_major.name}
                         </p>
-                        {student.chosen_major.category && (
+                        {student.chosen_major.rumpun_ilmu && (
                           <span
                             className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                              student.chosen_major.category === "Saintek"
+                              student.chosen_major.rumpun_ilmu === "ILMU ALAM"
                                 ? "bg-blue-100 text-blue-800"
-                                : student.chosen_major.category === "Soshum"
+                                : student.chosen_major.rumpun_ilmu ===
+                                  "ILMU SOSIAL"
                                 ? "bg-green-100 text-green-800"
-                                : "bg-purple-100 text-purple-800"
+                                : student.chosen_major.rumpun_ilmu ===
+                                  "HUMANIORA"
+                                ? "bg-purple-100 text-purple-800"
+                                : student.chosen_major.rumpun_ilmu ===
+                                  "ILMU FORMAL"
+                                ? "bg-orange-100 text-orange-800"
+                                : student.chosen_major.rumpun_ilmu ===
+                                  "ILMU TERAPAN"
+                                ? "bg-red-100 text-red-800"
+                                : "bg-gray-100 text-gray-800"
                             }`}
                           >
-                            {student.chosen_major.category}
+                            {student.chosen_major.rumpun_ilmu}
                           </span>
                         )}
                       </div>
@@ -407,17 +417,26 @@ export default function StudentDetailModal({
                       >
                         {student.chosen_major.name}
                       </p>
-                      {student.chosen_major.category && (
+                      {student.chosen_major.rumpun_ilmu && (
                         <span
                           className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${
-                            student.chosen_major.category === "Saintek"
+                            student.chosen_major.rumpun_ilmu === "ILMU ALAM"
                               ? "bg-blue-100 text-blue-800"
-                              : student.chosen_major.category === "Soshum"
+                              : student.chosen_major.rumpun_ilmu ===
+                                "ILMU SOSIAL"
                               ? "bg-green-100 text-green-800"
-                              : "bg-purple-100 text-purple-800"
+                              : student.chosen_major.rumpun_ilmu === "HUMANIORA"
+                              ? "bg-purple-100 text-purple-800"
+                              : student.chosen_major.rumpun_ilmu ===
+                                "ILMU FORMAL"
+                              ? "bg-orange-100 text-orange-800"
+                              : student.chosen_major.rumpun_ilmu ===
+                                "ILMU TERAPAN"
+                              ? "bg-red-100 text-red-800"
+                              : "bg-gray-100 text-gray-800"
                           }`}
                         >
-                          {student.chosen_major.category}
+                          {student.chosen_major.rumpun_ilmu}
                         </span>
                       )}
                     </div>

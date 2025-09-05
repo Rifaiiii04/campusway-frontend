@@ -43,12 +43,10 @@ export default function SchoolLevelDemoPage() {
                 <li>• Mata pelajaran umum sesuai kurikulum</li>
                 <li>• Fokus pada persiapan ke perguruan tinggi</li>
                 <li>
-                  • Mata pelajaran wajib: Bahasa Indonesia, Matematika, Bahasa
-                  Inggris
+                  • Mata pelajaran wajib: Matematika Lanjutan, Bahasa Indonesia Lanjutan, Bahasa Inggris Lanjutan
                 </li>
                 <li>
-                  • Mata pelajaran pilihan: Fisika, Kimia, Biologi, Ekonomi,
-                  dll.
+                  • Mata pelajaran pilihan: Fisika, Kimia, Biologi, Ekonomi, Sosiologi, Geografi, Sejarah, Antropologi, PPKn/Pendidikan Pancasila, Bahasa Arab, Bahasa Jerman, Bahasa Prancis, Bahasa Jepang, Bahasa Korea, Bahasa Mandarin, Produk/Projek Kreatif dan Kewirausahaan
                 </li>
               </ul>
             </div>

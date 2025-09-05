@@ -30,7 +30,7 @@ interface StudentData {
 interface AppliedMajor {
   id: number;
   major_name: string;
-  category: string;
+  rumpun_ilmu: string;
   description: string;
   appliedDate?: string;
 }
@@ -52,7 +52,7 @@ export default function StudentDashboardClient() {
   const [selectedMajor, setSelectedMajor] = useState<Major | null>(null);
   const [loadingMajorDetail, setLoadingMajorDetail] = useState(false);
   const [error, setError] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedRumpunIlmu, setSelectedRumpunIlmu] = useState("all");
   const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [showChangePassword, setShowChangePassword] = useState(false);
@@ -98,20 +98,20 @@ export default function StudentDashboardClient() {
         (major) =>
           major.major_name.toLowerCase().includes(query) ||
           major.description?.toLowerCase().includes(query) ||
-          major.category?.toLowerCase().includes(query)
+          major.rumpun_ilmu?.toLowerCase().includes(query)
       );
     }
 
-    // Filter by category
-    if (selectedCategory !== "all") {
+    // Filter by rumpun ilmu
+    if (selectedRumpunIlmu !== "all") {
       filtered = filtered.filter(
         (major) =>
-          major.category?.toLowerCase() === selectedCategory.toLowerCase()
+          major.rumpun_ilmu?.toLowerCase() === selectedRumpunIlmu.toLowerCase()
       );
     }
 
     return filtered;
-  }, [availableMajors?.data, debouncedSearchQuery, selectedCategory]);
+  }, [availableMajors?.data, debouncedSearchQuery, selectedRumpunIlmu]);
 
   // Load TKA Schedules
   const loadTkaSchedules = useCallback(async () => {
@@ -208,7 +208,7 @@ export default function StudentDashboardClient() {
         const appliedMajor = {
           id: response.data.major.id,
           major_name: response.data.major.major_name,
-          category: response.data.major.category || "Saintek",
+          rumpun_ilmu: response.data.major.rumpun_ilmu || "ILMU ALAM",
           description: response.data.major.description || "",
           appliedDate: new Date(response.data.chosen_at).toLocaleDateString(
             "id-ID"
@@ -264,7 +264,7 @@ export default function StudentDashboardClient() {
             const appliedMajor = {
               id: major.id,
               major_name: major.major_name,
-              category: major.category || "Saintek",
+              rumpun_ilmu: major.rumpun_ilmu || "ILMU ALAM",
               description: major.description || "",
               appliedDate: new Date().toLocaleDateString("id-ID"),
             };
@@ -307,7 +307,7 @@ export default function StudentDashboardClient() {
           const appliedMajor = {
             id: newMajor.id,
             major_name: newMajor.major_name,
-            category: newMajor.category || "Saintek",
+            rumpun_ilmu: newMajor.rumpun_ilmu || "ILMU ALAM",
             description: newMajor.description || "",
             appliedDate: new Date().toLocaleDateString("id-ID"),
           };
@@ -690,7 +690,7 @@ export default function StudentDashboardClient() {
                             {index + 1}. {appliedMajor.major_name}
                           </span>
                           <span className="ml-2 px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">
-                            {appliedMajor.category}
+                            {appliedMajor.rumpun_ilmu}
                           </span>
                         </p>
                       ))}
@@ -885,19 +885,50 @@ export default function StudentDashboardClient() {
             />
           </div>
 
-          {/* Category Filter */}
+          {/* Rumpun Ilmu Filter */}
           <div className="flex flex-wrap gap-2 sm:gap-3 mb-4 sm:mb-6">
-            {["all", "Saintek", "Soshum", "Campuran"].map((category) => (
+            {[
+              {
+                key: "all",
+                label: "Semua",
+                color: "from-gray-500 to-gray-600",
+              },
+              {
+                key: "HUMANIORA",
+                label: "HUMANIORA",
+                color: "from-purple-500 to-purple-600",
+              },
+              {
+                key: "ILMU SOSIAL",
+                label: "ILMU SOSIAL",
+                color: "from-green-500 to-green-600",
+              },
+              {
+                key: "ILMU ALAM",
+                label: "ILMU ALAM",
+                color: "from-blue-500 to-blue-600",
+              },
+              {
+                key: "ILMU FORMAL",
+                label: "ILMU FORMAL",
+                color: "from-orange-500 to-orange-600",
+              },
+              {
+                key: "ILMU TERAPAN",
+                label: "ILMU TERAPAN",
+                color: "from-red-500 to-red-600",
+              },
+            ].map((rumpun) => (
               <button
-                key={category}
-                onClick={() => setSelectedCategory(category)}
+                key={rumpun.key}
+                onClick={() => setSelectedRumpunIlmu(rumpun.key)}
                 className={`px-4 sm:px-6 py-2 sm:py-3 rounded-xl sm:rounded-2xl font-medium transition-all duration-200 text-sm sm:text-base ${
-                  selectedCategory === category
-                    ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg"
+                  selectedRumpunIlmu === rumpun.key
+                    ? `bg-gradient-to-r ${rumpun.color} text-white shadow-lg`
                     : "bg-white/50 text-gray-600 hover:bg-white/70 hover:scale-105"
                 }`}
               >
-                {category}
+                {rumpun.label}
               </button>
             ))}
           </div>
@@ -969,14 +1000,20 @@ export default function StudentDashboardClient() {
                           </h5>
                           <span
                             className={`px-3 sm:px-4 py-1 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm font-bold w-fit ${
-                              major.category === "Saintek"
+                              major.rumpun_ilmu === "ILMU ALAM"
                                 ? "bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-800 border border-blue-200"
-                                : major.category === "Soshum"
+                                : major.rumpun_ilmu === "ILMU SOSIAL"
                                 ? "bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border border-green-200"
-                                : "bg-gradient-to-r from-orange-100 to-yellow-100 text-orange-800 border border-orange-200"
+                                : major.rumpun_ilmu === "HUMANIORA"
+                                ? "bg-gradient-to-r from-purple-100 to-purple-200 text-purple-800 border border-purple-200"
+                                : major.rumpun_ilmu === "ILMU FORMAL"
+                                ? "bg-gradient-to-r from-orange-100 to-yellow-100 text-orange-800 border border-orange-200"
+                                : major.rumpun_ilmu === "ILMU TERAPAN"
+                                ? "bg-gradient-to-r from-red-100 to-pink-100 text-red-800 border border-red-200"
+                                : "bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800 border border-gray-200"
                             }`}
                           >
-                            {major.category}
+                            {major.rumpun_ilmu}
                           </span>
                         </div>
                         <p className="text-gray-600 text-sm sm:text-base leading-relaxed">
@@ -1137,19 +1174,31 @@ export default function StudentDashboardClient() {
                         </h5>
                         <span
                           className={`px-4 py-2 rounded-xl text-sm font-bold ${
-                            major.category === "Saintek"
+                            major.rumpun_ilmu === "ILMU ALAM"
                               ? "bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-800 border border-blue-200"
-                              : major.category === "Soshum"
+                              : major.rumpun_ilmu === "ILMU SOSIAL"
                               ? "bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border border-green-200"
-                              : "bg-gradient-to-r from-orange-100 to-yellow-100 text-orange-800 border border-orange-200"
+                              : major.rumpun_ilmu === "HUMANIORA"
+                              ? "bg-gradient-to-r from-purple-100 to-purple-200 text-purple-800 border border-purple-200"
+                              : major.rumpun_ilmu === "ILMU FORMAL"
+                              ? "bg-gradient-to-r from-orange-100 to-yellow-100 text-orange-800 border border-orange-200"
+                              : major.rumpun_ilmu === "ILMU TERAPAN"
+                              ? "bg-gradient-to-r from-red-100 to-pink-100 text-red-800 border border-red-200"
+                              : "bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800 border border-gray-200"
                           }`}
                         >
-                          {major.category === "Saintek"
+                          {major.rumpun_ilmu === "ILMU ALAM"
                             ? "🔬"
-                            : major.category === "Soshum"
+                            : major.rumpun_ilmu === "ILMU SOSIAL"
                             ? "📚"
-                            : "🎨"}{" "}
-                          {major.category}
+                            : major.rumpun_ilmu === "HUMANIORA"
+                            ? "🎨"
+                            : major.rumpun_ilmu === "ILMU FORMAL"
+                            ? "📐"
+                            : major.rumpun_ilmu === "ILMU TERAPAN"
+                            ? "⚙️"
+                            : "📋"}{" "}
+                          {major.rumpun_ilmu}
                         </span>
                         <span className="px-4 py-2 rounded-xl text-sm font-bold bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border border-green-200 ml-2">
                           ✅ Terpilih
@@ -1197,19 +1246,31 @@ export default function StudentDashboardClient() {
                       <div className="flex items-center gap-2 mt-1">
                         <span
                           className={`px-3 py-1 rounded-lg text-sm font-bold ${
-                            selectedMajor.category === "Saintek"
+                            selectedMajor.rumpun_ilmu === "ILMU ALAM"
                               ? "bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-800 border border-blue-200"
-                              : selectedMajor.category === "Soshum"
+                              : selectedMajor.rumpun_ilmu === "ILMU SOSIAL"
                               ? "bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border border-green-200"
-                              : "bg-gradient-to-r from-orange-100 to-yellow-100 text-orange-800 border border-orange-200"
+                              : selectedMajor.rumpun_ilmu === "HUMANIORA"
+                              ? "bg-gradient-to-r from-purple-100 to-purple-200 text-purple-800 border border-purple-200"
+                              : selectedMajor.rumpun_ilmu === "ILMU FORMAL"
+                              ? "bg-gradient-to-r from-orange-100 to-yellow-100 text-orange-800 border border-orange-200"
+                              : selectedMajor.rumpun_ilmu === "ILMU TERAPAN"
+                              ? "bg-gradient-to-r from-red-100 to-pink-100 text-red-800 border border-red-200"
+                              : "bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800 border border-gray-200"
                           }`}
                         >
-                          {selectedMajor.category === "Saintek"
+                          {selectedMajor.rumpun_ilmu === "ILMU ALAM"
                             ? "🔬"
-                            : selectedMajor.category === "Soshum"
+                            : selectedMajor.rumpun_ilmu === "ILMU SOSIAL"
                             ? "📚"
-                            : "🎨"}{" "}
-                          {selectedMajor.category}
+                            : selectedMajor.rumpun_ilmu === "HUMANIORA"
+                            ? "🎨"
+                            : selectedMajor.rumpun_ilmu === "ILMU FORMAL"
+                            ? "📐"
+                            : selectedMajor.rumpun_ilmu === "ILMU TERAPAN"
+                            ? "⚙️"
+                            : "📋"}{" "}
+                          {selectedMajor.rumpun_ilmu}
                         </span>
                       </div>
                     </div>
@@ -1734,7 +1795,7 @@ export default function StudentDashboardClient() {
                                   {appliedMajor.major_name}
                                 </p>
                                 <p className="text-sm text-gray-600">
-                                  Kategori: {appliedMajor.category}
+                                  Rumpun Ilmu: {appliedMajor.rumpun_ilmu}
                                 </p>
                               </div>
                               <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
