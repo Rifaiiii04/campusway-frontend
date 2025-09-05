@@ -45,7 +45,7 @@ async function fetchWithCache<T>(
     timeoutId = setTimeout(() => {
       console.warn(`Request timeout for ${url}`);
       controller.abort();
-    }, 15000); // Increased to 15 seconds
+    }, 10000); // 10 seconds timeout
 
     const response = await fetch(url, {
       ...options,
@@ -87,7 +87,7 @@ async function fetchWithCache<T>(
     if (error instanceof Error) {
       if (error.name === "AbortError") {
         throw new Error(
-          `Request timeout: Server tidak merespons dalam 15 detik`
+          `Request timeout: Server tidak merespons dalam 10 detik`
         );
       }
       if (error.message.includes("Failed to fetch")) {
@@ -617,17 +617,17 @@ export const apiService = {
     schoolId?: number
   ): Promise<{ success: boolean; data: TkaSchedule[] }> {
     try {
+      const baseUrl = API_BASE_URL.replace("/school", "");
       const url = schoolId
-        ? `${API_BASE_URL.replace(
-            "/school",
-            ""
-          )}/tka-schedules?school_id=${schoolId}`
-        : `${API_BASE_URL.replace("/school", "")}/tka-schedules`;
+        ? `${baseUrl}/tka-schedules?school_id=${schoolId}`
+        : `${baseUrl}/tka-schedules`;
 
       console.log("🌐 TKA Schedules API URL:", url);
 
       const response = await fetch(url, {
-        headers: getAuthHeaders(),
+        headers: {
+          "Content-Type": "application/json",
+        },
       });
 
       if (!response.ok) {
@@ -649,17 +649,17 @@ export const apiService = {
     schoolId?: number
   ): Promise<{ success: boolean; data: TkaSchedule[] }> {
     try {
+      const baseUrl = API_BASE_URL.replace("/school", "");
       const url = schoolId
-        ? `${API_BASE_URL.replace(
-            "/school",
-            ""
-          )}/tka-schedules/upcoming?school_id=${schoolId}`
-        : `${API_BASE_URL.replace("/school", "")}/tka-schedules/upcoming`;
+        ? `${baseUrl}/tka-schedules/upcoming?school_id=${schoolId}`
+        : `${baseUrl}/tka-schedules/upcoming`;
 
       console.log("🌐 Upcoming TKA Schedules API URL:", url);
 
       const response = await fetch(url, {
-        headers: getAuthHeaders(),
+        headers: {
+          "Content-Type": "application/json",
+        },
       });
 
       if (!response.ok) {
@@ -981,6 +981,36 @@ export const studentApiService = {
     return data;
   },
 
+  // Get TKA Schedules
+  async getTkaSchedules(
+    schoolId?: number
+  ): Promise<{ success: boolean; data: TkaSchedule[] }> {
+    try {
+      const url = schoolId
+        ? `${STUDENT_API_BASE_URL}/tka-schedules?school_id=${schoolId}`
+        : `${STUDENT_API_BASE_URL}/tka-schedules`;
+
+      console.log("🌐 Student TKA Schedules API URL:", url);
+
+      const response = await fetch(url, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("✅ TKA Schedules loaded:", data);
+
+      return data;
+    } catch (error: unknown) {
+      console.error("❌ TKA Schedules API error:", error);
+      throw error;
+    }
+  },
 
   async getUpcomingTkaSchedules(
     schoolId?: number
@@ -999,7 +1029,8 @@ export const studentApiService = {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        console.warn(`⚠️ Upcoming TKA Schedules API error: ${response.status}`);
+        return { success: true, data: [] };
       }
 
       const data = await response.json();
@@ -1008,7 +1039,8 @@ export const studentApiService = {
       return data;
     } catch (error: unknown) {
       console.error("❌ Upcoming TKA Schedules API error:", error);
-      throw error;
+      // Return empty data instead of throwing error to prevent UI crashes
+      return { success: true, data: [] };
     }
   },
 };
@@ -1096,19 +1128,48 @@ export const schoolLevelApiService = {
     }
   },
 
+  // Get TKA Schedules
+  async getTkaSchedules(
+    schoolId?: number
+  ): Promise<{ success: boolean; data: TkaSchedule[] }> {
+    try {
+      const baseUrl = API_BASE_URL.replace("/school", "");
+      const url = schoolId
+        ? `${baseUrl}/tka-schedules?school_id=${schoolId}`
+        : `${baseUrl}/tka-schedules`;
+
+      console.log("🌐 School Level TKA Schedules API URL:", url);
+
+      const response = await fetch(url, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("📅 TKA Schedules response:", data);
+
+      return data;
+    } catch (error: unknown) {
+      console.error("❌ TKA Schedules API error:", error);
+      throw error;
+    }
+  },
 
   async getUpcomingTkaSchedules(
     schoolId?: number
   ): Promise<{ success: boolean; data: TkaSchedule[] }> {
     try {
+      const baseUrl = API_BASE_URL.replace("/school", "");
       const url = schoolId
-        ? `${API_BASE_URL.replace(
-            "/school",
-            ""
-          )}/tka-schedules/upcoming?school_id=${schoolId}`
-        : `${API_BASE_URL.replace("/school", "")}/tka-schedules/upcoming`;
+        ? `${baseUrl}/tka-schedules/upcoming?school_id=${schoolId}`
+        : `${baseUrl}/tka-schedules/upcoming`;
 
-      console.log("🌐 Upcoming TKA Schedules API URL:", url);
+      console.log("🌐 School Level Upcoming TKA Schedules API URL:", url);
 
       const response = await fetch(url, {
         headers: {

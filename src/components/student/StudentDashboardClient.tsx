@@ -885,40 +885,44 @@ export default function StudentDashboardClient() {
             />
           </div>
 
-          {/* Rumpun Ilmu Filter */}
+          {/* Rumpun Ilmu Filter - Updated 2025-09-05 */}
           <div className="flex flex-wrap gap-2 sm:gap-3 mb-4 sm:mb-6">
-            {[
-              {
-                key: "all",
-                label: "Semua",
-                color: "from-gray-500 to-gray-600",
-              },
-              {
-                key: "HUMANIORA",
-                label: "HUMANIORA",
-                color: "from-purple-500 to-purple-600",
-              },
-              {
-                key: "ILMU SOSIAL",
-                label: "ILMU SOSIAL",
-                color: "from-green-500 to-green-600",
-              },
-              {
-                key: "ILMU ALAM",
-                label: "ILMU ALAM",
-                color: "from-blue-500 to-blue-600",
-              },
-              {
-                key: "ILMU FORMAL",
-                label: "ILMU FORMAL",
-                color: "from-orange-500 to-orange-600",
-              },
-              {
-                key: "ILMU TERAPAN",
-                label: "ILMU TERAPAN",
-                color: "from-red-500 to-red-600",
-              },
-            ].map((rumpun) => (
+            {(() => {
+              const rumpunFilters = [
+                {
+                  key: "all",
+                  label: "Semua",
+                  color: "from-gray-500 to-gray-600",
+                },
+                {
+                  key: "HUMANIORA",
+                  label: "🎨 HUMANIORA",
+                  color: "from-purple-500 to-purple-600",
+                },
+                {
+                  key: "ILMU SOSIAL",
+                  label: "📚 ILMU SOSIAL",
+                  color: "from-green-500 to-green-600",
+                },
+                {
+                  key: "ILMU ALAM",
+                  label: "🔬 ILMU ALAM",
+                  color: "from-blue-500 to-blue-600",
+                },
+                {
+                  key: "ILMU FORMAL",
+                  label: "📐 ILMU FORMAL",
+                  color: "from-orange-500 to-orange-600",
+                },
+                {
+                  key: "ILMU TERAPAN",
+                  label: "⚙️ ILMU TERAPAN",
+                  color: "from-red-500 to-red-600",
+                },
+              ];
+              console.log("🔍 Rendering Rumpun Ilmu Filters:", rumpunFilters);
+              return rumpunFilters;
+            })().map((rumpun) => (
               <button
                 key={rumpun.key}
                 onClick={() => setSelectedRumpunIlmu(rumpun.key)}
