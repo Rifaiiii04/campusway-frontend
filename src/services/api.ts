@@ -981,6 +981,38 @@ export const studentApiService = {
     return data;
   },
 
+  async getTkaSchedules(
+    schoolId?: number
+  ): Promise<{ success: boolean; data: TkaSchedule[] }> {
+    try {
+      const url = schoolId
+        ? `${STUDENT_API_BASE_URL}/tka-schedules?school_id=${schoolId}`
+        : `${STUDENT_API_BASE_URL}/tka-schedules`;
+
+      console.log("🌐 Student TKA Schedules API URL:", url);
+
+      const response = await fetch(url, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        console.warn(`⚠️ TKA Schedules API error: ${response.status}`);
+        return { success: true, data: [] };
+      }
+
+      const data = await response.json();
+      console.log("✅ TKA Schedules loaded:", data);
+
+      return data;
+    } catch (error: unknown) {
+      console.error("❌ TKA Schedules API error:", error);
+      // Return empty data instead of throwing error to prevent UI crashes
+      return { success: true, data: [] };
+    }
+  },
+
   async getUpcomingTkaSchedules(
     schoolId?: number
   ): Promise<{ success: boolean; data: TkaSchedule[] }> {
