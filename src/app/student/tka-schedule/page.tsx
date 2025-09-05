@@ -45,11 +45,14 @@ export default function TkaSchedulePage() {
       console.log("✅ TKA schedules loaded:", allSchedules.length);
       console.log("✅ Upcoming schedules:", upcoming.length);
       console.log("✅ Completed schedules:", completed.length);
+      console.log("🔄 Setting loading to false...");
     } catch (err) {
       console.error("❌ Error loading TKA schedules:", err);
       setError(err instanceof Error ? err.message : "Gagal memuat jadwal TKA");
+      console.log("🔄 Setting loading to false after error...");
     } finally {
       setLoading(false);
+      console.log("✅ Loading set to false");
     }
   }, []);
 
@@ -78,6 +81,13 @@ export default function TkaSchedulePage() {
         return tkaSchedules.length;
     }
   };
+
+  // Debug logging
+  console.log("🔍 TkaSchedulePage render state:", {
+    loading,
+    error,
+    tkaSchedules: tkaSchedules.length,
+  });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -111,6 +121,7 @@ export default function TkaSchedulePage() {
             <div className="text-center">
               <LoadingSpinner size="lg" />
               <p className="mt-4 text-gray-600">Memuat jadwal TKA...</p>
+              <p className="text-xs text-gray-400 mt-2">Loading state active</p>
             </div>
           </div>
         ) : error ? (
@@ -121,6 +132,7 @@ export default function TkaSchedulePage() {
                 Error
               </h2>
               <p className="text-gray-600 mb-4">{error}</p>
+              <p className="text-xs text-gray-400 mb-4">Error state active</p>
               <button
                 onClick={loadTkaSchedules}
                 className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
