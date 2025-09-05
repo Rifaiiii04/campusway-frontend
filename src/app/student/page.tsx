@@ -15,7 +15,7 @@ export default function StudentLoginPage() {
     router.push("/student/dashboard");
   };
 
-  const handleRegistrationSuccess = (studentData: any) => {
+  const handleRegistrationSuccess = () => {
     // Setelah registrasi berhasil, redirect ke dashboard
     router.push("/student/dashboard");
   };

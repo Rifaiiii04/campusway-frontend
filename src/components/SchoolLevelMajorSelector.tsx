@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { schoolLevelApiService } from "@/services/api";
 
 interface SchoolLevelMajorSelectorProps {
-  onMajorSelect?: (major: any) => void;
+  onMajorSelect?: (major: unknown) => void;
   selectedSchoolLevel?: "SMA/MA" | "SMK/MAK";
 }
 
@@ -15,11 +15,11 @@ const SchoolLevelMajorSelector: React.FC<SchoolLevelMajorSelectorProps> = ({
   const [schoolLevel, setSchoolLevel] = useState<"SMA/MA" | "SMK/MAK">(
     selectedSchoolLevel
   );
-  const [majors, setMajors] = useState<any[]>([]);
-  const [subjects, setSubjects] = useState<any[]>([]);
+  const [majors, setMajors] = useState<unknown[]>([]);
+  const [subjects, setSubjects] = useState<unknown[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [stats, setStats] = useState<any>(null);
+  const [stats, setStats] = useState<unknown>(null);
 
   useEffect(() => {
     loadData();
@@ -52,7 +52,7 @@ const SchoolLevelMajorSelector: React.FC<SchoolLevelMajorSelectorProps> = ({
     setSchoolLevel(level);
   };
 
-  const handleMajorClick = (major: any) => {
+  const handleMajorClick = (major: unknown) => {
     if (onMajorSelect) {
       onMajorSelect(major);
     }

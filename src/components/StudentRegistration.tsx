@@ -11,7 +11,7 @@ interface School {
 }
 
 interface StudentRegistrationProps {
-  onRegistrationSuccess: (studentData: any) => void;
+  onRegistrationSuccess: (studentData: unknown) => void;
   onBackToLogin: () => void;
 }
 

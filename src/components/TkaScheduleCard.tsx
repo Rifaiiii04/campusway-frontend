@@ -69,19 +69,10 @@ const TkaScheduleCard: React.FC<TkaScheduleCardProps> = ({
     });
   };
 
-  const formatTime = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleTimeString("id-ID", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
   const isUpcoming = new Date(schedule.start_date) > new Date();
   const isOngoing =
     new Date(schedule.start_date) <= new Date() &&
     new Date(schedule.end_date) >= new Date();
-  const isCompleted = new Date(schedule.end_date) < new Date();
 
   return (
     <div
@@ -154,17 +145,6 @@ const TkaScheduleCard: React.FC<TkaScheduleCardProps> = ({
             {formatDate(schedule.end_date)}
           </p>
         </div>
-      </div>
-
-      {/* Duration */}
-      <div className="bg-blue-50 rounded-lg p-3 mb-4">
-        <div className="flex items-center gap-2">
-          <span className="text-blue-600">⏱️</span>
-          <span className="text-sm font-medium text-gray-700">Durasi</span>
-        </div>
-        <p className="text-sm text-gray-900 font-medium">
-          {formatTime(schedule.start_date)} - {formatTime(schedule.end_date)}
-        </p>
       </div>
 
       {/* Instructions */}

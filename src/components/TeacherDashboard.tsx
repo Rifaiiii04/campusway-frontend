@@ -391,7 +391,7 @@ export default function TeacherDashboard() {
     ]);
 
     // Fungsi untuk escape CSV field - format standar CSV
-    const escapeCSVField = (field: any) => {
+    const escapeCSVField = (field: unknown) => {
       // Pastikan field adalah string
       const stringField = String(field || "");
       // Selalu wrap dengan quotes untuk memastikan Excel mengenali sebagai field terpisah

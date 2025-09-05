@@ -231,7 +231,6 @@ export interface TkaSchedule {
   // Accessors
   formatted_start_date?: string;
   formatted_end_date?: string;
-  duration?: string;
   status_badge?: string;
   type_badge?: string;
 }
@@ -761,6 +760,67 @@ export const studentApiService = {
 
     return data;
   },
+
+  // TKA Schedules API
+  async getTkaSchedules(
+    schoolId?: number
+  ): Promise<{ success: boolean; data: TkaSchedule[] }> {
+    try {
+      const url = schoolId
+        ? `${STUDENT_API_BASE_URL}/tka-schedules?school_id=${schoolId}`
+        : `${STUDENT_API_BASE_URL}/tka-schedules`;
+
+      console.log("🌐 Student TKA Schedules API URL:", url);
+
+      const response = await fetch(url, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("✅ TKA Schedules loaded:", data);
+
+      return data;
+    } catch (error: unknown) {
+      console.error("❌ TKA Schedules API error:", error);
+      throw error;
+    }
+  },
+
+  async getUpcomingTkaSchedules(
+    schoolId?: number
+  ): Promise<{ success: boolean; data: TkaSchedule[] }> {
+    try {
+      const url = schoolId
+        ? `${STUDENT_API_BASE_URL}/tka-schedules/upcoming?school_id=${schoolId}`
+        : `${STUDENT_API_BASE_URL}/tka-schedules/upcoming`;
+
+      console.log("🌐 Student Upcoming TKA Schedules API URL:", url);
+
+      const response = await fetch(url, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("✅ Upcoming TKA Schedules loaded:", data);
+
+      return data;
+    } catch (error: unknown) {
+      console.error("❌ Upcoming TKA Schedules API error:", error);
+      throw error;
+    }
+  },
 };
 
 // School Level API Service
@@ -770,7 +830,7 @@ export const schoolLevelApiService = {
     schoolLevel: "SMA/MA" | "SMK/MAK" = "SMA/MA"
   ): Promise<{
     success: boolean;
-    data: any[];
+    data: Major[];
     school_level: string;
     total_subjects: number;
   }> {
@@ -792,7 +852,7 @@ export const schoolLevelApiService = {
     schoolLevel: "SMA/MA" | "SMK/MAK" = "SMA/MA"
   ): Promise<{
     success: boolean;
-    data: any[];
+    data: unknown[];
     school_level: string;
     total: number;
   }> {
@@ -810,7 +870,7 @@ export const schoolLevelApiService = {
   },
 
   // Get school level statistics
-  async getSchoolLevelStats(): Promise<{ success: boolean; data: any }> {
+  async getSchoolLevelStats(): Promise<{ success: boolean; data: unknown }> {
     try {
       return fetchWithCache(
         `${SCHOOL_LEVEL_API_BASE_URL}/stats`,

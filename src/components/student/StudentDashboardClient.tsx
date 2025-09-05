@@ -9,10 +9,9 @@ import React, {
 } from "react";
 import { useRouter } from "next/navigation";
 import { studentApiService, Major, TkaSchedule } from "@/services/api";
-import TkaScheduleCard from "../TkaScheduleCard";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useApi } from "@/hooks/useApi";
-import { LoadingSpinner, SkeletonLoader } from "@/components/ui/LoadingSpinner";
+import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { usePerformance } from "@/components/providers/PerformanceProvider";
 
 interface StudentData {
@@ -68,16 +67,8 @@ export default function StudentDashboardClient() {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [settingsData, setSettingsData] = useState({
-    email: "",
-    phone: "",
-    parent_phone: "",
-  });
-
   // TKA Schedules state
-  const [tkaSchedules, setTkaSchedules] = useState<TkaSchedule[]>([]);
   const [upcomingSchedules, setUpcomingSchedules] = useState<TkaSchedule[]>([]);
-  const [loadingSchedules, setLoadingSchedules] = useState(false);
 
   // Debounced search query
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
@@ -86,7 +77,6 @@ export default function StudentDashboardClient() {
   const {
     data: availableMajors,
     loading: loadingMajors,
-    error: majorsError,
     execute: loadMajors,
   } = useApi(() => studentApiService.getMajors(), {
     onError: (error) => {
@@ -126,24 +116,20 @@ export default function StudentDashboardClient() {
   // Load TKA Schedules
   const loadTkaSchedules = useCallback(async () => {
     try {
-      setLoadingSchedules(true);
       console.log("🔄 Loading TKA schedules...");
-      
-      // Load all schedules and upcoming schedules
-      const [schedulesResponse, upcomingResponse] = await Promise.all([
-        studentApiService.getTkaSchedules(),
-        studentApiService.getUpcomingTkaSchedules()
-      ]);
-      
-      setTkaSchedules(schedulesResponse.data);
+
+      // Load upcoming schedules
+      const upcomingResponse =
+        await studentApiService.getUpcomingTkaSchedules();
+
       setUpcomingSchedules(upcomingResponse.data);
-      console.log("✅ TKA schedules loaded:", schedulesResponse.data.length);
-      console.log("✅ Upcoming schedules loaded:", upcomingResponse.data.length);
+      console.log(
+        "✅ Upcoming schedules loaded:",
+        upcomingResponse.data.length
+      );
     } catch (error) {
       console.error("❌ Error loading TKA schedules:", error);
       // Don't set error state for schedules as it's not critical
-    } finally {
-      setLoadingSchedules(false);
     }
   }, []);
 
@@ -165,9 +151,9 @@ export default function StudentDashboardClient() {
 
         // Load data in parallel
         await Promise.all([
-          loadMajors(), 
+          loadMajors(),
           loadMajorStatus(parsedData),
-          loadTkaSchedules()
+          loadTkaSchedules(),
         ]);
       } else {
         router.push("/student");
@@ -571,6 +557,27 @@ export default function StudentDashboardClient() {
             </div>
             <div className="flex items-center space-x-2 sm:space-x-3">
               <button
+                onClick={() => router.push("/student/tka-schedule")}
+                className="flex items-center px-3 sm:px-4 py-2 text-blue-600 hover:text-blue-900 hover:bg-blue-50 rounded-lg sm:rounded-xl transition-all duration-200 hover:scale-105"
+              >
+                <svg
+                  className="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  />
+                </svg>
+                <span className="font-medium text-sm sm:text-base">
+                  Jadwal TKA
+                </span>
+              </button>
+              <button
                 onClick={handleSettingsClick}
                 className="flex items-center px-3 sm:px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg sm:rounded-xl transition-all duration-200 hover:scale-105"
               >
@@ -742,40 +749,62 @@ export default function StudentDashboardClient() {
                 Ada {upcomingSchedules.length} jadwal TKA yang akan datang
               </p>
             </div>
-            
+
             <div className="space-y-4">
               {upcomingSchedules.slice(0, 2).map((schedule) => (
-                <div key={schedule.id} className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                <div
+                  key={schedule.id}
+                  className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20"
+                >
                   <div className="flex items-center justify-between">
                     <div>
-                      <h4 className="font-semibold text-white text-lg">{schedule.title}</h4>
+                      <h4 className="font-semibold text-white text-lg">
+                        {schedule.title}
+                      </h4>
                       <p className="text-blue-100 text-sm">
-                        {new Date(schedule.start_date).toLocaleDateString('id-ID', {
-                          weekday: 'long',
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric'
-                        })}
+                        {new Date(schedule.start_date).toLocaleDateString(
+                          "id-ID",
+                          {
+                            weekday: "long",
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          }
+                        )}
                       </p>
                       <p className="text-blue-100 text-sm">
-                        {new Date(schedule.start_date).toLocaleTimeString('id-ID', {
-                          hour: '2-digit',
-                          minute: '2-digit'
-                        })} - {new Date(schedule.end_date).toLocaleTimeString('id-ID', {
-                          hour: '2-digit',
-                          minute: '2-digit'
-                        })}
+                        {new Date(schedule.start_date).toLocaleTimeString(
+                          "id-ID",
+                          {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          }
+                        )}{" "}
+                        -{" "}
+                        {new Date(schedule.end_date).toLocaleTimeString(
+                          "id-ID",
+                          {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          }
+                        )}
                       </p>
                     </div>
                     <div className="text-right">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                        schedule.type === 'regular' ? 'bg-blue-100 text-blue-800' :
-                        schedule.type === 'makeup' ? 'bg-yellow-100 text-yellow-800' :
-                        'bg-purple-100 text-purple-800'
-                      }`}>
-                        {schedule.type === 'regular' ? 'Reguler' :
-                         schedule.type === 'makeup' ? 'Susulan' :
-                         'Khusus'}
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-medium ${
+                          schedule.type === "regular"
+                            ? "bg-blue-100 text-blue-800"
+                            : schedule.type === "makeup"
+                            ? "bg-yellow-100 text-yellow-800"
+                            : "bg-purple-100 text-purple-800"
+                        }`}
+                      >
+                        {schedule.type === "regular"
+                          ? "Reguler"
+                          : schedule.type === "makeup"
+                          ? "Susulan"
+                          : "Khusus"}
                       </span>
                     </div>
                   </div>
@@ -790,7 +819,16 @@ export default function StudentDashboardClient() {
                 </div>
               ))}
             </div>
-            
+
+            <div className="text-center mt-6">
+              <button
+                onClick={() => router.push("/student/tka-schedule")}
+                className="bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 hover:scale-105 backdrop-blur-sm border border-white/30"
+              >
+                Lihat Semua Jadwal TKA
+              </button>
+            </div>
+
             {upcomingSchedules.length > 2 && (
               <div className="text-center mt-4">
                 <p className="text-blue-100 text-sm">

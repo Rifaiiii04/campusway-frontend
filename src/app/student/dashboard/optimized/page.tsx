@@ -37,7 +37,7 @@ export default function OptimizedStudentDashboardPage() {
   const [selectedMajorId, setSelectedMajorId] = useState<number | null>(null);
   const [showSettings, setShowSettings] = useState(false);
   const [showMajorDetail, setShowMajorDetail] = useState(false);
-  const [selectedMajor, setSelectedMajor] = useState<any>(null);
+  const [selectedMajor, setSelectedMajor] = useState<unknown>(null);
   const [loadingMajorDetail, setLoadingMajorDetail] = useState(false);
   const [error, setError] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -132,9 +132,9 @@ export default function OptimizedStudentDashboardPage() {
         const appliedMajor: AppliedMajor = {
           id: response.data.major.id,
           major_name: response.data.major.major_name,
-          category: response.data.major.category,
-          description: response.data.major.description,
-          appliedDate: response.data.created_at,
+          category: response.data.major.category || "",
+          description: response.data.major.description || "",
+          appliedDate: response.data.chosen_at,
         };
         setAppliedMajors([appliedMajor]);
       }
@@ -163,8 +163,8 @@ export default function OptimizedStudentDashboardPage() {
           const appliedMajor: AppliedMajor = {
             id: selectedMajor.id,
             major_name: selectedMajor.major_name,
-            category: selectedMajor.category,
-            description: selectedMajor.description,
+            category: selectedMajor.category || "",
+            description: selectedMajor.description || "",
             appliedDate: new Date().toISOString(),
           };
           setAppliedMajors([appliedMajor]);
@@ -188,7 +188,7 @@ export default function OptimizedStudentDashboardPage() {
     }
   };
 
-  const handleViewMajorDetail = async (major: any) => {
+  const handleViewMajorDetail = async (major: unknown) => {
     setSelectedMajor(major);
     setShowMajorDetail(true);
   };

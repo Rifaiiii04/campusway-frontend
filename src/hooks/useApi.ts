@@ -10,12 +10,12 @@ interface UseApiReturn<T> {
   data: T | null;
   loading: boolean;
   error: Error | null;
-  execute: (...args: any[]) => Promise<T | null>;
+  execute: (...args: unknown[]) => Promise<T | null>;
   reset: () => void;
 }
 
 export function useApi<T>(
-  apiFunction: (...args: any[]) => Promise<T>,
+  apiFunction: (...args: unknown[]) => Promise<T>,
   options: UseApiOptions<T> = {}
 ): UseApiReturn<T> {
   const [data, setData] = useState<T | null>(null);
@@ -23,7 +23,7 @@ export function useApi<T>(
   const [error, setError] = useState<Error | null>(null);
 
   const execute = useCallback(
-    async (...args: any[]): Promise<T | null> => {
+    async (...args: unknown[]): Promise<T | null> => {
       setLoading(true);
       setError(null);
 

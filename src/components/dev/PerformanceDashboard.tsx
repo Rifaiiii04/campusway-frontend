@@ -6,14 +6,29 @@ import { clientCache } from "@/utils/cache";
 
 export const PerformanceDashboard: React.FC = () => {
   const { getReport } = usePerformance();
-  const [performanceReport, setPerformanceReport] = useState<any>({});
-  const [cacheStats, setCacheStats] = useState<any>({});
+  const [performanceReport, setPerformanceReport] = useState<Record<string, unknown>>({});
+  const [cacheStats, setCacheStats] = useState<{ size: number; maxSize: number; hitRate: number }>({
+    size: 0,
+    maxSize: 50,
+    hitRate: 0
+  });
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     const updateStats = () => {
       setPerformanceReport(getReport());
-      setCacheStats(clientCache.getStats());
+      
+      // Check if getStats method exists before calling it
+      if (typeof clientCache.getStats === "function") {
+        setCacheStats(clientCache.getStats());
+      } else {
+        // Fallback stats if getStats is not available
+        setCacheStats({
+          size: 0,
+          maxSize: 50,
+          hitRate: 0,
+        });
+      }
     };
 
     updateStats();
@@ -97,7 +112,7 @@ export const PerformanceDashboard: React.FC = () => {
             </h4>
             <div className="space-y-2 max-h-48 overflow-y-auto">
               {Object.entries(performanceReport).map(
-                ([operation, metrics]: [string, any]) => (
+                ([operation, metrics]: [string, unknown]) => (
                   <div
                     key={operation}
                     className="text-xs border-b border-gray-100 pb-2"
@@ -109,8 +124,8 @@ export const PerformanceDashboard: React.FC = () => {
                       {operation}
                     </div>
                     <div className="text-gray-600">
-                      Avg: {metrics.average?.toFixed(2)}ms | Count:{" "}
-                      {metrics.count} | Latest: {metrics.latest?.toFixed(2)}ms
+                      Avg: {(metrics as { average?: number })?.average?.toFixed(2)}ms | Count:{" "}
+                      {(metrics as { count?: number })?.count} | Latest: {(metrics as { latest?: number })?.latest?.toFixed(2)}ms
                     </div>
                   </div>
                 )
@@ -123,7 +138,15 @@ export const PerformanceDashboard: React.FC = () => {
             <button
               onClick={() => {
                 clientCache.clear();
-                setCacheStats(clientCache.getStats());
+                if (typeof clientCache.getStats === "function") {
+                  setCacheStats(clientCache.getStats());
+                } else {
+                  setCacheStats({
+                    size: 0,
+                    maxSize: 50,
+                    hitRate: 0,
+                  });
+                }
               }}
               className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded hover:bg-red-200 transition-colors"
             >

@@ -4,9 +4,10 @@ import React from "react";
 import SchoolLevelMajorSelector from "@/components/SchoolLevelMajorSelector";
 
 export default function SchoolLevelDemoPage() {
-  const handleMajorSelect = (major: any) => {
+  const handleMajorSelect = (major: unknown) => {
     console.log("Selected major:", major);
-    alert(`Anda memilih jurusan: ${major.major_name}`);
+    const majorData = major as { major_name?: string };
+    alert(`Anda memilih jurusan: ${majorData.major_name || "Unknown"}`);
   };
 
   return (
