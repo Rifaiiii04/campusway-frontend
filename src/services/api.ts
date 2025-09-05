@@ -298,6 +298,7 @@ const getAuthHeaders = () => {
 // API Functions
 export const apiService = {
   // Login
+  // ...existing code...
   async login(npsn: string, password: string) {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
