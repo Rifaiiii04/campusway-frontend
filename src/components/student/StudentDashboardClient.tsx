@@ -133,6 +133,32 @@ export default function StudentDashboardClient() {
     }
   }, []);
 
+  // Load major status
+  const loadMajorStatus = useCallback(async (studentData: StudentData) => {
+    if (!studentData?.id) {
+      console.warn("⚠️ StudentData or studentData.id is missing:", studentData);
+      return;
+    }
+
+    console.log("🔍 Loading major status for student ID:", studentData.id);
+
+    try {
+      const response = await studentApiService.checkMajorStatus(studentData.id);
+
+      if (response.success && response.data.has_choice) {
+        console.log("✅ Student has choice, loading choice details");
+        await loadStudentChoice(studentData);
+      } else {
+        setAppliedMajors([]);
+        setSelectedMajorId(null);
+      }
+    } catch (error) {
+      console.error("Error loading major status:", error);
+      setAppliedMajors([]);
+      setSelectedMajorId(null);
+    }
+  }, []);
+
   // Authentication check
   const checkAuthentication = useCallback(async () => {
     if (hasInitialized.current) return;
@@ -167,37 +193,7 @@ export default function StudentDashboardClient() {
       setLoading(false);
       endTiming();
     }
-  }, [router, loadMajors, startTiming]);
-
-  // Load major status
-  const loadMajorStatus = useCallback(async (studentData: StudentData) => {
-    if (!studentData?.id) {
-      console.warn("⚠️ StudentData or studentData.id is missing:", studentData);
-      return;
-    }
-
-    console.log("🔍 Loading major status for student ID:", studentData.id);
-
-    try {
-      const response = await studentApiService.checkMajorStatus(studentData.id);
-
-      if (
-        response.success &&
-        response.data.has_choice &&
-        response.data.selected_major_id
-      ) {
-        setSelectedMajorId(response.data.selected_major_id);
-        await loadStudentChoice(studentData);
-      } else {
-        setAppliedMajors([]);
-        setSelectedMajorId(null);
-      }
-    } catch (error) {
-      console.error("Error loading major status:", error);
-      setAppliedMajors([]);
-      setSelectedMajorId(null);
-    }
-  }, []);
+  }, [router, loadMajors, startTiming, loadMajorStatus, loadTkaSchedules]);
 
   // Load student choice
   const loadStudentChoice = useCallback(async (studentData: StudentData) => {

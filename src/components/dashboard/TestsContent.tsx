@@ -1,14 +1,11 @@
 "use client";
 
-import { Student } from "../../services/api";
 
 interface TestsContentProps {
-  students: Student[];
   darkMode: boolean;
 }
 
 export default function TestsContent({
-  students,
   darkMode,
 }: TestsContentProps) {
   return (

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import PageTitle from "../../../../components/PageTitle";
 import { useMajors, useStudentChoice } from "../../../../hooks/useMajors";
@@ -34,32 +34,19 @@ export default function OptimizedStudentDashboardPage() {
   const [studentData, setStudentData] = useState<StudentData | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [appliedMajors, setAppliedMajors] = useState<AppliedMajor[]>([]);
-  const [selectedMajorId, setSelectedMajorId] = useState<number | null>(null);
-  const [showSettings, setShowSettings] = useState(false);
   const [showMajorDetail, setShowMajorDetail] = useState(false);
-  const [selectedMajor, setSelectedMajor] = useState<unknown>(null);
-  const [loadingMajorDetail, setLoadingMajorDetail] = useState(false);
+  const [selectedMajor, setSelectedMajor] = useState<{
+    id: number;
+    major_name: string;
+    category?: string;
+    description?: string;
+  } | null>(null);
   const [error, setError] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
-  const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
-  const [settingsData, setSettingsData] = useState({
-    email: "",
-    phone: "",
-    parent_phone: "",
-  });
 
   // Use SWR hooks for data fetching with caching
-  const {
-    majors: availableMajors,
-    isLoading: loadingMajors,
-    mutate: refetchMajors,
-  } = useMajors();
-  const {
-    choice: studentChoice,
-    isLoading: loadingChoice,
-    mutate: refetchChoice,
-  } = useStudentChoice(studentData?.id || null);
+  const { majors: availableMajors, isLoading: loadingMajors } = useMajors();
+  const { mutate: refetchChoice } = useStudentChoice(studentData?.id || null);
 
   // Memoized filtered majors for better performance
   const filteredMajors = useMemo(() => {
@@ -95,11 +82,25 @@ export default function OptimizedStudentDashboardPage() {
     return uniqueCategories.sort();
   }, [availableMajors]);
 
-  useEffect(() => {
-    checkAuthentication();
+  const loadAppliedMajors = useCallback(async (studentId: number) => {
+    try {
+      const response = await studentApiService.getStudentChoice(studentId);
+      if (response.success && response.data) {
+        const appliedMajor: AppliedMajor = {
+          id: response.data.major.id,
+          major_name: response.data.major.major_name,
+          category: response.data.major.category || "",
+          description: response.data.major.description || "",
+          appliedDate: response.data.chosen_at,
+        };
+        setAppliedMajors([appliedMajor]);
+      }
+    } catch (error) {
+      console.error("Error loading applied majors:", error);
+    }
   }, []);
 
-  const checkAuthentication = () => {
+  const checkAuthentication = useCallback(() => {
     const token = localStorage.getItem("student_token");
     const studentDataStr = localStorage.getItem("student_data");
 
@@ -123,25 +124,11 @@ export default function OptimizedStudentDashboardPage() {
       router.push("/student");
     }
     setLoading(false);
-  };
+  }, [router, loadAppliedMajors]);
 
-  const loadAppliedMajors = async (studentId: number) => {
-    try {
-      const response = await studentApiService.getStudentChoice(studentId);
-      if (response.success && response.data) {
-        const appliedMajor: AppliedMajor = {
-          id: response.data.major.id,
-          major_name: response.data.major.major_name,
-          category: response.data.major.category || "",
-          description: response.data.major.description || "",
-          appliedDate: response.data.chosen_at,
-        };
-        setAppliedMajors([appliedMajor]);
-      }
-    } catch (error) {
-      console.error("Error loading applied majors:", error);
-    }
-  };
+  useEffect(() => {
+    checkAuthentication();
+  }, [checkAuthentication]);
 
   const handleMajorSelection = async (majorId: number) => {
     if (!studentData) return;
@@ -154,9 +141,6 @@ export default function OptimizedStudentDashboardPage() {
       );
 
       if (response.success) {
-        setShowSuccessAnimation(true);
-        setSuccessMessage("Pilihan jurusan berhasil disimpan!");
-
         // Update local state
         const selectedMajor = availableMajors.find((m) => m.id === majorId);
         if (selectedMajor) {
@@ -172,11 +156,6 @@ export default function OptimizedStudentDashboardPage() {
 
         // Refetch student choice data
         refetchChoice();
-
-        setTimeout(() => {
-          setShowSuccessAnimation(false);
-          setSuccessMessage("");
-        }, 3000);
       } else {
         setError(response.message || "Gagal menyimpan pilihan jurusan");
       }
@@ -188,7 +167,12 @@ export default function OptimizedStudentDashboardPage() {
     }
   };
 
-  const handleViewMajorDetail = async (major: unknown) => {
+  const handleViewMajorDetail = async (major: {
+    id: number;
+    major_name: string;
+    category?: string;
+    description?: string;
+  }) => {
     setSelectedMajor(major);
     setShowMajorDetail(true);
   };
@@ -211,25 +195,22 @@ export default function OptimizedStudentDashboardPage() {
   }
 
   if (!isAuthenticated || !studentData) {
-    return null;
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-6xl mb-4">🔒</div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            Akses Ditolak
+          </h2>
+          <p className="text-gray-600">Silakan login terlebih dahulu</p>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="min-h-screen bg-gray-50">
       <PageTitle title="Dashboard Siswa" />
-
-      {/* Success Animation */}
-      {showSuccessAnimation && (
-        <div className="fixed inset-0 bg-green-500 bg-opacity-90 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-8 text-center">
-            <div className="text-6xl mb-4">✅</div>
-            <h2 className="text-2xl font-bold text-green-600 mb-2">
-              Berhasil!
-            </h2>
-            <p className="text-gray-700">{successMessage}</p>
-          </div>
-        </div>
-      )}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
@@ -250,12 +231,6 @@ export default function OptimizedStudentDashboardPage() {
               )}
             </div>
             <div className="mt-4 sm:mt-0 flex space-x-3">
-              <button
-                onClick={() => setShowSettings(true)}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
-              >
-                Pengaturan
-              </button>
               <button
                 onClick={handleLogout}
                 className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700"
@@ -423,22 +398,17 @@ export default function OptimizedStudentDashboardPage() {
               <div className="space-y-4">
                 <div>
                   <h4 className="font-medium text-gray-900">Kategori</h4>
-                  <p className="text-gray-600">{selectedMajor.category}</p>
+                  <p className="text-gray-600">
+                    {selectedMajor.category || "Tidak tersedia"}
+                  </p>
                 </div>
 
                 <div>
                   <h4 className="font-medium text-gray-900">Deskripsi</h4>
-                  <p className="text-gray-600">{selectedMajor.description}</p>
+                  <p className="text-gray-600">
+                    {selectedMajor.description || "Tidak tersedia"}
+                  </p>
                 </div>
-
-                {selectedMajor.min_score && selectedMajor.max_score && (
-                  <div>
-                    <h4 className="font-medium text-gray-900">Rentang Nilai</h4>
-                    <p className="text-gray-600">
-                      {selectedMajor.min_score} - {selectedMajor.max_score}
-                    </p>
-                  </div>
-                )}
               </div>
 
               <div className="flex justify-end space-x-3 mt-6">

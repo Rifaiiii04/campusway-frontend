@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { apiService, TkaSchedule } from "@/services/api";
+import { studentApiService, TkaSchedule } from "@/services/api";
 import TkaScheduleList from "@/components/TkaScheduleList";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 
@@ -42,8 +42,8 @@ export default function TeacherTkaSchedulePage() {
       console.log("🔄 Loading TKA schedules for school:", schoolId);
 
       const [schedulesResponse, upcomingResponse] = await Promise.all([
-        apiService.getTkaSchedules(schoolId),
-        apiService.getUpcomingTkaSchedules(schoolId),
+        studentApiService.getTkaSchedules(),
+        studentApiService.getUpcomingTkaSchedules(),
       ]);
 
       const allSchedules = schedulesResponse.data;

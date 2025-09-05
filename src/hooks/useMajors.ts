@@ -1,9 +1,6 @@
 import useSWR from "swr";
 import { studentApiService } from "../services/api";
 
-// Fetcher function for SWR
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
-
 // Hook for fetching majors with caching
 export function useMajors() {
   const { data, error, isLoading, mutate } = useSWR(

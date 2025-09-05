@@ -1,13 +1,17 @@
 "use client";
 
 import { Bar, Doughnut } from "react-chartjs-2";
-import { DashboardData, Student } from "../../services/api";
+import { DashboardData, Student, TkaSchedule } from "../../services/api";
+import TkaScheduleCard from "../TkaScheduleCard";
 
 interface DashboardContentProps {
   dashboardData: DashboardData | null;
   students: Student[];
   darkMode: boolean;
   onClassClick: (classItem: { kelas: string; student_count: number }) => void;
+  tkaSchedules?: TkaSchedule[];
+  upcomingSchedules?: TkaSchedule[];
+  loadingSchedules?: boolean;
 }
 
 export default function DashboardContent({
@@ -15,6 +19,9 @@ export default function DashboardContent({
   students,
   darkMode,
   onClassClick,
+  tkaSchedules = [],
+  upcomingSchedules = [],
+  loadingSchedules = false,
 }: DashboardContentProps) {
   const classChartData = {
     labels: dashboardData?.students_by_class.map((cls) => cls.kelas) || [],
@@ -236,6 +243,124 @@ export default function DashboardContent({
           </div>
         </div>
       </div>
+
+      {/* TKA Schedules Section */}
+      {tkaSchedules.length > 0 && (
+        <div
+          className={`${
+            darkMode ? "bg-gray-800" : "bg-white"
+          } rounded-lg shadow mb-8`}
+        >
+          <div
+            className={`px-6 py-4 border-b ${
+              darkMode ? "border-gray-700" : "border-gray-200"
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <div
+                  className={`p-2 rounded-lg ${
+                    darkMode ? "bg-blue-900" : "bg-blue-100"
+                  } mr-3`}
+                >
+                  <svg
+                    className={`w-6 h-6 ${
+                      darkMode ? "text-blue-300" : "text-blue-600"
+                    }`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <h3
+                    className={`text-lg font-semibold ${
+                      darkMode ? "text-gray-100" : "text-gray-900"
+                    }`}
+                  >
+                    Jadwal TKA Mendatang
+                  </h3>
+                  <p
+                    className={`text-sm ${
+                      darkMode ? "text-gray-400" : "text-gray-600"
+                    }`}
+                  >
+                    Jadwal pelaksanaan Tes Kemampuan Akademik
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4">
+                <div
+                  className={`text-sm ${
+                    darkMode ? "text-gray-400" : "text-gray-500"
+                  }`}
+                >
+                  Total: {tkaSchedules.length} jadwal
+                </div>
+                <div
+                  className={`text-sm font-medium ${
+                    darkMode ? "text-blue-300" : "text-blue-600"
+                  }`}
+                >
+                  Mendatang: {upcomingSchedules.length} jadwal
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="p-6">
+            {loadingSchedules ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                <span
+                  className={`ml-2 ${
+                    darkMode ? "text-gray-400" : "text-gray-600"
+                  }`}
+                >
+                  Memuat jadwal TKA...
+                </span>
+              </div>
+            ) : upcomingSchedules.length > 0 ? (
+              <div className="grid gap-4">
+                {upcomingSchedules.slice(0, 3).map((schedule) => (
+                  <TkaScheduleCard
+                    key={schedule.id}
+                    schedule={schedule}
+                    showActions={false}
+                  />
+                ))}
+                {upcomingSchedules.length > 3 && (
+                  <div
+                    className={`text-center py-4 ${
+                      darkMode ? "text-gray-400" : "text-gray-600"
+                    }`}
+                  >
+                    <span className="text-sm">
+                      Dan {upcomingSchedules.length - 3} jadwal lainnya...
+                    </span>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <div className="text-4xl mb-2">📅</div>
+                <p
+                  className={`${darkMode ? "text-gray-400" : "text-gray-600"}`}
+                >
+                  Belum ada jadwal TKA mendatang
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">

@@ -6,7 +6,6 @@ interface SidebarProps {
   activeMenu: string;
   onMenuClick: (menuId: string) => void;
   darkMode: boolean;
-  onLogout: () => void;
 }
 
 export default function Sidebar({ 
@@ -14,8 +13,7 @@ export default function Sidebar({
   setSidebarOpen, 
   activeMenu, 
   onMenuClick, 
-  darkMode, 
-  onLogout 
+  darkMode
 }: SidebarProps) {
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: '📊', path: '/teacher' },

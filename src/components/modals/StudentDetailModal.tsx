@@ -39,7 +39,7 @@ export default function StudentDetailModal({
         if (Array.isArray(parsed)) {
           return parsed.join(", ");
         }
-      } catch (e) {
+      } catch {
         // If parsing fails, return as is
         return subjects;
       }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import {
   Chart as ChartJS,
@@ -121,10 +121,70 @@ export default function TeacherDashboard() {
     setDarkMode(!darkMode);
   };
 
+  const loadDataFromAPI = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError("");
+
+      // Load dashboard data
+      const dashboardResponse = await apiService.getDashboard();
+      setDashboardData(dashboardResponse.data);
+      setSchoolId(dashboardResponse.data.school.id);
+
+      // Load students data
+      const studentsResponse = await apiService.getStudents();
+      setStudents(studentsResponse.data.students);
+
+      // Load major statistics
+      const majorStatsResponse = await apiService.getMajorStatistics();
+      setMajorStatistics(majorStatsResponse.data.major_statistics);
+
+      // Load TKA schedules after schoolId is set
+      if (dashboardResponse.data.school.id) {
+        try {
+          setLoadingSchedules(true);
+          console.log("🔄 Loading TKA schedules...");
+
+          const [schedulesResponse, upcomingResponse] = await Promise.all([
+            apiService.getTkaSchedules(dashboardResponse.data.school.id),
+            apiService.getUpcomingTkaSchedules(
+              dashboardResponse.data.school.id
+            ),
+          ]);
+
+          if (schedulesResponse.success) {
+            setTkaSchedules(schedulesResponse.data);
+            console.log(
+              "✅ TKA schedules loaded:",
+              schedulesResponse.data.length
+            );
+          }
+
+          if (upcomingResponse.success) {
+            setUpcomingSchedules(upcomingResponse.data);
+            console.log(
+              "✅ Upcoming schedules loaded:",
+              upcomingResponse.data.length
+            );
+          }
+        } catch (scheduleErr: unknown) {
+          console.error("Error loading TKA schedules:", scheduleErr);
+        } finally {
+          setLoadingSchedules(false);
+        }
+      }
+    } catch (err: unknown) {
+      console.error("Error loading data:", err);
+      setError(err instanceof Error ? err.message : "Gagal memuat data");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   // Load data from API
   useEffect(() => {
     loadDataFromAPI();
-  }, []);
+  }, [loadDataFromAPI]);
 
   const handleClassClick = (classItem: {
     kelas: string;
@@ -149,34 +209,6 @@ export default function TeacherDashboard() {
     } catch (err: unknown) {
       console.error("Error loading students:", err);
       setError(err instanceof Error ? err.message : "Gagal memuat data siswa");
-    }
-  };
-
-  // Load TKA Schedules
-  const loadTkaSchedules = async () => {
-    try {
-      setLoadingSchedules(true);
-      console.log("🔄 Loading TKA schedules...");
-
-      if (schoolId) {
-        const [schedulesResponse, upcomingResponse] = await Promise.all([
-          apiService.getTkaSchedules(schoolId),
-          apiService.getUpcomingTkaSchedules(schoolId),
-        ]);
-
-        setTkaSchedules(schedulesResponse.data);
-        setUpcomingSchedules(upcomingResponse.data);
-        console.log("✅ TKA schedules loaded:", schedulesResponse.data.length);
-        console.log(
-          "✅ Upcoming schedules loaded:",
-          upcomingResponse.data.length
-        );
-      }
-    } catch (err: unknown) {
-      console.error("❌ Error loading TKA schedules:", err);
-      setError(err instanceof Error ? err.message : "Gagal memuat jadwal TKA");
-    } finally {
-      setLoadingSchedules(false);
     }
   };
 
@@ -475,36 +507,6 @@ export default function TeacherDashboard() {
     pageMetadata[activeMenu as keyof typeof pageMetadata] ||
     pageMetadata.dashboard;
 
-  const loadDataFromAPI = async () => {
-    try {
-      setLoading(true);
-      setError("");
-
-      // Load dashboard data
-      const dashboardResponse = await apiService.getDashboard();
-      setDashboardData(dashboardResponse.data);
-      setSchoolId(dashboardResponse.data.school.id);
-
-      // Load students data
-      const studentsResponse = await apiService.getStudents();
-      setStudents(studentsResponse.data.students);
-
-      // Load major statistics
-      const majorStatsResponse = await apiService.getMajorStatistics();
-      setMajorStatistics(majorStatsResponse.data.major_statistics);
-
-      // Load TKA schedules after schoolId is set
-      if (dashboardResponse.data.school.id) {
-        await loadTkaSchedules();
-      }
-    } catch (err: unknown) {
-      console.error("Error loading data:", err);
-      setError(err instanceof Error ? err.message : "Gagal memuat data");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: "📊", path: "/teacher" },
     { id: "students", label: "Data Siswa", icon: "👥", path: "/teacher" },
@@ -628,7 +630,7 @@ export default function TeacherDashboard() {
           </div>
         );
       case "tests":
-        return <TestsContent students={students} darkMode={darkMode} />;
+        return <TestsContent darkMode={darkMode} />;
       case "reports":
         return (
           <ReportsContent
@@ -652,6 +654,9 @@ export default function TeacherDashboard() {
             students={students}
             darkMode={darkMode}
             onClassClick={handleClassClick}
+            tkaSchedules={tkaSchedules}
+            upcomingSchedules={upcomingSchedules}
+            loadingSchedules={loadingSchedules}
           />
         );
     }
@@ -728,7 +733,6 @@ export default function TeacherDashboard() {
           activeMenu={activeMenu}
           onMenuClick={handleMenuClick}
           darkMode={darkMode}
-          onLogout={handleLogout}
         />
 
         {/* Main Content */}

@@ -1,33 +1,69 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { schoolLevelApiService } from "@/services/api";
 
 interface SchoolLevelMajorSelectorProps {
-  onMajorSelect?: (major: unknown) => void;
+  onMajorSelect?: (major: {
+    id: number;
+    major_name: string;
+    description?: string;
+    category?: string;
+    required_subjects?: string[];
+    preferred_subjects?: string[];
+  }) => void;
   selectedSchoolLevel?: "SMA/MA" | "SMK/MAK";
 }
 
-const SchoolLevelMajorSelector: React.FC<SchoolLevelMajorSelectorProps> = ({
+const SchoolLevelMajorSelector = ({
   onMajorSelect,
   selectedSchoolLevel = "SMA/MA",
-}) => {
+}: SchoolLevelMajorSelectorProps): React.ReactElement => {
   const [schoolLevel, setSchoolLevel] = useState<"SMA/MA" | "SMK/MAK">(
     selectedSchoolLevel
   );
-  const [majors, setMajors] = useState<unknown[]>([]);
-  const [subjects, setSubjects] = useState<unknown[]>([]);
+  const [majors, setMajors] = useState<
+    {
+      id: number;
+      major_name: string;
+      description?: string;
+      category?: string;
+      required_subjects?: string[];
+      preferred_subjects?: string[];
+    }[]
+  >([]);
+  const [subjects, setSubjects] = useState<
+    {
+      id: number;
+      subject_name: string;
+      type: string;
+      description?: string;
+      subject_number?: string;
+    }[]
+  >([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [stats, setStats] = useState<unknown>(null);
+  const [error, setError] = useState<string | undefined>(undefined);
+  const [stats, setStats] = useState<
+    | {
+        sma_ma?: {
+          majors_count?: number;
+          subjects_count?: number;
+          required_subjects?: number;
+          optional_subjects?: number;
+        };
+        smk_mak?: {
+          majors_count?: number;
+          subjects_count?: number;
+          pilihan_subjects?: number;
+          produk_kreatif_subjects?: number;
+        };
+      }
+    | undefined
+  >(undefined);
 
-  useEffect(() => {
-    loadData();
-  }, [schoolLevel]);
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setLoading(true);
-    setError(null);
+    setError(undefined);
 
     try {
       const [majorsResponse, subjectsResponse, statsResponse] =
@@ -46,13 +82,24 @@ const SchoolLevelMajorSelector: React.FC<SchoolLevelMajorSelectorProps> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [schoolLevel]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   const handleSchoolLevelChange = (level: "SMA/MA" | "SMK/MAK") => {
     setSchoolLevel(level);
   };
 
-  const handleMajorClick = (major: unknown) => {
+  const handleMajorClick = (major: {
+    id: number;
+    major_name: string;
+    description?: string;
+    category?: string;
+    required_subjects?: string[];
+    preferred_subjects?: string[];
+  }) => {
     if (onMajorSelect) {
       onMajorSelect(major);
     }
@@ -222,14 +269,14 @@ const SchoolLevelMajorSelector: React.FC<SchoolLevelMajorSelectorProps> = ({
             >
               <div className="flex items-start justify-between mb-4">
                 <h4 className="font-bold text-lg text-gray-800 leading-tight pr-2">
-                  {subject.name}
+                  {subject.subject_name}
                 </h4>
                 <span
                   className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${getSubjectTypeColor(
-                    subject.subject_type
+                    subject.type
                   )}`}
                 >
-                  {subject.subject_type}
+                  {subject.type}
                 </span>
               </div>
               <p className="text-sm text-gray-600 leading-relaxed mb-4">
@@ -240,9 +287,7 @@ const SchoolLevelMajorSelector: React.FC<SchoolLevelMajorSelectorProps> = ({
                   <div className="bg-gray-100 text-gray-700 px-3 py-1 rounded-lg text-sm font-medium">
                     No. {subject.subject_number}
                   </div>
-                  <div className="text-xs text-gray-500">
-                    {subject.education_level}
-                  </div>
+                  <div className="text-xs text-gray-500">{subject.type}</div>
                 </div>
               )}
             </div>
@@ -290,11 +335,12 @@ const SchoolLevelMajorSelector: React.FC<SchoolLevelMajorSelectorProps> = ({
                           {subject}
                         </span>
                       ))}
-                    {major.required_subjects?.length > 4 && (
-                      <span className="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded-full border border-gray-200">
-                        +{major.required_subjects.length - 4} lainnya
-                      </span>
-                    )}
+                    {major.required_subjects &&
+                      major.required_subjects.length > 4 && (
+                        <span className="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded-full border border-gray-200">
+                          +{major.required_subjects.length - 4} lainnya
+                        </span>
+                      )}
                   </div>
                 </div>
 
@@ -316,11 +362,12 @@ const SchoolLevelMajorSelector: React.FC<SchoolLevelMajorSelectorProps> = ({
                           {subject}
                         </span>
                       ))}
-                    {major.preferred_subjects?.length > 4 && (
-                      <span className="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded-full border border-gray-200">
-                        +{major.preferred_subjects.length - 4} lainnya
-                      </span>
-                    )}
+                    {major.preferred_subjects &&
+                      major.preferred_subjects.length > 4 && (
+                        <span className="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded-full border border-gray-200">
+                          +{major.preferred_subjects.length - 4} lainnya
+                        </span>
+                      )}
                   </div>
                 </div>
               </div>

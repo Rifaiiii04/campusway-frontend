@@ -154,9 +154,9 @@ export default function StudentRegistration({
         npsn_sekolah: formData.npsn_sekolah,
         nama_sekolah: formData.nama_sekolah,
         kelas: formData.kelas,
-        email: formData.email || null,
-        phone: formData.phone || null,
-        parent_phone: formData.parent_phone || null,
+        email: formData.email || undefined,
+        phone: formData.phone || undefined,
+        parent_phone: formData.parent_phone || undefined,
         password: formData.password,
       };
 

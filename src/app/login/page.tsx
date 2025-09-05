@@ -1,16 +1,13 @@
 'use client';
 
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import SchoolLogin from '../../components/SchoolLogin';
 import PageTitle from '../../components/PageTitle';
 
 export default function LoginPage() {
   const router = useRouter();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  const handleLoginSuccess = (token: string) => {
-    setIsLoggedIn(true);
+  const handleLoginSuccess = () => {
     // Redirect ke dashboard guru setelah login berhasil
     router.push('/teacher');
   };

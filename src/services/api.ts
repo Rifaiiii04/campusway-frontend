@@ -38,7 +38,7 @@ async function fetchWithCache<T>(
   // Start performance monitoring
   const endTiming = apiPerformance.startRequest(url);
 
-  let timeoutId: NodeJS.Timeout | null = null;
+  let timeoutId: NodeJS.Timeout | undefined = undefined;
 
   try {
     const controller = new AbortController();
@@ -59,7 +59,7 @@ async function fetchWithCache<T>(
     // Clear timeout on successful response
     if (timeoutId) {
       clearTimeout(timeoutId);
-      timeoutId = null;
+      timeoutId = undefined;
     }
 
     endTiming();
@@ -135,6 +135,16 @@ export interface Student {
     kurikulum_2013_bahasa_subjects?: string;
   };
   choice_date?: string;
+  school_class?: {
+    id: number;
+    name: string;
+  };
+  latest_test_result?: {
+    id: number;
+    total_score: number;
+    recommended_major: string;
+    major_confidence: number;
+  };
 }
 
 export interface MajorStatistics {
@@ -189,6 +199,9 @@ export interface StudentData {
   parent_phone?: string;
   school_name: string;
   has_choice: boolean;
+  school_id?: number;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface Major {
@@ -205,12 +218,24 @@ export interface Major {
     kurikulum_2013_ips?: string[];
     kurikulum_2013_bahasa?: string[];
   };
+  required_subjects?: string[];
+  preferred_subjects?: string[];
+  kurikulum_merdeka_subjects?: string[];
+  kurikulum_2013_ipa_subjects?: string[];
+  kurikulum_2013_ips_subjects?: string[];
+  kurikulum_2013_bahasa_subjects?: string[];
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface StudentChoice {
   id: number;
   major: Major;
   chosen_at: string;
+  student_id?: number;
+  major_id?: number;
+  created_at?: string;
+  updated_at?: string;
 }
 
 // TKA Schedule interfaces
@@ -223,11 +248,12 @@ export interface TkaSchedule {
   status: "scheduled" | "ongoing" | "completed" | "cancelled";
   type: "regular" | "makeup" | "special";
   instructions?: string;
-  target_schools?: number[] | null;
+  target_schools?: number[] | undefined;
   is_active: boolean;
   created_by?: string;
   created_at: string;
   updated_at: string;
+  school_id?: number;
   // Accessors
   formatted_start_date?: string;
   formatted_end_date?: string;
@@ -236,11 +262,11 @@ export interface TkaSchedule {
 }
 
 // Helper function untuk mendapatkan token
-const getToken = (): string | null => {
+const getToken = (): string | undefined => {
   if (typeof window !== "undefined") {
-    return localStorage.getItem("school_token");
+    return localStorage.getItem("school_token") || undefined;
   }
-  return null;
+  return undefined;
 };
 
 // Helper function untuk mendapatkan student token (currently unused but kept for future use)
@@ -535,6 +561,166 @@ export const apiService = {
 
     return data;
   },
+
+  // Delete Student
+  async deleteStudent(studentId: number) {
+    const response = await fetch(`${API_BASE_URL}/students/${studentId}`, {
+      method: "DELETE",
+      headers: getAuthHeaders(),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || "Gagal menghapus siswa");
+    }
+
+    return data;
+  },
+
+  // Get TKA Schedules
+  async getTkaSchedules(
+    schoolId?: number
+  ): Promise<{ success: boolean; data: TkaSchedule[] }> {
+    try {
+      const url = schoolId
+        ? `${API_BASE_URL.replace(
+            "/school",
+            ""
+          )}/tka-schedules?school_id=${schoolId}`
+        : `${API_BASE_URL.replace("/school", "")}/tka-schedules`;
+
+      console.log("🌐 TKA Schedules API URL:", url);
+
+      const response = await fetch(url, {
+        headers: getAuthHeaders(),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("📅 TKA Schedules response:", data);
+
+      return data;
+    } catch (error: unknown) {
+      console.error("❌ TKA Schedules API error:", error);
+      throw error;
+    }
+  },
+
+  // Get Upcoming TKA Schedules
+  async getUpcomingTkaSchedules(
+    schoolId?: number
+  ): Promise<{ success: boolean; data: TkaSchedule[] }> {
+    try {
+      const url = schoolId
+        ? `${API_BASE_URL.replace(
+            "/school",
+            ""
+          )}/tka-schedules/upcoming?school_id=${schoolId}`
+        : `${API_BASE_URL.replace("/school", "")}/tka-schedules/upcoming`;
+
+      console.log("🌐 Upcoming TKA Schedules API URL:", url);
+
+      const response = await fetch(url, {
+        headers: getAuthHeaders(),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("📅 Upcoming TKA Schedules response:", data);
+
+      return data;
+    } catch (error: unknown) {
+      console.error("❌ Upcoming TKA Schedules API error:", error);
+      throw error;
+    }
+  },
+
+  // Create TKA Schedule
+  async createTkaSchedule(scheduleData: {
+    title: string;
+    description?: string;
+    start_date: string;
+    end_date: string;
+    type: "regular" | "makeup" | "special";
+    instructions?: string;
+    target_schools?: number[];
+  }) {
+    const response = await fetch(
+      `${API_BASE_URL.replace("/school", "")}/tka-schedules`,
+      {
+        method: "POST",
+        headers: getAuthHeaders(),
+        body: JSON.stringify(scheduleData),
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || "Gagal membuat jadwal TKA");
+    }
+
+    return data;
+  },
+
+  // Update TKA Schedule
+  async updateTkaSchedule(
+    scheduleId: number,
+    scheduleData: {
+      title?: string;
+      description?: string;
+      start_date?: string;
+      end_date?: string;
+      status?: "scheduled" | "ongoing" | "completed" | "cancelled";
+      type?: "regular" | "makeup" | "special";
+      instructions?: string;
+      target_schools?: number[];
+      is_active?: boolean;
+    }
+  ) {
+    const response = await fetch(
+      `${API_BASE_URL.replace("/school", "")}/tka-schedules/${scheduleId}`,
+      {
+        method: "PUT",
+        headers: getAuthHeaders(),
+        body: JSON.stringify(scheduleData),
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || "Gagal memperbarui jadwal TKA");
+    }
+
+    return data;
+  },
+
+  // Delete TKA Schedule
+  async deleteTkaSchedule(scheduleId: number) {
+    const response = await fetch(
+      `${API_BASE_URL.replace("/school", "")}/tka-schedules/${scheduleId}`,
+      {
+        method: "DELETE",
+        headers: getAuthHeaders(),
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || "Gagal menghapus jadwal TKA");
+    }
+
+    return data;
+  },
 };
 
 // Student Web API Service
@@ -672,7 +858,7 @@ export const studentApiService = {
   // Check Student's Major Status
   async checkMajorStatus(studentId: number): Promise<{
     success: boolean;
-    data: { has_choice: boolean; selected_major_id: number | null };
+    data: { has_choice: boolean; selected_major_id: number | undefined };
   }> {
     try {
       const url = `${STUDENT_API_BASE_URL}/major-status/${studentId}?t=${Date.now()}`;
@@ -852,7 +1038,13 @@ export const schoolLevelApiService = {
     schoolLevel: "SMA/MA" | "SMK/MAK" = "SMA/MA"
   ): Promise<{
     success: boolean;
-    data: unknown[];
+    data: {
+      id: number;
+      subject_name: string;
+      type: string;
+      description?: string;
+      subject_number?: string;
+    }[];
     school_level: string;
     total: number;
   }> {
@@ -870,7 +1062,23 @@ export const schoolLevelApiService = {
   },
 
   // Get school level statistics
-  async getSchoolLevelStats(): Promise<{ success: boolean; data: unknown }> {
+  async getSchoolLevelStats(): Promise<{
+    success: boolean;
+    data: {
+      sma_ma?: {
+        majors_count?: number;
+        subjects_count?: number;
+        required_subjects?: number;
+        optional_subjects?: number;
+      };
+      smk_mak?: {
+        majors_count?: number;
+        subjects_count?: number;
+        pilihan_subjects?: number;
+        produk_kreatif_subjects?: number;
+      };
+    };
+  }> {
     try {
       return fetchWithCache(
         `${SCHOOL_LEVEL_API_BASE_URL}/stats`,
