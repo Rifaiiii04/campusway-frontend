@@ -981,37 +981,6 @@ export const studentApiService = {
     return data;
   },
 
-  // Get TKA Schedules
-  async getTkaSchedules(
-    schoolId?: number
-  ): Promise<{ success: boolean; data: TkaSchedule[] }> {
-    try {
-      const url = schoolId
-        ? `${STUDENT_API_BASE_URL}/tka-schedules?school_id=${schoolId}`
-        : `${STUDENT_API_BASE_URL}/tka-schedules`;
-
-      console.log("🌐 Student TKA Schedules API URL:", url);
-
-      const response = await fetch(url, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      console.log("✅ TKA Schedules loaded:", data);
-
-      return data;
-    } catch (error: unknown) {
-      console.error("❌ TKA Schedules API error:", error);
-      throw error;
-    }
-  },
-
   async getUpcomingTkaSchedules(
     schoolId?: number
   ): Promise<{ success: boolean; data: TkaSchedule[] }> {
@@ -1124,38 +1093,6 @@ export const schoolLevelApiService = {
       );
     } catch (error) {
       console.error("❌ Error in getSchoolLevelStats:", error);
-      throw error;
-    }
-  },
-
-  // Get TKA Schedules
-  async getTkaSchedules(
-    schoolId?: number
-  ): Promise<{ success: boolean; data: TkaSchedule[] }> {
-    try {
-      const baseUrl = API_BASE_URL.replace("/school", "");
-      const url = schoolId
-        ? `${baseUrl}/tka-schedules?school_id=${schoolId}`
-        : `${baseUrl}/tka-schedules`;
-
-      console.log("🌐 School Level TKA Schedules API URL:", url);
-
-      const response = await fetch(url, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      console.log("📅 TKA Schedules response:", data);
-
-      return data;
-    } catch (error: unknown) {
-      console.error("❌ TKA Schedules API error:", error);
       throw error;
     }
   },

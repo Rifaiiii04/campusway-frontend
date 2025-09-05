@@ -885,9 +885,10 @@ export default function StudentDashboardClient() {
             />
           </div>
 
-          {/* Rumpun Ilmu Filter - Updated 2025-09-05 */}
+          {/* Rumpun Ilmu Filter - FORCE UPDATE 2025-09-05-1757096873906-uulbka - NO MORE SAINTEK SOSHUM CAMPURAN */}
           <div className="flex flex-wrap gap-2 sm:gap-3 mb-4 sm:mb-6">
             {(() => {
+              // FORCE CLEAR OLD CATEGORIES - NO MORE SAINTEK, SOSHUM, CAMPURAN
               const rumpunFilters = [
                 {
                   key: "all",
@@ -920,7 +921,17 @@ export default function StudentDashboardClient() {
                   color: "from-red-500 to-red-600",
                 },
               ];
-              console.log("🔍 Rendering Rumpun Ilmu Filters:", rumpunFilters);
+              console.log(
+                "🔍 FORCE UPDATE - Rendering Rumpun Ilmu Filters:",
+                rumpunFilters
+              );
+              console.log("🔄 RELOAD FORCE ID: 1757096873906-uulbka");
+              console.log(
+                "🚫 OLD CATEGORIES REMOVED - Saintek, Soshum, Campuran are GONE!"
+              );
+              console.log(
+                "✅ NEW CATEGORIES - HUMANIORA, ILMU SOSIAL, ILMU ALAM, ILMU FORMAL, ILMU TERAPAN"
+              );
               return rumpunFilters;
             })().map((rumpun) => (
               <button
