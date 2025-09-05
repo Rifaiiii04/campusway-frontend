@@ -152,20 +152,29 @@ export default function TeacherDashboard() {
             ),
           ]);
 
+          console.log("📊 TKA Schedules Response:", schedulesResponse);
+          console.log("📊 Upcoming Schedules Response:", upcomingResponse);
+
           if (schedulesResponse.success) {
             setTkaSchedules(schedulesResponse.data);
             console.log(
               "✅ TKA schedules loaded:",
-              schedulesResponse.data.length
+              schedulesResponse.data.length,
+              schedulesResponse.data
             );
+          } else {
+            console.warn("⚠️ TKA schedules failed:", schedulesResponse);
           }
 
           if (upcomingResponse.success) {
             setUpcomingSchedules(upcomingResponse.data);
             console.log(
               "✅ Upcoming schedules loaded:",
-              upcomingResponse.data.length
+              upcomingResponse.data.length,
+              upcomingResponse.data
             );
+          } else {
+            console.warn("⚠️ Upcoming schedules failed:", upcomingResponse);
           }
         } catch (scheduleErr: unknown) {
           console.error("Error loading TKA schedules:", scheduleErr);

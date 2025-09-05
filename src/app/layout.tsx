@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
@@ -35,7 +35,6 @@ export const metadata: Metadata = {
     "Guru",
   ],
   authors: [{ name: "TKA Team" }],
-  viewport: "width=device-width, initial-scale=1",
   robots: "index, follow",
   openGraph: {
     type: "website",
@@ -52,6 +51,11 @@ export const metadata: Metadata = {
     description:
       "Sistem Tes Kemampuan Akademik untuk membantu siswa menentukan jurusan yang tepat",
   },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({
