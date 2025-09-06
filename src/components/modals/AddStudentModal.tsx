@@ -54,6 +54,12 @@ export default function AddStudentModal({
       return false;
     }
 
+    // Check if NISN contains only numbers
+    if (!/^[0-9]{10}$/.test(formData.nisn)) {
+      setError("NISN harus terdiri dari 10 digit angka");
+      return false;
+    }
+
     if (formData.password.length < 6) {
       setError("Password minimal 6 karakter");
       return false;
@@ -97,6 +103,31 @@ export default function AddStudentModal({
     setLoading(true);
 
     try {
+      const requestData = {
+        nisn: formData.nisn,
+        name: formData.name,
+        kelas: formData.kelas,
+        email: formData.email || null,
+        phone: formData.phone || null,
+        parent_phone: formData.parent_phone || null,
+        password: formData.password,
+        school_id: schoolId,
+      };
+
+      console.log("📤 Add student request data:", requestData);
+      console.log("🏫 School ID:", schoolId);
+      console.log("🏫 School ID type:", typeof schoolId);
+      console.log(
+        "🔑 Token:",
+        localStorage.getItem("school_token") ? "EXISTS" : "NOT FOUND"
+      );
+      console.log(
+        "🔑 Token value:",
+        localStorage.getItem("school_token")
+          ? localStorage.getItem("school_token")?.substring(0, 20) + "..."
+          : "NOT FOUND"
+      );
+
       // Panggil API untuk menambah siswa
       const response = await fetch(
         `${
@@ -107,24 +138,34 @@ export default function AddStudentModal({
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: localStorage.getItem("school_token") || "",
+            Authorization: `Bearer ${
+              localStorage.getItem("school_token") || ""
+            }`,
           },
-          body: JSON.stringify({
-            nisn: formData.nisn,
-            name: formData.name,
-            kelas: formData.kelas,
-            email: formData.email || null,
-            phone: formData.phone || null,
-            parent_phone: formData.parent_phone || null,
-            password: formData.password,
-            school_id: schoolId,
-          }),
+          body: JSON.stringify(requestData),
         }
       );
 
+      console.log("📡 Response status:", response.status);
+      console.log("📡 Response ok:", response.ok);
+
       const data = await response.json();
+      console.log("📄 Response data:", data);
 
       if (!response.ok) {
+        console.log("❌ Response not OK:", response.status);
+        console.log("❌ Response data:", data);
+
+        // Handle validation errors
+        if (data.errors) {
+          console.log("❌ Validation errors:", data.errors);
+          let errorMessage = "Validasi gagal:\n";
+          Object.keys(data.errors).forEach((field) => {
+            errorMessage += `- ${field}: ${data.errors[field].join(", ")}\n`;
+          });
+          throw new Error(errorMessage);
+        }
+
         throw new Error(data.message || "Gagal menambahkan siswa");
       }
 
@@ -143,13 +184,17 @@ export default function AddStudentModal({
       // Panggil callback untuk refresh data
       onStudentAdded();
 
-      // Tutup modal setelah 2 detik
+      // Tutup modal setelah 1.5 detik (lebih cepat)
       setTimeout(() => {
         onClose();
         setSuccess("");
-      }, 2000);
+      }, 1500);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Terjadi kesalahan saat menambahkan siswa");
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Terjadi kesalahan saat menambahkan siswa"
+      );
     } finally {
       setLoading(false);
     }

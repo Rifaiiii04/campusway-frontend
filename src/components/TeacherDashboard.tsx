@@ -211,9 +211,18 @@ export default function TeacherDashboard() {
     setShowAddStudentModal(false);
   };
 
-  const loadStudents = async () => {
+  const loadStudents = async (forceRefresh: boolean = false) => {
     try {
-      const studentsResponse = await apiService.getStudents();
+      console.log(
+        "📡 Loading students data...",
+        forceRefresh ? "(force refresh)" : ""
+      );
+      const studentsResponse = await apiService.getStudents(forceRefresh);
+      console.log(
+        "✅ Students loaded:",
+        studentsResponse.data.students.length,
+        "students"
+      );
       setStudents(studentsResponse.data.students);
     } catch (err: unknown) {
       console.error("Error loading students:", err);
@@ -222,8 +231,9 @@ export default function TeacherDashboard() {
   };
 
   const handleAddStudent = () => {
-    // Refresh data siswa setelah menambah siswa baru
-    loadStudents();
+    console.log("🔄 handleAddStudent called - refreshing students data...");
+    // Refresh data siswa setelah menambah siswa baru (force refresh to bypass cache)
+    loadStudents(true);
     setShowAddStudentModal(false);
   };
 

@@ -122,10 +122,17 @@ export default function StudentDashboardClient() {
       const upcomingResponse =
         await studentApiService.getUpcomingTkaSchedules();
 
-      setUpcomingSchedules(upcomingResponse.data);
+      console.log("📡 TKA Schedules API response:", upcomingResponse);
+      console.log("📊 TKA Schedules data:", upcomingResponse.data);
+      console.log(
+        "📊 TKA Schedules data length:",
+        upcomingResponse.data?.length || 0
+      );
+
+      setUpcomingSchedules(upcomingResponse.data || []);
       console.log(
         "✅ Upcoming schedules loaded:",
-        upcomingResponse.data.length
+        upcomingResponse.data?.length || 0
       );
     } catch (error) {
       console.error("❌ Error loading TKA schedules:", error);
@@ -744,6 +751,12 @@ export default function StudentDashboardClient() {
               <p className="text-blue-100 text-base sm:text-lg">
                 Ada {upcomingSchedules.length} jadwal TKA yang akan datang
               </p>
+              {/* Debug info */}
+              {process.env.NODE_ENV === "development" && (
+                <p className="text-yellow-200 text-xs">
+                  Debug: upcomingSchedules = {JSON.stringify(upcomingSchedules)}
+                </p>
+              )}
             </div>
 
             <div className="space-y-4">

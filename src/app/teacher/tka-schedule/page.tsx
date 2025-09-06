@@ -97,19 +97,61 @@ export default function TeacherTkaSchedulePage() {
     }
   };
 
-  const handleEditSchedule = (schedule: TkaSchedule) => {
-    // TODO: Implement edit functionality
-    console.log("Edit schedule:", schedule);
+  const handleEditSchedule = async (schedule: TkaSchedule) => {
+    try {
+      // TODO: Implement edit functionality
+      console.log("Edit schedule:", schedule);
+      // For now, just show a message
+      alert("Fitur edit jadwal akan segera tersedia!");
+    } catch (error) {
+      console.error("Error editing schedule:", error);
+      setError("Gagal mengedit jadwal");
+    }
   };
 
-  const handleCancelSchedule = (schedule: TkaSchedule) => {
-    // TODO: Implement cancel functionality
-    console.log("Cancel schedule:", schedule);
+  const handleCancelSchedule = async (schedule: TkaSchedule) => {
+    try {
+      if (
+        confirm(
+          `Apakah Anda yakin ingin membatalkan jadwal "${schedule.title}"?`
+        )
+      ) {
+        // TODO: Implement cancel functionality
+        console.log("Cancel schedule:", schedule);
+        // For now, just show a message
+        alert("Fitur batalkan jadwal akan segera tersedia!");
+      }
+    } catch (error) {
+      console.error("Error cancelling schedule:", error);
+      setError("Gagal membatalkan jadwal");
+    }
   };
 
-  const handleDeleteSchedule = (schedule: TkaSchedule) => {
-    // TODO: Implement delete functionality
-    console.log("Delete schedule:", schedule);
+  const handleDeleteSchedule = async (schedule: TkaSchedule) => {
+    try {
+      if (
+        confirm(
+          `Apakah Anda yakin ingin menghapus jadwal "${schedule.title}"? Tindakan ini tidak dapat dibatalkan.`
+        )
+      ) {
+        setLoading(true);
+
+        // Call delete API
+        await studentApiService.deleteTkaSchedule(schedule.id);
+
+        // Reload schedules
+        await loadTkaSchedules();
+
+        console.log("✅ Schedule deleted successfully:", schedule.title);
+      }
+    } catch (error) {
+      console.error("❌ Error deleting schedule:", error);
+      setError(
+        error instanceof Error ? error.message : "Gagal menghapus jadwal"
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (loading) {

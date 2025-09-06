@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Add Student Frontend</title>
+  </head>
+  <body>
+    <h1>Test Add Student Frontend</h1>
+    <button onclick="testAddStudent()">Test Add Student</button>
+    <div id="result"></div>
+
+    <script>
+      async function testAddStudent() {
+        const resultDiv = document.getElementById("result");
+        resultDiv.innerHTML = "<p>Testing...</p>";
+
+        // Simulate school data from localStorage
+        const schoolData = {
+          id: 4,
+          npsn: "12345678",
+          name: "SMA Negeri 1 Jakarta",
+        };
+
+        // Simulate token
+        const timestamp = Math.floor(Date.now() / 1000);
+        const token = btoa(`${schoolData.id}|${timestamp}|${schoolData.npsn}`);
+
+        // Store in localStorage
+        localStorage.setItem("school_data", JSON.stringify(schoolData));
+        localStorage.setItem("school_token", token);
+
+        console.log("🏫 School data:", schoolData);
+        console.log("🔑 Token:", token.substring(0, 20) + "...");
+
+        const testData = {
+          nisn: "7777777777",
+          name: "Frontend Test Student",
+          kelas: "X IPA 1",
+          email: "frontendtest@example.com",
+          phone: "081234567890",
+          parent_phone: "081234567891",
+          password: "password123",
+          school_id: schoolData.id,
+        };
+
+        console.log("📤 Request data:", testData);
+
+        try {
+          const response = await fetch(
+            "http://127.0.0.1:8000/api/school/students",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify(testData),
+            }
+          );
+
+          console.log("📡 Response status:", response.status);
+          console.log("📡 Response ok:", response.ok);
+
+          const data = await response.json();
+          console.log("📄 Response data:", data);
+
+          if (response.ok) {
+            resultDiv.innerHTML =
+              '<p style="color: green;">✅ Success: ' + data.message + "</p>";
+          } else {
+            resultDiv.innerHTML =
+              '<p style="color: red;">❌ Error: ' + data.message + "</p>";
+            if (data.errors) {
+              resultDiv.innerHTML +=
+                '<p style="color: red;">Errors: ' +
+                JSON.stringify(data.errors) +
+                "</p>";
+            }
+          }
+        } catch (error) {
+          console.error("❌ Error:", error);
+          resultDiv.innerHTML =
+            '<p style="color: red;">❌ Network Error: ' +
+            error.message +
+            "</p>";
+        }
+      }
+    </script>
+  </body>
+</html>

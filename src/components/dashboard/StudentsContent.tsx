@@ -29,11 +29,44 @@ export default function StudentsContent({
     setShowDeleteModal(true);
   };
 
-  const handleDeleteConfirm = () => {
+  const handleDeleteConfirm = async () => {
     if (selectedStudent) {
-      // Simulasi penghapusan siswa
-      console.log("Menghapus siswa:", selectedStudent.name);
-      alert(`Siswa ${selectedStudent.name} berhasil dihapus!`);
+      try {
+        console.log("🗑️ Deleting student:", selectedStudent.name);
+        console.log("🆔 Student ID:", selectedStudent.id);
+
+        // Call API to delete student
+        const response = await apiService.deleteStudent(selectedStudent.id);
+
+        console.log("📡 Delete response:", response);
+        console.log("✅ Response success:", response.success);
+        console.log("📝 Response message:", response.message);
+
+        if (response.success) {
+          console.log("🎉 Delete successful, reloading page...");
+          alert(`Siswa ${selectedStudent.name} berhasil dihapus!`);
+          // Refresh the page to show updated data
+          window.location.reload();
+        } else {
+          console.log("❌ Delete failed:", response.message);
+          alert(
+            `Gagal menghapus data siswa: ${
+              response.message || "Silakan coba lagi."
+            }`
+          );
+        }
+      } catch (error) {
+        console.error("❌ Error deleting student:", error);
+        console.error("❌ Error details:", {
+          message: error.message,
+          stack: error.stack,
+        });
+        alert(
+          `Terjadi kesalahan saat menghapus data siswa: ${
+            error.message || "Silakan coba lagi."
+          }`
+        );
+      }
     }
     setShowDeleteModal(false);
     setSelectedStudent(null);

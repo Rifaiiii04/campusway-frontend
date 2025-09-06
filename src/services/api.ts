@@ -415,7 +415,9 @@ export const apiService = {
   },
 
   // Get All Students
-  async getStudents(): Promise<{ success: boolean; data: StudentsResponse }> {
+  async getStudents(
+    forceRefresh: boolean = false
+  ): Promise<{ success: boolean; data: StudentsResponse }> {
     const token = getToken();
     if (!token) {
       throw new Error("Token tidak ditemukan");
@@ -423,6 +425,25 @@ export const apiService = {
 
     const schoolData = localStorage.getItem("school_data");
     const schoolId = schoolData ? JSON.parse(schoolData).id : "unknown";
+
+    // If force refresh, bypass cache
+    if (forceRefresh) {
+      console.log("🔄 Force refreshing students data (bypassing cache)");
+      const response = await fetch(`${API_BASE_URL}/students`, {
+        headers: getAuthHeaders(),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Gagal memuat data siswa");
+      }
+
+      // Update cache with fresh data
+      clientCache.set(cacheKeys.students(schoolId), data, 3 * 60 * 1000);
+
+      return data;
+    }
 
     return fetchWithCache(
       `${API_BASE_URL}/students`,
