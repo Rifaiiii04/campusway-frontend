@@ -27,6 +27,14 @@ export default function DashboardContent({
   console.log("🔍 DashboardContent - TKA Schedules:", tkaSchedules);
   console.log("🔍 DashboardContent - Upcoming Schedules:", upcomingSchedules);
   console.log("🔍 DashboardContent - Loading Schedules:", loadingSchedules);
+  console.log(
+    "🔍 DashboardContent - TKA Schedules Length:",
+    tkaSchedules?.length || 0
+  );
+  console.log(
+    "🔍 DashboardContent - Upcoming Schedules Length:",
+    upcomingSchedules?.length || 0
+  );
   const classChartData = {
     labels: dashboardData?.students_by_class.map((cls) => cls.kelas) || [],
     datasets: [
@@ -167,33 +175,69 @@ export default function DashboardContent({
                 Memuat jadwal TKA...
               </span>
             </div>
-          ) : upcomingSchedules.length > 0 ? (
+          ) : (
             <div className="grid gap-4">
-              {upcomingSchedules.slice(0, 3).map((schedule) => (
-                <TkaScheduleCard
-                  key={schedule.id}
-                  schedule={schedule}
-                  showActions={false}
-                />
-              ))}
-              {upcomingSchedules.length > 3 && (
-                <div
-                  className={`text-center py-4 ${
-                    darkMode ? "text-gray-400" : "text-gray-600"
-                  }`}
-                >
-                  <span className="text-sm">
-                    Dan {upcomingSchedules.length - 3} jadwal lainnya...
-                  </span>
+              {/* Jadwal Mendatang */}
+              {upcomingSchedules.length > 0 && (
+                <>
+                  {upcomingSchedules.slice(0, 3).map((schedule) => (
+                    <TkaScheduleCard
+                      key={schedule.id}
+                      schedule={schedule}
+                      showActions={false}
+                    />
+                  ))}
+                  {upcomingSchedules.length > 3 && (
+                    <div
+                      className={`text-center py-4 ${
+                        darkMode ? "text-gray-400" : "text-gray-600"
+                      }`}
+                    >
+                      <span className="text-sm">
+                        Dan {upcomingSchedules.length - 3} jadwal lainnya...
+                      </span>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* Semua Jadwal (jika tidak ada upcoming) */}
+              {upcomingSchedules.length === 0 && tkaSchedules.length > 0 && (
+                <>
+                  {tkaSchedules.slice(0, 3).map((schedule) => (
+                    <TkaScheduleCard
+                      key={schedule.id}
+                      schedule={schedule}
+                      showActions={false}
+                    />
+                  ))}
+                  {tkaSchedules.length > 3 && (
+                    <div
+                      className={`text-center py-4 ${
+                        darkMode ? "text-gray-400" : "text-gray-600"
+                      }`}
+                    >
+                      <span className="text-sm">
+                        Dan {tkaSchedules.length - 3} jadwal lainnya...
+                      </span>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* Empty State - hanya jika benar-benar tidak ada jadwal sama sekali */}
+              {tkaSchedules.length === 0 && upcomingSchedules.length === 0 && (
+                <div className="text-center py-8">
+                  <div className="text-4xl mb-2">📅</div>
+                  <p
+                    className={`${
+                      darkMode ? "text-gray-400" : "text-gray-600"
+                    }`}
+                  >
+                    Belum ada jadwal TKA
+                  </p>
                 </div>
               )}
-            </div>
-          ) : (
-            <div className="text-center py-8">
-              <div className="text-4xl mb-2">📅</div>
-              <p className={`${darkMode ? "text-gray-400" : "text-gray-600"}`}>
-                Belum ada jadwal TKA mendatang
-              </p>
             </div>
           )}
         </div>

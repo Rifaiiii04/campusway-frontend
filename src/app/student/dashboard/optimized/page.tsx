@@ -100,7 +100,7 @@ export default function OptimizedStudentDashboardPage() {
     }
   }, []);
 
-  const checkAuthentication = useCallback(() => {
+  const checkAuthentication = useCallback(async () => {
     const token = localStorage.getItem("student_token");
     const studentDataStr = localStorage.getItem("student_data");
 
@@ -110,10 +110,9 @@ export default function OptimizedStudentDashboardPage() {
         setStudentData(parsedStudentData);
         setIsAuthenticated(true);
 
-        // Load applied majors if student has choice
-        if (parsedStudentData.has_choice) {
-          loadAppliedMajors(parsedStudentData.id);
-        }
+        // Always try to load applied majors from database, regardless of has_choice
+        // This ensures we get the latest data from the database
+        await loadAppliedMajors(parsedStudentData.id);
       } catch (error) {
         console.error("Error parsing student data:", error);
         localStorage.removeItem("student_token");
@@ -153,6 +152,14 @@ export default function OptimizedStudentDashboardPage() {
           };
           setAppliedMajors([appliedMajor]);
         }
+
+        // Update has_choice in localStorage to reflect the change
+        const updatedStudentData = { ...studentData, has_choice: true };
+        localStorage.setItem(
+          "student_data",
+          JSON.stringify(updatedStudentData)
+        );
+        setStudentData(updatedStudentData);
 
         // Refetch student choice data
         refetchChoice();

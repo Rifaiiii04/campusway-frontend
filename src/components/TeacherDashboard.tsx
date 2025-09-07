@@ -24,6 +24,7 @@ import AddStudentModal from "./modals/AddStudentModal";
 import AddClassModal from "./modals/AddClassModal";
 import {
   apiService,
+  studentApiService,
   DashboardData,
   Student,
   MajorStatistics,
@@ -121,6 +122,70 @@ export default function TeacherDashboard() {
     setDarkMode(!darkMode);
   };
 
+  // Load TKA schedules separately
+  const loadTkaSchedules = useCallback(async (schoolId: number) => {
+    try {
+      setLoadingSchedules(true);
+      console.log("🔄 Loading TKA schedules for school:", schoolId);
+
+      // Try loading without schoolId first (global schedules)
+      let schedulesResponse, upcomingResponse;
+
+      try {
+        [schedulesResponse, upcomingResponse] = await Promise.all([
+          studentApiService.getTkaSchedules(), // Try without schoolId first
+          studentApiService.getUpcomingTkaSchedules(),
+        ]);
+        console.log("📊 TKA Schedules Response (global):", schedulesResponse);
+        console.log(
+          "📊 Upcoming Schedules Response (global):",
+          upcomingResponse
+        );
+      } catch (globalErr) {
+        console.warn(
+          "⚠️ Global TKA loading failed, trying with schoolId:",
+          globalErr
+        );
+        // Fallback to school-specific loading
+        [schedulesResponse, upcomingResponse] = await Promise.all([
+          studentApiService.getTkaSchedules(schoolId),
+          studentApiService.getUpcomingTkaSchedules(schoolId),
+        ]);
+        console.log("📊 TKA Schedules Response (school):", schedulesResponse);
+        console.log(
+          "📊 Upcoming Schedules Response (school):",
+          upcomingResponse
+        );
+      }
+
+      // Process schedules response
+      if (schedulesResponse && schedulesResponse.success) {
+        const schedules = schedulesResponse.data || [];
+        setTkaSchedules(schedules);
+        console.log("✅ TKA schedules loaded:", schedules.length, schedules);
+      } else {
+        console.warn("⚠️ TKA schedules failed:", schedulesResponse);
+        setTkaSchedules([]);
+      }
+
+      // Process upcoming response
+      if (upcomingResponse && upcomingResponse.success) {
+        const upcoming = upcomingResponse.data || [];
+        setUpcomingSchedules(upcoming);
+        console.log("✅ Upcoming schedules loaded:", upcoming.length, upcoming);
+      } else {
+        console.warn("⚠️ Upcoming schedules failed:", upcomingResponse);
+        setUpcomingSchedules([]);
+      }
+    } catch (scheduleErr: unknown) {
+      console.error("❌ Error loading TKA schedules:", scheduleErr);
+      setTkaSchedules([]);
+      setUpcomingSchedules([]);
+    } finally {
+      setLoadingSchedules(false);
+    }
+  }, []);
+
   const loadDataFromAPI = useCallback(async () => {
     try {
       setLoading(true);
@@ -141,46 +206,11 @@ export default function TeacherDashboard() {
 
       // Load TKA schedules after schoolId is set
       if (dashboardResponse.data.school.id) {
-        try {
-          setLoadingSchedules(true);
-          console.log("🔄 Loading TKA schedules...");
-
-          const [schedulesResponse, upcomingResponse] = await Promise.all([
-            apiService.getTkaSchedules(dashboardResponse.data.school.id),
-            apiService.getUpcomingTkaSchedules(
-              dashboardResponse.data.school.id
-            ),
-          ]);
-
-          console.log("📊 TKA Schedules Response:", schedulesResponse);
-          console.log("📊 Upcoming Schedules Response:", upcomingResponse);
-
-          if (schedulesResponse.success) {
-            setTkaSchedules(schedulesResponse.data);
-            console.log(
-              "✅ TKA schedules loaded:",
-              schedulesResponse.data.length,
-              schedulesResponse.data
-            );
-          } else {
-            console.warn("⚠️ TKA schedules failed:", schedulesResponse);
-          }
-
-          if (upcomingResponse.success) {
-            setUpcomingSchedules(upcomingResponse.data);
-            console.log(
-              "✅ Upcoming schedules loaded:",
-              upcomingResponse.data.length,
-              upcomingResponse.data
-            );
-          } else {
-            console.warn("⚠️ Upcoming schedules failed:", upcomingResponse);
-          }
-        } catch (scheduleErr: unknown) {
-          console.error("Error loading TKA schedules:", scheduleErr);
-        } finally {
-          setLoadingSchedules(false);
-        }
+        console.log(
+          "🔄 Loading TKA schedules in loadDataFromAPI for school:",
+          dashboardResponse.data.school.id
+        );
+        await loadTkaSchedules(dashboardResponse.data.school.id);
       }
     } catch (err: unknown) {
       console.error("Error loading data:", err);
@@ -188,12 +218,42 @@ export default function TeacherDashboard() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [loadTkaSchedules]);
 
   // Load data from API
   useEffect(() => {
     loadDataFromAPI();
   }, [loadDataFromAPI]);
+
+  // Load TKA schedules when schoolId changes
+  useEffect(() => {
+    if (schoolId) {
+      console.log("🔄 SchoolId changed, loading TKA schedules:", schoolId);
+      loadTkaSchedules(schoolId);
+    }
+  }, [schoolId, loadTkaSchedules]);
+
+  // Load TKA schedules on component mount and window focus
+  useEffect(() => {
+    const handleFocus = () => {
+      if (schoolId && activeMenu === "tka-schedules") {
+        console.log("🔄 Window focused, refreshing TKA schedules...");
+        loadTkaSchedules(schoolId);
+      }
+    };
+
+    // Load on mount
+    if (schoolId) {
+      loadTkaSchedules(schoolId);
+    }
+
+    // Listen for window focus
+    window.addEventListener("focus", handleFocus);
+
+    return () => {
+      window.removeEventListener("focus", handleFocus);
+    };
+  }, [schoolId, loadTkaSchedules, activeMenu]);
 
   const handleClassClick = (classItem: {
     kelas: string;
@@ -201,6 +261,25 @@ export default function TeacherDashboard() {
   }) => {
     // Handle class click if needed
     console.log("Class clicked:", classItem);
+  };
+
+  // Refresh TKA schedules manually
+  const refreshTkaSchedules = useCallback(async () => {
+    if (schoolId) {
+      console.log("🔄 Manually refreshing TKA schedules...");
+      await loadTkaSchedules(schoolId);
+    }
+  }, [schoolId, loadTkaSchedules]);
+
+  // Handle menu change and refresh TKA schedules when TKA menu is selected
+  const handleMenuChange = (menuId: string) => {
+    setActiveMenu(menuId);
+
+    // Refresh TKA schedules when TKA menu is selected
+    if (menuId === "tka-schedules" && schoolId) {
+      console.log("🔄 TKA menu selected, refreshing schedules...");
+      refreshTkaSchedules();
+    }
   };
 
   const openAddStudentModal = () => {
@@ -537,7 +616,7 @@ export default function TeacherDashboard() {
   ];
 
   const handleMenuClick = (menuId: string) => {
-    setActiveMenu(menuId);
+    handleMenuChange(menuId);
     const menuItem = menuItems.find((item) => item.id === menuId);
     if (menuItem) {
       router.push(menuItem.path);
@@ -569,7 +648,8 @@ export default function TeacherDashboard() {
             <div className="bg-white rounded-lg shadow-sm p-6">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900">
+                  <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                    <span className="text-blue-600">📅</span>
                     Jadwal TKA
                   </h2>
                   <p className="text-gray-600">
@@ -577,6 +657,16 @@ export default function TeacherDashboard() {
                   </p>
                 </div>
                 <div className="flex items-center gap-4">
+                  <button
+                    onClick={refreshTkaSchedules}
+                    disabled={loadingSchedules}
+                    className="px-3 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                  >
+                    <span className={loadingSchedules ? "animate-spin" : ""}>
+                      🔄
+                    </span>
+                    Refresh
+                  </button>
                   <div className="text-sm text-gray-500">
                     Total: {tkaSchedules.length} jadwal
                   </div>
@@ -586,6 +676,20 @@ export default function TeacherDashboard() {
                 </div>
               </div>
 
+              {/* Debug Info */}
+              {process.env.NODE_ENV === "development" && (
+                <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-sm">
+                  <div className="font-semibold text-yellow-800">
+                    Debug Info:
+                  </div>
+                  <div>Loading: {loadingSchedules ? "Yes" : "No"}</div>
+                  <div>Total Schedules: {tkaSchedules.length}</div>
+                  <div>Upcoming Schedules: {upcomingSchedules.length}</div>
+                  <div>School ID: {schoolId}</div>
+                  <div>Active Menu: {activeMenu}</div>
+                </div>
+              )}
+
               {loadingSchedules ? (
                 <div className="flex items-center justify-center py-12">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -593,29 +697,35 @@ export default function TeacherDashboard() {
                     Memuat jadwal TKA...
                   </span>
                 </div>
-              ) : upcomingSchedules.length > 0 ? (
+              ) : (
                 <div className="grid gap-6">
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                      <span className="text-blue-600">📅</span>
-                      Jadwal Mendatang
-                    </h3>
-                    <div className="grid gap-4">
-                      {upcomingSchedules.map((schedule) => (
-                        <TkaScheduleCard
-                          key={schedule.id}
-                          schedule={schedule}
-                          showActions={false}
-                        />
-                      ))}
+                  {/* Jadwal Mendatang */}
+                  {upcomingSchedules.length > 0 && (
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                        <span className="text-blue-600">📅</span>
+                        Jadwal Mendatang
+                      </h3>
+                      <div className="grid gap-4">
+                        {upcomingSchedules.map((schedule) => (
+                          <TkaScheduleCard
+                            key={schedule.id}
+                            schedule={schedule}
+                            showActions={false}
+                          />
+                        ))}
+                      </div>
                     </div>
-                  </div>
+                  )}
 
-                  {tkaSchedules.length > upcomingSchedules.length && (
+                  {/* Semua Jadwal */}
+                  {tkaSchedules.length > 0 && (
                     <div>
                       <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                         <span className="text-gray-600">📋</span>
-                        Semua Jadwal
+                        {upcomingSchedules.length > 0
+                          ? "Semua Jadwal"
+                          : "Jadwal TKA"}
                       </h3>
                       <div className="grid gap-4">
                         {tkaSchedules
@@ -632,17 +742,21 @@ export default function TeacherDashboard() {
                       </div>
                     </div>
                   )}
-                </div>
-              ) : (
-                <div className="text-center py-12">
-                  <div className="text-6xl mb-4">📅</div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">
-                    Belum ada jadwal TKA
-                  </h3>
-                  <p className="text-gray-500">
-                    Jadwal TKA akan muncul di sini setelah dibuat oleh Super
-                    Admin
-                  </p>
+
+                  {/* Empty State - hanya muncul jika benar-benar tidak ada jadwal sama sekali */}
+                  {tkaSchedules.length === 0 &&
+                    upcomingSchedules.length === 0 && (
+                      <div className="text-center py-12">
+                        <div className="text-6xl mb-4">📅</div>
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">
+                          Belum ada jadwal TKA
+                        </h3>
+                        <p className="text-gray-500">
+                          Jadwal TKA akan muncul di sini setelah dibuat oleh
+                          Super Admin
+                        </p>
+                      </div>
+                    )}
                 </div>
               )}
             </div>

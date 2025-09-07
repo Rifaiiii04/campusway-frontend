@@ -140,68 +140,6 @@ export default function StudentDashboardClient() {
     }
   }, []);
 
-  // Load major status
-  const loadMajorStatus = useCallback(async (studentData: StudentData) => {
-    if (!studentData?.id) {
-      console.warn("⚠️ StudentData or studentData.id is missing:", studentData);
-      return;
-    }
-
-    console.log("🔍 Loading major status for student ID:", studentData.id);
-
-    try {
-      const response = await studentApiService.checkMajorStatus(studentData.id);
-
-      if (response.success && response.data.has_choice) {
-        console.log("✅ Student has choice, loading choice details");
-        await loadStudentChoice(studentData);
-      } else {
-        setAppliedMajors([]);
-        setSelectedMajorId(null);
-      }
-    } catch (error) {
-      console.error("Error loading major status:", error);
-      setAppliedMajors([]);
-      setSelectedMajorId(null);
-    }
-  }, []);
-
-  // Authentication check
-  const checkAuthentication = useCallback(async () => {
-    if (hasInitialized.current) return;
-    hasInitialized.current = true;
-
-    const endTiming = startTiming("authentication_check");
-
-    try {
-      const token = localStorage.getItem("student_token");
-      const storedStudentData = localStorage.getItem("student_data");
-
-      if (token && storedStudentData) {
-        const parsedData = JSON.parse(storedStudentData);
-        setStudentData(parsedData);
-        setIsAuthenticated(true);
-
-        // Load data in parallel
-        await Promise.all([
-          loadMajors(),
-          loadMajorStatus(parsedData),
-          loadTkaSchedules(),
-        ]);
-      } else {
-        router.push("/student");
-      }
-    } catch (error) {
-      console.error("Authentication error:", error);
-      localStorage.removeItem("student_token");
-      localStorage.removeItem("student_data");
-      router.push("/student");
-    } finally {
-      setLoading(false);
-      endTiming();
-    }
-  }, [router, loadMajors, startTiming, loadMajorStatus, loadTkaSchedules]);
-
   // Load student choice
   const loadStudentChoice = useCallback(async (studentData: StudentData) => {
     if (!studentData?.id) return;
@@ -235,6 +173,43 @@ export default function StudentDashboardClient() {
     }
   }, []);
 
+  // Authentication check
+  const checkAuthentication = useCallback(async () => {
+    if (hasInitialized.current) return;
+    hasInitialized.current = true;
+
+    const endTiming = startTiming("authentication_check");
+
+    try {
+      const token = localStorage.getItem("student_token");
+      const storedStudentData = localStorage.getItem("student_data");
+
+      if (token && storedStudentData) {
+        const parsedData = JSON.parse(storedStudentData);
+        setStudentData(parsedData);
+        setIsAuthenticated(true);
+
+        // Load data in parallel
+        // Always load student choice from database regardless of has_choice
+        await Promise.all([
+          loadMajors(),
+          loadStudentChoice(parsedData),
+          loadTkaSchedules(),
+        ]);
+      } else {
+        router.push("/student");
+      }
+    } catch (error) {
+      console.error("Authentication error:", error);
+      localStorage.removeItem("student_token");
+      localStorage.removeItem("student_data");
+      router.push("/student");
+    } finally {
+      setLoading(false);
+      endTiming();
+    }
+  }, [router, loadMajors, startTiming, loadStudentChoice, loadTkaSchedules]);
+
   // Check if major is selected
   const isMajorSelected = useCallback(
     (majorId: number) => {
@@ -246,56 +221,14 @@ export default function StudentDashboardClient() {
     [selectedMajorId, appliedMajors]
   );
 
-  // Handle major application
-  const handleApplyMajor = useCallback(
-    async (major: Major) => {
-      if (!studentData?.id) {
-        showSuccessNotification(
-          "Data siswa tidak ditemukan. Silakan login ulang."
-        );
-        return;
-      }
-
-      try {
-        const endTiming = startTiming("apply_major");
-
-        if (appliedMajors.length > 0) {
-          await handleChangeMajor(major);
-        } else {
-          const response = await studentApiService.chooseMajor(
-            studentData.id,
-            major.id
-          );
-
-          if (response.success) {
-            const appliedMajor = {
-              id: major.id,
-              major_name: major.major_name,
-              rumpun_ilmu: major.rumpun_ilmu || "ILMU ALAM",
-              description: major.description || "",
-              appliedDate: new Date().toLocaleDateString("id-ID"),
-            };
-            setAppliedMajors([appliedMajor]);
-            setSelectedMajorId(major.id);
-            showSuccessNotification(
-              `Berhasil memilih jurusan ${major.major_name}!`
-            );
-          }
-        }
-
-        endTiming();
-      } catch (error: unknown) {
-        const errorMessage =
-          error instanceof Error ? error.message : "Gagal memilih jurusan";
-        if (errorMessage.includes("sudah memilih jurusan sebelumnya")) {
-          await handleChangeMajor(major);
-        } else {
-          showSuccessNotification(errorMessage);
-        }
-      }
-    },
-    [studentData, appliedMajors, startTiming]
-  );
+  // Show success notification
+  const showSuccessNotification = useCallback((message: string) => {
+    setSuccessMessage(message);
+    setShowSuccessAnimation(true);
+    setTimeout(() => {
+      setShowSuccessAnimation(false);
+    }, 3000);
+  }, []);
 
   // Handle major change
   const handleChangeMajor = useCallback(
@@ -334,7 +267,73 @@ export default function StudentDashboardClient() {
         showSuccessNotification(errorMessage);
       }
     },
-    [studentData, startTiming]
+    [studentData, startTiming, showSuccessNotification]
+  );
+
+  // Handle major application
+  const handleApplyMajor = useCallback(
+    async (major: Major) => {
+      if (!studentData?.id) {
+        showSuccessNotification(
+          "Data siswa tidak ditemukan. Silakan login ulang."
+        );
+        return;
+      }
+
+      try {
+        const endTiming = startTiming("apply_major");
+
+        if (appliedMajors.length > 0) {
+          await handleChangeMajor(major);
+        } else {
+          const response = await studentApiService.chooseMajor(
+            studentData.id,
+            major.id
+          );
+
+          if (response.success) {
+            const appliedMajor = {
+              id: major.id,
+              major_name: major.major_name,
+              rumpun_ilmu: major.rumpun_ilmu || "ILMU ALAM",
+              description: major.description || "",
+              appliedDate: new Date().toLocaleDateString("id-ID"),
+            };
+            setAppliedMajors([appliedMajor]);
+            setSelectedMajorId(major.id);
+
+            // Update has_choice in localStorage to reflect the change
+            const updatedStudentData = { ...studentData, has_choice: true };
+            localStorage.setItem(
+              "student_data",
+              JSON.stringify(updatedStudentData)
+            );
+            setStudentData(updatedStudentData);
+
+            showSuccessNotification(
+              `Berhasil memilih jurusan ${major.major_name}!`
+            );
+          }
+        }
+
+        endTiming();
+      } catch (error: unknown) {
+        const errorMessage =
+          error instanceof Error ? error.message : "Gagal memilih jurusan";
+        if (errorMessage.includes("sudah memilih jurusan sebelumnya")) {
+          await handleChangeMajor(major);
+        } else {
+          showSuccessNotification(errorMessage);
+        }
+      }
+    },
+    [
+      studentData,
+      appliedMajors,
+      startTiming,
+      handleChangeMajor,
+      showSuccessNotification,
+    ]
   );
 
   // Handle major detail
@@ -355,15 +354,6 @@ export default function StudentDashboardClient() {
     } finally {
       setLoadingMajorDetail(false);
     }
-  }, []);
-
-  // Show success notification
-  const showSuccessNotification = useCallback((message: string) => {
-    setSuccessMessage(message);
-    setShowSuccessAnimation(true);
-    setTimeout(() => {
-      setShowSuccessAnimation(false);
-    }, 3000);
   }, []);
 
   // Optimized settings handler
