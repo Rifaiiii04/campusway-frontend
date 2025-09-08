@@ -101,6 +101,12 @@ export default function OptimizedStudentDashboardPage() {
   }, []);
 
   const checkAuthentication = useCallback(async () => {
+    // Guard untuk SSR - hanya jalankan di client
+    if (typeof window === "undefined") {
+      setLoading(false);
+      return;
+    }
+
     const token = localStorage.getItem("student_token");
     const studentDataStr = localStorage.getItem("student_data");
 
@@ -115,8 +121,10 @@ export default function OptimizedStudentDashboardPage() {
         await loadAppliedMajors(parsedStudentData.id);
       } catch (error) {
         console.error("Error parsing student data:", error);
-        localStorage.removeItem("student_token");
-        localStorage.removeItem("student_data");
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("student_token");
+          localStorage.removeItem("student_data");
+        }
         router.push("/student");
       }
     } else {
@@ -153,12 +161,16 @@ export default function OptimizedStudentDashboardPage() {
           setAppliedMajors([appliedMajor]);
         }
 
-        // Update has_choice in localStorage to reflect the change
+        // Always define updatedStudentData before use
         const updatedStudentData = { ...studentData, has_choice: true };
-        localStorage.setItem(
-          "student_data",
-          JSON.stringify(updatedStudentData)
-        );
+
+        // Update has_choice in localStorage to reflect the change
+        if (typeof window !== "undefined") {
+          localStorage.setItem(
+            "student_data",
+            JSON.stringify(updatedStudentData)
+          );
+        }
         setStudentData(updatedStudentData);
 
         // Refetch student choice data
@@ -185,8 +197,10 @@ export default function OptimizedStudentDashboardPage() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("student_token");
-    localStorage.removeItem("student_data");
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("student_token");
+      localStorage.removeItem("student_data");
+    }
     router.push("/student");
   };
 

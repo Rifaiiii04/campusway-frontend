@@ -92,9 +92,13 @@ export default function TeacherDashboard() {
   const [tkaSchedules, setTkaSchedules] = useState<TkaSchedule[]>([]);
   const [upcomingSchedules, setUpcomingSchedules] = useState<TkaSchedule[]>([]);
   const [loadingSchedules, setLoadingSchedules] = useState(false);
+  const [schedulesLoaded, setSchedulesLoaded] = useState(false);
 
   // Dark mode detection and management
   useEffect(() => {
+    // Guard untuk SSR - hanya jalankan di client
+    if (typeof window === "undefined") return;
+
     // Check for saved dark mode preference or system preference
     const savedDarkMode = localStorage.getItem("darkMode");
     const systemPrefersDark = window.matchMedia(
@@ -110,6 +114,9 @@ export default function TeacherDashboard() {
 
   // Save dark mode preference
   useEffect(() => {
+    // Guard untuk SSR - hanya jalankan di client
+    if (typeof window === "undefined") return;
+
     localStorage.setItem("darkMode", darkMode.toString());
     if (darkMode) {
       document.documentElement.classList.add("dark");
@@ -162,10 +169,12 @@ export default function TeacherDashboard() {
       if (schedulesResponse && schedulesResponse.success) {
         const schedules = schedulesResponse.data || [];
         setTkaSchedules(schedules);
+        setSchedulesLoaded(true);
         console.log("✅ TKA schedules loaded:", schedules.length, schedules);
       } else {
         console.warn("⚠️ TKA schedules failed:", schedulesResponse);
         setTkaSchedules([]);
+        setSchedulesLoaded(false);
       }
 
       // Process upcoming response
@@ -181,6 +190,7 @@ export default function TeacherDashboard() {
       console.error("❌ Error loading TKA schedules:", scheduleErr);
       setTkaSchedules([]);
       setUpcomingSchedules([]);
+      setSchedulesLoaded(false);
     } finally {
       setLoadingSchedules(false);
     }
@@ -204,34 +214,47 @@ export default function TeacherDashboard() {
       const majorStatsResponse = await apiService.getMajorStatistics();
       setMajorStatistics(majorStatsResponse.data.major_statistics);
 
-      // Load TKA schedules after schoolId is set
-      if (dashboardResponse.data.school.id) {
-        console.log(
-          "🔄 Loading TKA schedules in loadDataFromAPI for school:",
-          dashboardResponse.data.school.id
-        );
-        await loadTkaSchedules(dashboardResponse.data.school.id);
-      }
+      // Note: TKA schedules will be loaded by the useEffect that watches schoolId
     } catch (err: unknown) {
       console.error("Error loading data:", err);
       setError(err instanceof Error ? err.message : "Gagal memuat data");
     } finally {
       setLoading(false);
     }
-  }, [loadTkaSchedules]);
+  }, []);
 
   // Load data from API
   useEffect(() => {
     loadDataFromAPI();
   }, [loadDataFromAPI]);
 
+  // Force load TKA schedules on component mount
+  useEffect(() => {
+    console.log("🔄 Component mounted, checking for schoolId...");
+    if (schoolId) {
+      console.log(
+        "🔄 SchoolId available on mount, loading TKA schedules:",
+        schoolId
+      );
+      loadTkaSchedules(schoolId);
+    }
+  }, []); // Run only on mount
+
   // Load TKA schedules when schoolId changes
   useEffect(() => {
+    console.log(
+      "🔄 useEffect triggered - schoolId:",
+      schoolId,
+      "loadTkaSchedules:",
+      typeof loadTkaSchedules
+    );
     if (schoolId) {
       console.log("🔄 SchoolId changed, loading TKA schedules:", schoolId);
       loadTkaSchedules(schoolId);
+    } else {
+      console.log("⚠️ No schoolId available for TKA schedules");
     }
-  }, [schoolId, loadTkaSchedules]);
+  }, [schoolId]); // Remove loadTkaSchedules from dependencies to prevent infinite loops
 
   // Load TKA schedules on component mount and window focus
   useEffect(() => {
@@ -247,13 +270,15 @@ export default function TeacherDashboard() {
       loadTkaSchedules(schoolId);
     }
 
-    // Listen for window focus
-    window.addEventListener("focus", handleFocus);
+    // Listen for window focus - hanya di client
+    if (typeof window !== "undefined") {
+      window.addEventListener("focus", handleFocus);
 
-    return () => {
-      window.removeEventListener("focus", handleFocus);
-    };
-  }, [schoolId, loadTkaSchedules, activeMenu]);
+      return () => {
+        window.removeEventListener("focus", handleFocus);
+      };
+    }
+  }, [schoolId, activeMenu]); // Remove loadTkaSchedules from dependencies
 
   const handleClassClick = (classItem: {
     kelas: string;
@@ -269,7 +294,7 @@ export default function TeacherDashboard() {
       console.log("🔄 Manually refreshing TKA schedules...");
       await loadTkaSchedules(schoolId);
     }
-  }, [schoolId, loadTkaSchedules]);
+  }, [schoolId]); // Remove loadTkaSchedules from dependencies
 
   // Handle menu change and refresh TKA schedules when TKA menu is selected
   const handleMenuChange = (menuId: string) => {
@@ -333,7 +358,9 @@ export default function TeacherDashboard() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("school_token");
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("school_token");
+    }
     router.push("/login");
   };
 
@@ -345,8 +372,14 @@ export default function TeacherDashboard() {
       console.log("📊 Loading state set to true");
 
       // Check authentication first
-      const token = localStorage.getItem("school_token");
-      const schoolData = localStorage.getItem("school_data");
+      const token =
+        typeof window !== "undefined"
+          ? localStorage.getItem("school_token")
+          : null;
+      const schoolData =
+        typeof window !== "undefined"
+          ? localStorage.getItem("school_data")
+          : null;
 
       console.log("🔑 Token exists:", !!token);
       console.log(
@@ -364,13 +397,30 @@ export default function TeacherDashboard() {
 
       // Ambil data export dari API - Fixed call
       console.log("🌐 Calling API to get export data...");
-      console.log("🔑 Current token:", localStorage.getItem("school_token"));
+      console.log(
+        "🔑 Current token:",
+        typeof window !== "undefined"
+          ? localStorage.getItem("school_token")
+          : "SSR"
+      );
       console.log(
         "🏫 Current school data:",
-        localStorage.getItem("school_data")
+        typeof window !== "undefined"
+          ? localStorage.getItem("school_data")
+          : "SSR"
       );
 
-      const response = await apiService.exportStudents();
+      // Get school ID from schoolData
+      const school = schoolData ? JSON.parse(schoolData) : null;
+      const schoolId = school ? school.id : null;
+
+      console.log("🏫 School ID for export:", schoolId);
+
+      if (!schoolId) {
+        throw new Error("School ID tidak ditemukan. Silakan login ulang.");
+      }
+
+      const response = await apiService.exportStudents(schoolId);
       console.log("✅ API response received:", response);
 
       if (response.success && response.data) {
@@ -441,7 +491,10 @@ export default function TeacherDashboard() {
               student.chosen_major?.kurikulum_2013_bahasa_subjects || "-",
           }));
 
-          const schoolData = localStorage.getItem("school_data");
+          const schoolData =
+            typeof window !== "undefined"
+              ? localStorage.getItem("school_data")
+              : null;
           const school = schoolData
             ? JSON.parse(schoolData)
             : { name: "Unknown School", npsn: "Unknown" };
@@ -551,6 +604,10 @@ export default function TeacherDashboard() {
     const blob = new Blob([csvWithBOM], {
       type: "text/csv; charset=UTF-8",
     });
+
+    // Guard untuk SSR - hanya jalankan di client
+    if (typeof window === "undefined" || typeof document === "undefined")
+      return;
 
     const link = document.createElement("a");
 
@@ -673,6 +730,9 @@ export default function TeacherDashboard() {
                   <div className="text-sm text-blue-600 font-medium">
                     Mendatang: {upcomingSchedules.length} jadwal
                   </div>
+                  <div className="text-sm text-green-600 font-medium">
+                    Loaded: {schedulesLoaded ? "Yes" : "No"}
+                  </div>
                 </div>
               </div>
 
@@ -685,6 +745,7 @@ export default function TeacherDashboard() {
                   <div>Loading: {loadingSchedules ? "Yes" : "No"}</div>
                   <div>Total Schedules: {tkaSchedules.length}</div>
                   <div>Upcoming Schedules: {upcomingSchedules.length}</div>
+                  <div>Schedules Loaded: {schedulesLoaded ? "Yes" : "No"}</div>
                   <div>School ID: {schoolId}</div>
                   <div>Active Menu: {activeMenu}</div>
                 </div>

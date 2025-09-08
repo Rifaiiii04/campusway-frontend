@@ -70,6 +70,24 @@ const nextConfig: NextConfig = {
             key: "Referrer-Policy",
             value: "origin-when-cross-origin",
           },
+          // Fix CSS loading issues
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+          // Fix font loading
+          {
+            key: "Access-Control-Allow-Origin",
+            value: "*",
+          },
+          {
+            key: "Access-Control-Allow-Methods",
+            value: "GET, POST, PUT, DELETE, OPTIONS",
+          },
+          {
+            key: "Access-Control-Allow-Headers",
+            value: "Content-Type, Authorization",
+          },
         ],
       },
       {
@@ -91,6 +109,19 @@ const nextConfig: NextConfig = {
         ],
       },
     ];
+  },
+
+  // Webpack configuration for better CSS handling
+  webpack: (config, { dev, isServer }) => {
+    // Fix CSS loading issues in development
+    if (dev && !isServer) {
+      config.watchOptions = {
+        poll: 1000,
+        aggregateTimeout: 300,
+      };
+    }
+
+    return config;
   },
 };
 

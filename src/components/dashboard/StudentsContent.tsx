@@ -57,15 +57,21 @@ export default function StudentsContent({
         }
       } catch (error) {
         console.error("❌ Error deleting student:", error);
-        console.error("❌ Error details:", {
-          message: error.message,
-          stack: error.stack,
-        });
-        alert(
-          `Terjadi kesalahan saat menghapus data siswa: ${
-            error.message || "Silakan coba lagi."
-          }`
-        );
+        if (error instanceof Error) {
+          console.error("❌ Error details:", {
+            message: error.message,
+            stack: error.stack,
+          });
+          alert(
+            `Terjadi kesalahan saat menghapus data siswa: ${
+              error.message || "Silakan coba lagi."
+            }`
+          );
+        } else {
+          alert(
+            "Terjadi kesalahan saat menghapus data siswa. Silakan coba lagi."
+          );
+        }
       }
     }
     setShowDeleteModal(false);

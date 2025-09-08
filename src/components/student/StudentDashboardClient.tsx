@@ -180,6 +180,13 @@ export default function StudentDashboardClient() {
 
     const endTiming = startTiming("authentication_check");
 
+    // Guard untuk SSR - hanya jalankan di client
+    if (typeof window === "undefined") {
+      setLoading(false);
+      endTiming();
+      return;
+    }
+
     try {
       const token = localStorage.getItem("student_token");
       const storedStudentData = localStorage.getItem("student_data");
@@ -201,8 +208,10 @@ export default function StudentDashboardClient() {
       }
     } catch (error) {
       console.error("Authentication error:", error);
-      localStorage.removeItem("student_token");
-      localStorage.removeItem("student_data");
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("student_token");
+        localStorage.removeItem("student_data");
+      }
       router.push("/student");
     } finally {
       setLoading(false);
@@ -303,12 +312,14 @@ export default function StudentDashboardClient() {
             setSelectedMajorId(major.id);
 
             // Update has_choice in localStorage to reflect the change
-            const updatedStudentData = { ...studentData, has_choice: true };
-            localStorage.setItem(
-              "student_data",
-              JSON.stringify(updatedStudentData)
-            );
-            setStudentData(updatedStudentData);
+            if (typeof window !== "undefined") {
+              const updatedStudentData = { ...studentData, has_choice: true };
+              localStorage.setItem(
+                "student_data",
+                JSON.stringify(updatedStudentData)
+              );
+              setStudentData(updatedStudentData);
+            }
 
             showSuccessNotification(
               `Berhasil memilih jurusan ${major.major_name}!`
@@ -486,8 +497,10 @@ export default function StudentDashboardClient() {
 
   // Handle logout
   const handleLogout = useCallback(() => {
-    localStorage.removeItem("student_token");
-    localStorage.removeItem("student_data");
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("student_token");
+      localStorage.removeItem("student_data");
+    }
     router.push("/student");
   }, [router]);
 

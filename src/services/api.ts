@@ -1,16 +1,29 @@
 import { clientCache, cacheKeys } from "@/utils/cache";
 import { apiPerformance } from "@/utils/performanceMonitor";
 
+// Dynamic API base URL based on current hostname
+const getApiBaseUrl = () => {
+  if (typeof window !== "undefined") {
+    const hostname = window.location.hostname;
+    if (hostname === "localhost" || hostname === "127.0.0.1") {
+      return "http://127.0.0.1:8000";
+    } else {
+      // For network access, use the same hostname but different port
+      return `http://${hostname}:8000`;
+    }
+  }
+  return "http://127.0.0.1:8000";
+};
+
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:8000/api/school";
+  process.env.NEXT_PUBLIC_API_BASE_URL || `${getApiBaseUrl()}/api/school`;
 
 const STUDENT_API_BASE_URL =
-  process.env.NEXT_PUBLIC_STUDENT_API_BASE_URL ||
-  "http://127.0.0.1:8000/api/web";
+  process.env.NEXT_PUBLIC_STUDENT_API_BASE_URL || `${getApiBaseUrl()}/api/web`;
 
 const SCHOOL_LEVEL_API_BASE_URL =
   process.env.NEXT_PUBLIC_SCHOOL_LEVEL_API_BASE_URL ||
-  "http://127.0.0.1:8000/api/school-level";
+  `${getApiBaseUrl()}/api/school-level`;
 
 // Debug logging
 console.log("🔧 STUDENT_API_BASE_URL:", STUDENT_API_BASE_URL);
@@ -92,7 +105,7 @@ async function fetchWithCache<T>(
       }
       if (error.message.includes("Failed to fetch")) {
         throw new Error(
-          `Koneksi gagal: Pastikan server backend berjalan di http://127.0.0.1:8000`
+          `Koneksi gagal: Pastikan server backend berjalan di ${getApiBaseUrl()}`
         );
       }
     }
@@ -489,21 +502,28 @@ export const apiService = {
   },
 
   // Export Students Data - Fixed function
-  async exportStudents(): Promise<{ success: boolean; data: unknown }> {
+  async exportStudents(
+    schoolId?: number
+  ): Promise<{ success: boolean; data: unknown }> {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
 
     try {
       const token = getToken();
-      console.log("🌐 Export API URL:", `${API_BASE_URL}/export-students`);
+      const url = schoolId
+        ? `${API_BASE_URL}/export-students?school_id=${schoolId}`
+        : `${API_BASE_URL}/export-students`;
+
+      console.log("🌐 Export API URL:", url);
       console.log("🔑 Token exists:", !!token);
+      console.log("🏫 School ID:", schoolId);
       console.log(
         "🔑 Token value:",
         token ? `${token.substring(0, 10)}...` : "null"
       );
       console.log("🔑 Auth headers:", getAuthHeaders());
 
-      const response = await fetch(`${API_BASE_URL}/export-students`, {
+      const response = await fetch(url, {
         headers: getAuthHeaders(),
         signal: controller.signal,
       });
@@ -516,16 +536,32 @@ export const apiService = {
       if (!contentType || !contentType.includes("application/json")) {
         const textResponse = await response.text();
         console.error("❌ Non-JSON response:", textResponse);
+        console.error("❌ Response status:", response.status);
+        console.error(
+          "❌ Response headers:",
+          Object.fromEntries(response.headers.entries())
+        );
         throw new Error(
-          "Server mengembalikan response yang tidak valid. Pastikan server backend berjalan dengan benar."
+          `Server mengembalikan response yang tidak valid (Status: ${response.status}). Pastikan server backend berjalan dengan benar.`
         );
       }
 
       const data = await response.json();
       console.log("📊 Export response data:", data);
+      console.log("📊 Response success:", data.success);
+      console.log("📊 Response data type:", typeof data.data);
 
       if (!response.ok) {
-        throw new Error(data.message || "Gagal mengekspor data siswa");
+        console.error("❌ Response not OK:", response.status, data);
+        throw new Error(
+          data.message ||
+            `Gagal mengekspor data siswa (Status: ${response.status})`
+        );
+      }
+
+      if (!data.success) {
+        console.error("❌ API returned success: false:", data);
+        throw new Error(data.message || "API mengembalikan error");
       }
 
       return data;
@@ -539,7 +575,7 @@ export const apiService = {
 
       if (error instanceof TypeError && error.message === "Failed to fetch") {
         throw new Error(
-          "Server tidak dapat diakses. Pastikan server backend berjalan di http://127.0.0.1:8000"
+          `Server tidak dapat diakses. Pastikan server backend berjalan di ${getApiBaseUrl()}`
         );
       }
 
@@ -871,7 +907,7 @@ export const studentApiService = {
       // Check if it's a network error
       if (error instanceof TypeError && error.message === "Failed to fetch") {
         throw new Error(
-          "Server tidak dapat diakses. Pastikan server backend berjalan di http://127.0.0.1:8000"
+          `Server tidak dapat diakses. Pastikan server backend berjalan di ${getApiBaseUrl()}`
         );
       }
 
@@ -933,7 +969,7 @@ export const studentApiService = {
       // Check if it's a network error
       if (error instanceof TypeError && error.message === "Failed to fetch") {
         throw new Error(
-          "Server tidak dapat diakses. Pastikan server backend berjalan di http://127.0.0.1:8000"
+          `Server tidak dapat diakses. Pastikan server backend berjalan di ${getApiBaseUrl()}`
         );
       }
 
@@ -958,7 +994,7 @@ export const studentApiService = {
       // Check if it's a network error
       if (error instanceof TypeError && error.message === "Failed to fetch") {
         throw new Error(
-          "Server tidak dapat diakses. Pastikan server backend berjalan di http://127.0.0.1:8000"
+          `Server tidak dapat diakses. Pastikan server backend berjalan di ${getApiBaseUrl()}`
         );
       }
 

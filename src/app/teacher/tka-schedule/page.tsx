@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { studentApiService, TkaSchedule } from "@/services/api";
+import { apiService, studentApiService, TkaSchedule } from "@/services/api";
 import TkaScheduleList from "@/components/TkaScheduleList";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 
@@ -137,7 +137,7 @@ export default function TeacherTkaSchedulePage() {
         setLoading(true);
 
         // Call delete API
-        await studentApiService.deleteTkaSchedule(schedule.id);
+        await apiService.deleteTkaSchedule(schedule.id);
 
         // Reload schedules
         await loadTkaSchedules();

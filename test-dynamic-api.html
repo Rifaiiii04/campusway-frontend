@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Test Dynamic API</title>
+  </head>
+  <body>
+    <h1>Test Dynamic API</h1>
+    <div id="results"></div>
+
+    <script>
+      // Dynamic API base URL based on current hostname
+      function getApiBaseUrl() {
+        const hostname = window.location.hostname;
+        if (hostname === "localhost" || hostname === "127.0.0.1") {
+          return "http://127.0.0.1:8000";
+        } else {
+          // For network access, use the same hostname but different port
+          return `http://${hostname}:8000`;
+        }
+      }
+
+      async function testDynamicApi() {
+        const results = document.getElementById("results");
+        const apiBaseUrl = getApiBaseUrl();
+
+        results.innerHTML += "<h2>API Configuration:</h2>";
+        results.innerHTML +=
+          "<p>Current hostname: " + window.location.hostname + "</p>";
+        results.innerHTML += "<p>API Base URL: " + apiBaseUrl + "</p>";
+
+        try {
+          // Test global TKA schedules
+          console.log(
+            "Testing TKA schedules with URL:",
+            apiBaseUrl + "/api/tka-schedules"
+          );
+          const globalResponse = await fetch(apiBaseUrl + "/api/tka-schedules");
+          const globalData = await globalResponse.json();
+          console.log("TKA schedules:", globalData);
+
+          results.innerHTML += "<h2>TKA Schedules Response:</h2>";
+          results.innerHTML += "<p>Status: " + globalResponse.status + "</p>";
+          results.innerHTML +=
+            "<pre>" + JSON.stringify(globalData, null, 2) + "</pre>";
+
+          // Test upcoming TKA schedules
+          console.log(
+            "Testing upcoming TKA schedules with URL:",
+            apiBaseUrl + "/api/tka-schedules/upcoming"
+          );
+          const upcomingResponse = await fetch(
+            apiBaseUrl + "/api/tka-schedules/upcoming"
+          );
+          const upcomingData = await upcomingResponse.json();
+          console.log("Upcoming TKA schedules:", upcomingData);
+
+          results.innerHTML += "<h2>Upcoming TKA Schedules Response:</h2>";
+          results.innerHTML += "<p>Status: " + upcomingResponse.status + "</p>";
+          results.innerHTML +=
+            "<pre>" + JSON.stringify(upcomingData, null, 2) + "</pre>";
+        } catch (error) {
+          console.error("Error testing dynamic API:", error);
+          results.innerHTML +=
+            '<p style="color: red;">Error: ' + error.message + "</p>";
+        }
+      }
+
+      // Run test when page loads
+      testDynamicApi();
+    </script>
+  </body>
+</html>
