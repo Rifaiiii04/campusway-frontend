@@ -284,7 +284,7 @@ export interface StudentChoice {
   updated_at?: string;
 }
 
-// TKA Schedule interfaces
+// TKA Schedule interfaces - PUSMENDIK Standard
 export interface TkaSchedule {
   id: number;
   title: string;
@@ -300,6 +300,17 @@ export interface TkaSchedule {
   created_at: string;
   updated_at: string;
   school_id?: number;
+
+  // PUSMENDIK Essential Fields
+  gelombang?: "1" | "2";
+  hari_pelaksanaan?: "Hari Pertama" | "Hari Kedua";
+  exam_venue?: string;
+  exam_room?: string;
+  contact_person?: string;
+  contact_phone?: string;
+  requirements?: string;
+  materials_needed?: string;
+
   // Accessors
   formatted_start_date?: string;
   formatted_end_date?: string;

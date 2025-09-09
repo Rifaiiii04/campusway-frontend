@@ -739,7 +739,7 @@ export default function StudentDashboardClient() {
           </div>
         </div>
 
-        {/* TKA Schedules Notification */}
+        {/* TKA Schedules Notification - PUSMENDIK Standard */}
         {upcomingSchedules.length > 0 && (
           <div className="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl sm:rounded-3xl shadow-2xl p-6 sm:p-8 mb-6 sm:mb-8 border border-white/20">
             <div className="text-center mb-6">
@@ -749,17 +749,14 @@ export default function StudentDashboardClient() {
                 </div>
               </div>
               <h3 className="text-2xl sm:text-3xl font-bold text-white mb-2">
-                Jadwal TKA Mendatang
+                Jadwal TKA SMK 2025
               </h3>
               <p className="text-blue-100 text-base sm:text-lg">
                 Ada {upcomingSchedules.length} jadwal TKA yang akan datang
               </p>
-              {/* Debug info */}
-              {process.env.NODE_ENV === "development" && (
-                <p className="text-yellow-200 text-xs">
-                  Debug: upcomingSchedules = {JSON.stringify(upcomingSchedules)}
-                </p>
-              )}
+              <p className="text-blue-200 text-sm mt-1">
+                Sesuai Jadwal PUSMENDIK Resmi
+              </p>
             </div>
 
             <div className="space-y-4">
@@ -768,63 +765,140 @@ export default function StudentDashboardClient() {
                   key={schedule.id}
                   className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20"
                 >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="font-semibold text-white text-lg">
-                        {schedule.title}
-                      </h4>
-                      <p className="text-blue-100 text-sm">
-                        {new Date(schedule.start_date).toLocaleDateString(
-                          "id-ID",
-                          {
-                            weekday: "long",
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                          }
+                  <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4">
+                    <div className="flex-1">
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-3">
+                        <h4 className="font-semibold text-white text-lg">
+                          {schedule.title}
+                        </h4>
+                        <div className="flex flex-wrap gap-2">
+                          <span
+                            className={`px-3 py-1 rounded-full text-xs font-medium ${
+                              schedule.type === "regular"
+                                ? "bg-blue-100 text-blue-800"
+                                : schedule.type === "makeup"
+                                ? "bg-yellow-100 text-yellow-800"
+                                : "bg-purple-100 text-purple-800"
+                            }`}
+                          >
+                            {schedule.type === "regular"
+                              ? "Reguler"
+                              : schedule.type === "makeup"
+                              ? "Susulan"
+                              : "Khusus"}
+                          </span>
+                          {schedule.gelombang && (
+                            <span className="px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                              Gelombang {schedule.gelombang}
+                            </span>
+                          )}
+                          {schedule.hari_pelaksanaan && (
+                            <span className="px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                              {schedule.hari_pelaksanaan}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-blue-100 text-sm">
+                        <div>
+                          <p className="font-medium">📅 Tanggal & Waktu:</p>
+                          <p>
+                            {new Date(schedule.start_date).toLocaleDateString(
+                              "id-ID",
+                              {
+                                weekday: "long",
+                                year: "numeric",
+                                month: "long",
+                                day: "numeric",
+                              }
+                            )}
+                          </p>
+                          <p>
+                            {new Date(schedule.start_date).toLocaleTimeString(
+                              "id-ID",
+                              {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              }
+                            )}{" "}
+                            -{" "}
+                            {new Date(schedule.end_date).toLocaleTimeString(
+                              "id-ID",
+                              {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              }
+                            )}
+                          </p>
+                        </div>
+
+                        {schedule.gelombang && (
+                          <div>
+                            <p className="font-medium">🌊 Gelombang:</p>
+                            <p>Gelombang {schedule.gelombang}</p>
+                          </div>
                         )}
-                      </p>
-                      <p className="text-blue-100 text-sm">
-                        {new Date(schedule.start_date).toLocaleTimeString(
-                          "id-ID",
-                          {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          }
-                        )}{" "}
-                        -{" "}
-                        {new Date(schedule.end_date).toLocaleTimeString(
-                          "id-ID",
-                          {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          }
+
+                        {schedule.hari_pelaksanaan && (
+                          <div>
+                            <p className="font-medium">📋 Hari Pelaksanaan:</p>
+                            <p>{schedule.hari_pelaksanaan}</p>
+                          </div>
                         )}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          schedule.type === "regular"
-                            ? "bg-blue-100 text-blue-800"
-                            : schedule.type === "makeup"
-                            ? "bg-yellow-100 text-yellow-800"
-                            : "bg-purple-100 text-purple-800"
-                        }`}
-                      >
-                        {schedule.type === "regular"
-                          ? "Reguler"
-                          : schedule.type === "makeup"
-                          ? "Susulan"
-                          : "Khusus"}
-                      </span>
+
+                        {schedule.exam_venue && (
+                          <div>
+                            <p className="font-medium">🏢 Tempat:</p>
+                            <p>{schedule.exam_venue}</p>
+                            {schedule.exam_room && (
+                              <p className="text-blue-200">
+                                Ruangan: {schedule.exam_room}
+                              </p>
+                            )}
+                          </div>
+                        )}
+
+                        {schedule.contact_person && (
+                          <div>
+                            <p className="font-medium">👤 Kontak Person:</p>
+                            <p>{schedule.contact_person}</p>
+                            {schedule.contact_phone && (
+                              <p className="text-blue-200">
+                                Telp: {schedule.contact_phone}
+                              </p>
+                            )}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
+
                   {schedule.instructions && (
+                    <div className="mt-4 bg-white/10 rounded-lg p-3">
+                      <p className="text-blue-100 text-sm">
+                        <span className="font-medium">📋 Instruksi: </span>
+                        {schedule.instructions}
+                      </p>
+                    </div>
+                  )}
+
+                  {schedule.requirements && (
                     <div className="mt-3 bg-white/10 rounded-lg p-3">
                       <p className="text-blue-100 text-sm">
-                        <span className="font-medium">Instruksi: </span>
-                        {schedule.instructions}
+                        <span className="font-medium">📝 Persyaratan: </span>
+                        {schedule.requirements}
+                      </p>
+                    </div>
+                  )}
+
+                  {schedule.materials_needed && (
+                    <div className="mt-3 bg-white/10 rounded-lg p-3">
+                      <p className="text-blue-100 text-sm">
+                        <span className="font-medium">
+                          📦 Bahan yang Diperlukan:{" "}
+                        </span>
+                        {schedule.materials_needed}
                       </p>
                     </div>
                   )}
