@@ -17,7 +17,8 @@ export default function PerformanceAdminPage() {
             API Performance Dashboard
           </h1>
           <p className="mt-2 text-gray-600">
-            Monitor and optimize API performance for TKA Student Web Application
+            Monitor and optimize API performance for ArahPotensi Student Web
+            Application
           </p>
         </div>
 
@@ -28,7 +29,7 @@ export default function PerformanceAdminPage() {
               onClick={() => setActiveTab("health")}
               className={`py-2 px-1 border-b-2 font-medium text-sm ${
                 activeTab === "health"
-                  ? "border-blue-500 text-blue-600"
+                  ? "border-red-500 text-red-600"
                   : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
               }`}
             >
@@ -38,7 +39,7 @@ export default function PerformanceAdminPage() {
               onClick={() => setActiveTab("performance")}
               className={`py-2 px-1 border-b-2 font-medium text-sm ${
                 activeTab === "performance"
-                  ? "border-blue-500 text-blue-600"
+                  ? "border-red-500 text-red-600"
                   : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
               }`}
             >
@@ -127,11 +128,11 @@ export default function PerformanceAdminPage() {
         </div>
 
         {/* Performance Tips */}
-        <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-blue-800 mb-3">
+        <div className="mt-6 bg-red-50 border border-red-200 rounded-lg p-6">
+          <h3 className="text-lg font-semibold text-red-800 mb-3">
             Performance Tips
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-blue-700">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-red-700">
             <div>
               <h4 className="font-medium mb-2">Frontend Optimization:</h4>
               <ul className="space-y-1">

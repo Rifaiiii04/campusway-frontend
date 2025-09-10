@@ -5,17 +5,17 @@ import TeacherDashboardClient from "../../components/teacher/TeacherDashboardCli
 import { LoadingSpinner } from "../../components/ui/LoadingSpinner";
 
 export const metadata: Metadata = {
-  title: "Dashboard Guru - Sistem TKA",
+  title: "Dashboard Guru - Sistem ArahPotensi",
   description:
-    "Dashboard utama guru untuk mengelola data siswa, kelas, dan hasil tes TKA",
+    "Dashboard utama guru untuk mengelola data siswa, kelas, dan hasil tes ArahPotensi",
 };
 
 export default function TeacherPage() {
   return (
     <>
       <PageTitle
-        title="Dashboard Guru - Sistem TKA"
-        description="Dashboard utama guru untuk mengelola data siswa, kelas, dan hasil tes TKA"
+        title="Dashboard Guru - Sistem ArahPotensi"
+        description="Dashboard utama guru untuk mengelola data siswa, kelas, dan hasil tes ArahPotensi"
       />
       <Suspense
         fallback={

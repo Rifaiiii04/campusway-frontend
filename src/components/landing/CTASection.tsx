@@ -2,10 +2,10 @@ import Link from "next/link";
 
 export default function CTASection() {
   return (
-    <section className="py-32 bg-blue-600">
+    <section className="py-32 bg-[#800000]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <div className="max-w-5xl mx-auto">
-          <div className="inline-flex items-center px-6 py-3 bg-blue-500 text-white text-sm font-medium rounded-full mb-12">
+          <div className="inline-flex items-center px-6 py-3 bg-red-800 text-white text-sm font-medium rounded-full mb-12">
             🚀 Mulai Perjalananmu Sekarang
           </div>
 
@@ -15,16 +15,16 @@ export default function CTASection() {
             <span className="text-yellow-300">Perjalananmu?</span>
           </h2>
 
-          <p className="text-xl text-blue-100 mb-20 max-w-4xl mx-auto leading-relaxed">
-            Temukan jurusan yang tepat untuk masa depanmu dengan FITME. Pilih
-            jurusan sekarang dan dapatkan rekomendasi yang akurat berdasarkan
-            data resmi Pusmendik.
+          <p className="text-xl text-red-100 mb-20 max-w-4xl mx-auto leading-relaxed">
+            Temukan jurusan yang tepat untuk masa depanmu dengan Arah Potensi.
+            Pilih jurusan sekarang dan dapatkan rekomendasi yang akurat
+            berdasarkan data resmi Pusmendik.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-8 justify-center mb-20">
             <Link
               href="/student"
-              className="inline-flex items-center justify-center px-12 py-6 border border-transparent text-lg font-semibold rounded-lg text-blue-600 bg-white hover:bg-gray-50 transition-colors duration-200"
+              className="inline-flex items-center justify-center px-12 py-6 border border-transparent text-lg font-semibold rounded-lg text-red-800 bg-white hover:bg-gray-50 transition-colors duration-200"
             >
               <svg
                 className="w-6 h-6 mr-3"
@@ -107,7 +107,7 @@ export default function CTASection() {
                 </svg>
               </div>
               <h4 className="text-xl font-bold text-white mb-4">100% Gratis</h4>
-              <p className="text-blue-100 text-lg">Tanpa biaya tersembunyi</p>
+              <p className="text-red-100 text-lg">Tanpa biaya tersembunyi</p>
             </div>
 
             <div className="text-center">
@@ -129,9 +129,7 @@ export default function CTASection() {
               <h4 className="text-xl font-bold text-white mb-4">
                 Cepat & Akurat
               </h4>
-              <p className="text-blue-100 text-lg">
-                Hasil dalam hitungan detik
-              </p>
+              <p className="text-red-100 text-lg">Hasil dalam hitungan detik</p>
             </div>
 
             <div className="text-center">
@@ -153,7 +151,7 @@ export default function CTASection() {
               <h4 className="text-xl font-bold text-white mb-4">
                 Aman & Privat
               </h4>
-              <p className="text-blue-100 text-lg">
+              <p className="text-red-100 text-lg">
                 Data terlindungi dengan baik
               </p>
             </div>

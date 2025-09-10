@@ -3,12 +3,12 @@ export default function FeaturesSection() {
     <section id="features" className="py-32 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-24">
-          <div className="inline-flex items-center px-6 py-3 bg-blue-50 text-blue-700 text-sm font-medium rounded-full mb-10">
+          <div className="inline-flex items-center px-6 py-3 bg-red-50 text-red-700 text-sm font-medium rounded-full mb-10">
             ✨ Fitur Unggulan
           </div>
           <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-10">
             Mengapa Memilih
-            <span className="text-blue-600"> FITME</span>?
+            <span className="text-red-800"> Arah Potensi</span>?
           </h2>
           <p className="text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
             Platform yang dirancang khusus untuk membantu siswa/i menemukan
@@ -17,8 +17,8 @@ export default function FeaturesSection() {
         </div>
 
         <div className="grid lg:grid-cols-3 gap-16">
-          <div className="bg-white p-12 rounded-2xl border border-gray-200 hover:border-blue-300 hover:shadow-xl transition-all duration-200">
-            <div className="w-20 h-20 bg-blue-600 rounded-xl flex items-center justify-center mb-10">
+          <div className="bg-white p-12 rounded-2xl border border-gray-200 hover:border-red-300 hover:shadow-xl transition-all duration-200">
+            <div className="w-20 h-20 bg-red-600 rounded-xl flex items-center justify-center mb-10">
               <svg
                 className="w-10 h-10 text-white"
                 fill="none"
@@ -96,9 +96,9 @@ export default function FeaturesSection() {
         {/* Additional Features */}
         <div className="mt-32 grid md:grid-cols-2 lg:grid-cols-4 gap-12">
           <div className="text-center">
-            <div className="w-16 h-16 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-6">
+            <div className="w-16 h-16 bg-red-100 rounded-xl flex items-center justify-center mx-auto mb-6">
               <svg
-                className="w-8 h-8 text-blue-600"
+                className="w-8 h-8 text-red-600"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"

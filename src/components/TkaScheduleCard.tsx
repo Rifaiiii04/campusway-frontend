@@ -19,7 +19,7 @@ const TkaScheduleCard: React.FC<TkaScheduleCardProps> = ({
   const getStatusColor = (status: string) => {
     switch (status) {
       case "scheduled":
-        return "bg-blue-100 text-blue-800 border-blue-200";
+        return "bg-red-100 text-red-800 border-red-200";
       case "ongoing":
         return "bg-green-100 text-green-800 border-green-200";
       case "completed":
@@ -34,7 +34,7 @@ const TkaScheduleCard: React.FC<TkaScheduleCardProps> = ({
   const getTypeColor = (type: string) => {
     switch (type) {
       case "regular":
-        return "bg-blue-100 text-blue-800";
+        return "bg-red-100 text-red-800";
       case "makeup":
         return "bg-yellow-100 text-yellow-800";
       case "special":
@@ -80,7 +80,7 @@ const TkaScheduleCard: React.FC<TkaScheduleCardProps> = ({
         isOngoing
           ? "border-green-300 bg-green-50"
           : isUpcoming
-          ? "border-blue-300 bg-blue-50"
+          ? "border-red-300 bg-red-50"
           : "border-gray-200"
       }`}
     >
@@ -183,7 +183,7 @@ const TkaScheduleCard: React.FC<TkaScheduleCardProps> = ({
           {schedule.status === "scheduled" && onEdit && (
             <button
               onClick={() => onEdit(schedule)}
-              className="px-3 py-1 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors"
+              className="px-3 py-1 bg-red-600 text-white text-sm rounded-md hover:bg-red-700 transition-colors"
             >
               Edit
             </button>

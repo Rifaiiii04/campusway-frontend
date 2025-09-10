@@ -6,18 +6,24 @@ import { clientCache } from "@/utils/cache";
 
 export const PerformanceDashboard: React.FC = () => {
   const { getReport } = usePerformance();
-  const [performanceReport, setPerformanceReport] = useState<Record<string, unknown>>({});
-  const [cacheStats, setCacheStats] = useState<{ size: number; maxSize: number; hitRate: number }>({
+  const [performanceReport, setPerformanceReport] = useState<
+    Record<string, unknown>
+  >({});
+  const [cacheStats, setCacheStats] = useState<{
+    size: number;
+    maxSize: number;
+    hitRate: number;
+  }>({
     size: 0,
     maxSize: 50,
-    hitRate: 0
+    hitRate: 0,
   });
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     const updateStats = () => {
       setPerformanceReport(getReport());
-      
+
       // Check if getStats method exists before calling it
       if (typeof clientCache.getStats === "function") {
         setCacheStats(clientCache.getStats());
@@ -47,7 +53,7 @@ export const PerformanceDashboard: React.FC = () => {
       {/* Toggle Button */}
       <button
         onClick={() => setIsVisible(!isVisible)}
-        className="fixed bottom-4 right-4 bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 transition-colors z-50"
+        className="fixed bottom-4 right-4 bg-red-600 text-white p-3 rounded-full shadow-lg hover:bg-red-700 transition-colors z-50"
         title="Performance Dashboard"
       >
         <svg
@@ -124,8 +130,11 @@ export const PerformanceDashboard: React.FC = () => {
                       {operation}
                     </div>
                     <div className="text-gray-600">
-                      Avg: {(metrics as { average?: number })?.average?.toFixed(2)}ms | Count:{" "}
-                      {(metrics as { count?: number })?.count} | Latest: {(metrics as { latest?: number })?.latest?.toFixed(2)}ms
+                      Avg:{" "}
+                      {(metrics as { average?: number })?.average?.toFixed(2)}ms
+                      | Count: {(metrics as { count?: number })?.count} |
+                      Latest:{" "}
+                      {(metrics as { latest?: number })?.latest?.toFixed(2)}ms
                     </div>
                   </div>
                 )

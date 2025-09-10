@@ -67,7 +67,7 @@ export default function StudentDashboardClient() {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  // TKA Schedules state
+  // ArahPotensi Schedules state
   const [upcomingSchedules, setUpcomingSchedules] = useState<TkaSchedule[]>([]);
 
   // Debounced search query
@@ -113,19 +113,19 @@ export default function StudentDashboardClient() {
     return filtered;
   }, [availableMajors?.data, debouncedSearchQuery, selectedRumpunIlmu]);
 
-  // Load TKA Schedules
+  // Load ArahPotensi Schedules
   const loadTkaSchedules = useCallback(async () => {
     try {
-      console.log("🔄 Loading TKA schedules...");
+      console.log("🔄 Loading ArahPotensi schedules...");
 
       // Load upcoming schedules
       const upcomingResponse =
         await studentApiService.getUpcomingTkaSchedules();
 
-      console.log("📡 TKA Schedules API response:", upcomingResponse);
-      console.log("📊 TKA Schedules data:", upcomingResponse.data);
+      console.log("📡 ArahPotensi Schedules API response:", upcomingResponse);
+      console.log("📊 ArahPotensi Schedules data:", upcomingResponse.data);
       console.log(
-        "📊 TKA Schedules data length:",
+        "📊 ArahPotensi Schedules data length:",
         upcomingResponse.data?.length || 0
       );
 
@@ -135,7 +135,7 @@ export default function StudentDashboardClient() {
         upcomingResponse.data?.length || 0
       );
     } catch (error) {
-      console.error("❌ Error loading TKA schedules:", error);
+      console.error("❌ Error loading ArahPotensi schedules:", error);
       // Don't set error state for schedules as it's not critical
     }
   }, []);
@@ -564,7 +564,7 @@ export default function StudentDashboardClient() {
             <div className="flex items-center space-x-2 sm:space-x-3">
               <button
                 onClick={() => router.push("/student/tka-schedule")}
-                className="flex items-center px-3 sm:px-4 py-2 text-blue-600 hover:text-blue-900 hover:bg-blue-50 rounded-lg sm:rounded-xl transition-all duration-200 hover:scale-105"
+                className="flex items-center px-3 sm:px-4 py-2 text-red-600 hover:text-red-900 hover:bg-red-50 rounded-lg sm:rounded-xl transition-all duration-200 hover:scale-105"
               >
                 <svg
                   className="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2"
@@ -580,7 +580,7 @@ export default function StudentDashboardClient() {
                   />
                 </svg>
                 <span className="font-medium text-sm sm:text-base">
-                  Jadwal TKA
+                  Jadwal ArahPotensi
                 </span>
               </button>
               <button
@@ -639,7 +639,7 @@ export default function StudentDashboardClient() {
         {/* Welcome Card */}
         <div className="bg-white/70 backdrop-blur-sm rounded-2xl sm:rounded-3xl shadow-2xl p-6 sm:p-8 mb-6 sm:mb-8 border border-white/20">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-r from-green-400 via-blue-500 to-purple-600 rounded-2xl sm:rounded-3xl flex items-center justify-center shadow-xl">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-r from-green-400 via-red-500 to-purple-600 rounded-2xl sm:rounded-3xl flex items-center justify-center shadow-xl">
               <svg
                 className="w-8 h-8 sm:w-10 sm:h-10 text-white"
                 fill="none"
@@ -707,8 +707,8 @@ export default function StudentDashboardClient() {
                     </div>
                   </div>
                 ) : (
-                  <div className="mt-3 p-3 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg border border-blue-200">
-                    <p className="text-blue-800 text-sm font-medium flex items-center">
+                  <div className="mt-3 p-3 bg-gradient-to-r from-red-50 to-cyan-50 rounded-lg border border-red-200">
+                    <p className="text-red-800 text-sm font-medium flex items-center">
                       <svg
                         className="w-4 h-4 mr-2"
                         fill="none"
@@ -724,7 +724,7 @@ export default function StudentDashboardClient() {
                       </svg>
                       Belum memilih jurusan
                     </p>
-                    <p className="text-blue-600 text-xs mt-1">
+                    <p className="text-red-600 text-xs mt-1">
                       Jelajahi daftar jurusan di bawah untuk memilih yang sesuai
                     </p>
                   </div>
@@ -739,9 +739,9 @@ export default function StudentDashboardClient() {
           </div>
         </div>
 
-        {/* TKA Schedules Notification - PUSMENDIK Standard */}
+        {/* ArahPotensi Schedules Notification - PUSMENDIK Standard */}
         {upcomingSchedules.length > 0 && (
-          <div className="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl sm:rounded-3xl shadow-2xl p-6 sm:p-8 mb-6 sm:mb-8 border border-white/20">
+          <div className="bg-gradient-to-r from-red-500 to-indigo-600 rounded-2xl sm:rounded-3xl shadow-2xl p-6 sm:p-8 mb-6 sm:mb-8 border border-white/20">
             <div className="text-center mb-6">
               <div className="flex items-center justify-center mb-4">
                 <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
@@ -749,12 +749,13 @@ export default function StudentDashboardClient() {
                 </div>
               </div>
               <h3 className="text-2xl sm:text-3xl font-bold text-white mb-2">
-                Jadwal TKA SMK 2025
+                Jadwal ArahPotensi SMK 2025
               </h3>
-              <p className="text-blue-100 text-base sm:text-lg">
-                Ada {upcomingSchedules.length} jadwal TKA yang akan datang
+              <p className="text-red-100 text-base sm:text-lg">
+                Ada {upcomingSchedules.length} jadwal ArahPotensi yang akan
+                datang
               </p>
-              <p className="text-blue-200 text-sm mt-1">
+              <p className="text-red-200 text-sm mt-1">
                 Sesuai Jadwal PUSMENDIK Resmi
               </p>
             </div>
@@ -775,7 +776,7 @@ export default function StudentDashboardClient() {
                           <span
                             className={`px-3 py-1 rounded-full text-xs font-medium ${
                               schedule.type === "regular"
-                                ? "bg-blue-100 text-blue-800"
+                                ? "bg-red-100 text-red-800"
                                 : schedule.type === "makeup"
                                 ? "bg-yellow-100 text-yellow-800"
                                 : "bg-purple-100 text-purple-800"
@@ -788,7 +789,7 @@ export default function StudentDashboardClient() {
                               : "Khusus"}
                           </span>
                           {schedule.gelombang && (
-                            <span className="px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            <span className="px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
                               Gelombang {schedule.gelombang}
                             </span>
                           )}
@@ -800,7 +801,7 @@ export default function StudentDashboardClient() {
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-blue-100 text-sm">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-red-100 text-sm">
                         <div>
                           <p className="font-medium">📅 Tanggal & Waktu:</p>
                           <p>
@@ -852,7 +853,7 @@ export default function StudentDashboardClient() {
                             <p className="font-medium">🏢 Tempat:</p>
                             <p>{schedule.exam_venue}</p>
                             {schedule.exam_room && (
-                              <p className="text-blue-200">
+                              <p className="text-red-200">
                                 Ruangan: {schedule.exam_room}
                               </p>
                             )}
@@ -864,7 +865,7 @@ export default function StudentDashboardClient() {
                             <p className="font-medium">👤 Kontak Person:</p>
                             <p>{schedule.contact_person}</p>
                             {schedule.contact_phone && (
-                              <p className="text-blue-200">
+                              <p className="text-red-200">
                                 Telp: {schedule.contact_phone}
                               </p>
                             )}
@@ -876,7 +877,7 @@ export default function StudentDashboardClient() {
 
                   {schedule.instructions && (
                     <div className="mt-4 bg-white/10 rounded-lg p-3">
-                      <p className="text-blue-100 text-sm">
+                      <p className="text-red-100 text-sm">
                         <span className="font-medium">📋 Instruksi: </span>
                         {schedule.instructions}
                       </p>
@@ -885,7 +886,7 @@ export default function StudentDashboardClient() {
 
                   {schedule.requirements && (
                     <div className="mt-3 bg-white/10 rounded-lg p-3">
-                      <p className="text-blue-100 text-sm">
+                      <p className="text-red-100 text-sm">
                         <span className="font-medium">📝 Persyaratan: </span>
                         {schedule.requirements}
                       </p>
@@ -894,7 +895,7 @@ export default function StudentDashboardClient() {
 
                   {schedule.materials_needed && (
                     <div className="mt-3 bg-white/10 rounded-lg p-3">
-                      <p className="text-blue-100 text-sm">
+                      <p className="text-red-100 text-sm">
                         <span className="font-medium">
                           📦 Bahan yang Diperlukan:{" "}
                         </span>
@@ -911,13 +912,13 @@ export default function StudentDashboardClient() {
                 onClick={() => router.push("/student/tka-schedule")}
                 className="bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 hover:scale-105 backdrop-blur-sm border border-white/30"
               >
-                Lihat Semua Jadwal TKA
+                Lihat Semua Jadwal ArahPotensi
               </button>
             </div>
 
             {upcomingSchedules.length > 2 && (
               <div className="text-center mt-4">
-                <p className="text-blue-100 text-sm">
+                <p className="text-red-100 text-sm">
                   +{upcomingSchedules.length - 2} jadwal lainnya
                 </p>
               </div>
@@ -998,7 +999,7 @@ export default function StudentDashboardClient() {
                 {
                   key: "ILMU ALAM",
                   label: "🔬 ILMU ALAM",
-                  color: "from-blue-500 to-blue-600",
+                  color: "from-red-500 to-red-600",
                 },
                 {
                   key: "ILMU FORMAL",
@@ -1106,7 +1107,7 @@ export default function StudentDashboardClient() {
                           <span
                             className={`px-3 sm:px-4 py-1 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm font-bold w-fit ${
                               major.rumpun_ilmu === "ILMU ALAM"
-                                ? "bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-800 border border-blue-200"
+                                ? "bg-gradient-to-r from-red-100 to-cyan-100 text-red-800 border border-red-200"
                                 : major.rumpun_ilmu === "ILMU SOSIAL"
                                 ? "bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border border-green-200"
                                 : major.rumpun_ilmu === "HUMANIORA"
@@ -1280,7 +1281,7 @@ export default function StudentDashboardClient() {
                         <span
                           className={`px-4 py-2 rounded-xl text-sm font-bold ${
                             major.rumpun_ilmu === "ILMU ALAM"
-                              ? "bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-800 border border-blue-200"
+                              ? "bg-gradient-to-r from-red-100 to-cyan-100 text-red-800 border border-red-200"
                               : major.rumpun_ilmu === "ILMU SOSIAL"
                               ? "bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border border-green-200"
                               : major.rumpun_ilmu === "HUMANIORA"
@@ -1352,7 +1353,7 @@ export default function StudentDashboardClient() {
                         <span
                           className={`px-3 py-1 rounded-lg text-sm font-bold ${
                             selectedMajor.rumpun_ilmu === "ILMU ALAM"
-                              ? "bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-800 border border-blue-200"
+                              ? "bg-gradient-to-r from-red-100 to-cyan-100 text-red-800 border border-red-200"
                               : selectedMajor.rumpun_ilmu === "ILMU SOSIAL"
                               ? "bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border border-green-200"
                               : selectedMajor.rumpun_ilmu === "HUMANIORA"
@@ -1458,7 +1459,7 @@ export default function StudentDashboardClient() {
                   <div>
                     <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                       <svg
-                        className="w-5 h-5 mr-2 text-blue-500"
+                        className="w-5 h-5 mr-2 text-red-500"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -1477,8 +1478,8 @@ export default function StudentDashboardClient() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                       {selectedMajor.subjects.required &&
                         selectedMajor.subjects.required.length > 0 && (
-                          <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-                            <h5 className="font-semibold text-blue-900 mb-3 flex items-center">
+                          <div className="bg-red-50 rounded-lg p-4 border border-red-200">
+                            <h5 className="font-semibold text-red-900 mb-3 flex items-center">
                               <svg
                                 className="w-4 h-4 mr-2"
                                 fill="none"
@@ -1502,9 +1503,9 @@ export default function StudentDashboardClient() {
                                 (subject, index) => (
                                   <li
                                     key={index}
-                                    className="text-blue-800 text-sm flex items-center"
+                                    className="text-red-800 text-sm flex items-center"
                                   >
-                                    <span className="w-2 h-2 bg-blue-500 rounded-full mr-3 flex-shrink-0"></span>
+                                    <span className="w-2 h-2 bg-red-500 rounded-full mr-3 flex-shrink-0"></span>
                                     {subject}
                                   </li>
                                 )
@@ -1796,7 +1797,7 @@ export default function StudentDashboardClient() {
                 <div>
                   <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                     <svg
-                      className="w-5 h-5 mr-2 text-blue-500"
+                      className="w-5 h-5 mr-2 text-red-500"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -1911,7 +1912,7 @@ export default function StudentDashboardClient() {
                         </div>
                       </div>
                     ) : (
-                      <div className="flex items-center text-blue-600">
+                      <div className="flex items-center text-red-600">
                         <svg
                           className="w-5 h-5 mr-2"
                           fill="none"

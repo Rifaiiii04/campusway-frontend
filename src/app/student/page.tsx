@@ -33,13 +33,13 @@ export default function StudentLoginPage() {
       <PageTitle
         title={
           showRegistration
-            ? "Registrasi Siswa - Sistem TKA"
-            : "Login Siswa - Sistem TKA"
+            ? "Registrasi Siswa - Sistem ArahPotensi"
+            : "Login Siswa - Sistem ArahPotensi"
         }
         description={
           showRegistration
             ? "Halaman registrasi untuk siswa baru"
-            : "Halaman login untuk siswa mengakses tes TKA"
+            : "Halaman login untuk siswa mengakses tes ArahPotensi"
         }
       />
       {showRegistration ? (
@@ -57,9 +57,9 @@ export default function StudentLoginPage() {
             <div className="text-center">
               <div className="bg-white rounded-lg shadow p-6">
                 <div className="flex items-center justify-center mb-4">
-                  <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center">
+                  <div className="h-12 w-12 bg-red-100 rounded-full flex items-center justify-center">
                     <svg
-                      className="h-6 w-6 text-green-600"
+                      className="h-6 w-6 text-red-600"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -82,7 +82,7 @@ export default function StudentLoginPage() {
                 </p>
                 <button
                   onClick={handleShowRegistration}
-                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
+                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200"
                 >
                   <svg
                     className="w-4 h-4 mr-2"

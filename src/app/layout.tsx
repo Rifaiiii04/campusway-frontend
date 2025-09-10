@@ -21,33 +21,33 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Sistem TKA - Dashboard Guru",
-    template: "%s | Sistem TKA",
+    default: "Sistem ArahPotensi - Dashboard Guru",
+    template: "%s | Sistem ArahPotensi",
   },
   description:
     "Sistem Tes Kemampuan Akademik untuk membantu siswa menentukan jurusan yang tepat",
   keywords: [
-    "TKA",
-    "Tes Kemampuan Akademik",
+    "ArahPotensi",
+    "ArahPotensi - Tes Kemampuan Akademik",
     "Jurusan",
     "Siswa",
     "Dashboard",
     "Guru",
   ],
-  authors: [{ name: "TKA Team" }],
+  authors: [{ name: "ArahPotensi Team" }],
   robots: "index, follow",
   openGraph: {
     type: "website",
     locale: "id_ID",
     url: "https://tka-system.com",
-    title: "Sistem TKA - Dashboard Guru",
+    title: "Sistem ArahPotensi - Dashboard Guru",
     description:
       "Sistem Tes Kemampuan Akademik untuk membantu siswa menentukan jurusan yang tepat",
-    siteName: "Sistem TKA",
+    siteName: "Sistem ArahPotensi",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Sistem TKA - Dashboard Guru",
+    title: "Sistem ArahPotensi - Dashboard Guru",
     description:
       "Sistem Tes Kemampuan Akademik untuk membantu siswa menentukan jurusan yang tepat",
   },

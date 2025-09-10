@@ -75,12 +75,12 @@ export default function StudentDetailModal({
           className={`px-6 py-5 border-b ${
             darkMode
               ? "border-gray-600/50 bg-gradient-to-r from-gray-700/90 via-gray-800/90 to-gray-700/90"
-              : "border-gray-200/50 bg-gradient-to-r from-blue-50/90 via-indigo-50/90 to-purple-50/90"
+              : "border-gray-200/50 bg-gradient-to-r from-red-50/90 via-indigo-50/90 to-purple-50/90"
           } backdrop-blur-sm rounded-t-2xl flex-shrink-0`}
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <div className="p-2.5 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg">
+              <div className="p-2.5 bg-gradient-to-br from-red-500 to-indigo-600 rounded-xl shadow-lg">
                 <svg
                   className="w-7 h-7 text-white"
                   fill="none"
@@ -340,7 +340,7 @@ export default function StudentDetailModal({
                           <span
                             className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                               student.chosen_major.rumpun_ilmu === "ILMU ALAM"
-                                ? "bg-blue-100 text-blue-800"
+                                ? "bg-red-100 text-red-800"
                                 : student.chosen_major.rumpun_ilmu ===
                                   "ILMU SOSIAL"
                                 ? "bg-green-100 text-green-800"
@@ -421,7 +421,7 @@ export default function StudentDetailModal({
                         <span
                           className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${
                             student.chosen_major.rumpun_ilmu === "ILMU ALAM"
-                              ? "bg-blue-100 text-blue-800"
+                              ? "bg-red-100 text-red-800"
                               : student.chosen_major.rumpun_ilmu ===
                                 "ILMU SOSIAL"
                               ? "bg-green-100 text-green-800"
@@ -500,7 +500,7 @@ export default function StudentDetailModal({
                   )}
 
                   {student.chosen_major.preferred_subjects && (
-                    <div className="border border-gray-200 rounded-lg p-4 bg-gradient-to-r from-blue-50 to-cyan-50">
+                    <div className="border border-gray-200 rounded-lg p-4 bg-gradient-to-r from-red-50 to-cyan-50">
                       <p
                         className={`text-lg font-bold ${
                           darkMode ? "text-gray-400" : "text-gray-600"
@@ -668,7 +668,7 @@ export default function StudentDetailModal({
                   )}
 
                   {student.chosen_major.kurikulum_2013_bahasa_subjects && (
-                    <div className="border border-gray-200 rounded-lg p-4 bg-gradient-to-r from-indigo-50 to-blue-50">
+                    <div className="border border-gray-200 rounded-lg p-4 bg-gradient-to-r from-indigo-50 to-red-50">
                       <button
                         onClick={() =>
                           toggleCurriculum("kurikulum_2013_bahasa")
@@ -754,7 +754,7 @@ export default function StudentDetailModal({
           className={`px-6 py-5 border-t ${
             darkMode
               ? "border-gray-600/50 bg-gradient-to-r from-gray-700/90 to-gray-800/90"
-              : "border-gray-200/50 bg-gradient-to-r from-gray-50/90 to-blue-50/90"
+              : "border-gray-200/50 bg-gradient-to-r from-gray-50/90 to-red-50/90"
           } backdrop-blur-sm rounded-b-2xl flex-shrink-0`}
         >
           <div className="flex justify-end">

@@ -287,7 +287,7 @@ export default function EditStudentModal({
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                     showPasswordSection
                       ? "bg-red-100 text-red-700 hover:bg-red-200 border border-red-300"
-                      : "bg-blue-100 text-blue-700 hover:bg-blue-200 border border-blue-300"
+                      : "bg-red-100 text-red-700 hover:bg-red-200 border border-red-300"
                   }`}
                 >
                   {showPasswordSection ? "Batal" : "Ganti Password"}
@@ -295,7 +295,7 @@ export default function EditStudentModal({
               </div>
 
               {showPasswordSection && (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 p-4 bg-gradient-to-r from-red-50 to-indigo-50 rounded-xl border border-red-200">
                   <div>
                     <label
                       className={`block text-sm font-semibold mb-2 ${
@@ -309,7 +309,7 @@ export default function EditStudentModal({
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
                       placeholder="Masukkan password baru (min. 6 karakter)"
-                      className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 ${
+                      className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all duration-200 ${
                         darkMode
                           ? "bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-300 hover:border-gray-500"
                           : "bg-white border-gray-300 text-gray-900 placeholder-gray-500 hover:border-gray-400"
@@ -323,14 +323,15 @@ export default function EditStudentModal({
                         darkMode ? "text-gray-200" : "text-gray-700"
                       }`}
                     >
-                      Konfirmasi Password <span className="text-red-500">*</span>
+                      Konfirmasi Password{" "}
+                      <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="password"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       placeholder="Konfirmasi password baru"
-                      className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 ${
+                      className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all duration-200 ${
                         darkMode
                           ? "bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-300 hover:border-gray-500"
                           : "bg-white border-gray-300 text-gray-900 placeholder-gray-500 hover:border-gray-400"
@@ -339,7 +340,7 @@ export default function EditStudentModal({
                   </div>
 
                   <div className="lg:col-span-2">
-                    <div className="flex items-center space-x-2 text-sm text-blue-600">
+                    <div className="flex items-center space-x-2 text-sm text-red-600">
                       <svg
                         className="w-4 h-4"
                         fill="none"
@@ -354,7 +355,8 @@ export default function EditStudentModal({
                         />
                       </svg>
                       <span>
-                        Password minimal 6 karakter. Kosongkan jika tidak ingin mengubah password.
+                        Password minimal 6 karakter. Kosongkan jika tidak ingin
+                        mengubah password.
                       </span>
                     </div>
                   </div>

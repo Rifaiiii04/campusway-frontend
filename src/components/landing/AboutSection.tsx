@@ -3,12 +3,12 @@ export default function AboutSection() {
     <section id="about" className="py-32 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-24">
-          <div className="inline-flex items-center px-6 py-3 bg-blue-50 text-blue-700 text-sm font-medium rounded-full mb-10">
+          <div className="inline-flex items-center px-6 py-3 bg-red-50 text-red-800 text-sm font-medium rounded-full mb-10">
             🎯 Tentang Kami
           </div>
           <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-10">
             Mengapa
-            <span className="text-blue-600"> FITME</span>
+            <span className="text-red-800"> Arah Potensi</span>
             <br />
             Menjadi Pilihan Terbaik?
           </h2>
@@ -25,9 +25,10 @@ export default function AboutSection() {
                 Solusi Terpercaya untuk Masa Depan Pendidikan
               </h3>
               <p className="text-lg text-gray-600 leading-relaxed">
-                FITME adalah platform inovatif yang dirancang khusus untuk
-                membantu siswa/i SMA/SMK dalam menentukan jurusan perkuliahan
-                yang paling sesuai dengan kemampuan, minat, dan bakat mereka.
+                Arah Potensi adalah platform inovatif yang dirancang khusus
+                untuk membantu siswa/i SMA/SMK dalam menentukan jurusan
+                perkuliahan yang paling sesuai dengan kemampuan, minat, dan
+                bakat mereka.
               </p>
               <p className="text-lg text-gray-600 leading-relaxed">
                 Dengan menggunakan data resmi dari Pusmendik, kami membantu
@@ -38,7 +39,7 @@ export default function AboutSection() {
 
             <div className="grid grid-cols-2 gap-10">
               <div className="text-center p-10 bg-gray-50 rounded-2xl border border-gray-200">
-                <div className="text-4xl font-bold text-blue-600 mb-4">
+                <div className="text-4xl font-bold text-red-800 mb-4">
                   1000+
                 </div>
                 <div className="text-gray-600 font-medium text-lg">
@@ -76,7 +77,7 @@ export default function AboutSection() {
             <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-200">
               <div className="space-y-6">
                 <div className="text-center mb-6">
-                  <div className="w-16 h-16 bg-blue-600 rounded-xl flex items-center justify-center mx-auto mb-4">
+                  <div className="w-16 h-16 bg-[#800000] rounded-xl flex items-center justify-center mx-auto mb-4">
                     <svg
                       className="w-8 h-8 text-white"
                       fill="none"
@@ -92,7 +93,7 @@ export default function AboutSection() {
                     </svg>
                   </div>
                   <h4 className="text-xl font-bold text-gray-900 mb-2">
-                    Cara Kerja FITME
+                    Cara Kerja Arah Potensi
                   </h4>
                   <p className="text-gray-600">
                     Proses sederhana untuk hasil yang akurat
@@ -100,8 +101,8 @@ export default function AboutSection() {
                 </div>
 
                 <div className="grid grid-cols-3 gap-4">
-                  <div className="text-center p-4 bg-blue-50 rounded-xl border border-blue-100">
-                    <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <div className="text-center p-4 bg-red-50 rounded-xl border border-red-100">
+                    <div className="w-10 h-10 bg-[#800000] rounded-full flex items-center justify-center mx-auto mb-3">
                       <span className="text-white font-bold">1</span>
                     </div>
                     <h5 className="font-bold text-gray-900 mb-2 text-sm">
@@ -139,7 +140,7 @@ export default function AboutSection() {
                   </div>
                 </div>
 
-                <div className="bg-blue-600 text-white p-4 rounded-xl text-center">
+                <div className="bg-[#800000] text-white p-4 rounded-xl text-center">
                   <p className="font-bold">Mulai Sekarang!</p>
                   <p className="opacity-90 mt-1 text-sm">
                     Bergabung dengan ribuan siswa yang telah menemukan jurusan

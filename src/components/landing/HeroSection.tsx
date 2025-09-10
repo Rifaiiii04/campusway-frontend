@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 
 export default function HeroSection() {
@@ -7,13 +9,13 @@ export default function HeroSection() {
         <div className="grid lg:grid-cols-2 gap-24 items-center">
           <div className="space-y-16">
             <div className="space-y-10">
-              <div className="inline-flex items-center px-6 py-3 bg-blue-50 text-blue-700 text-sm font-medium rounded-full">
+              <div className="inline-flex items-center px-6 py-3 bg-red-50 text-red-700 text-sm font-medium rounded-full">
                 🎓 Platform Pemilihan Jurusan Terpercaya
               </div>
 
               <h1 className="text-5xl lg:text-5xl font-bold text-gray-900 leading-tight">
                 Temukan Jurusan yang
-                <span className="text-blue-600"> Tepat </span>
+                <span className="text-red-800"> Tepat </span>
                 untuk Masa Depanmu
               </h1>
 
@@ -27,7 +29,7 @@ export default function HeroSection() {
             <div className="flex flex-col sm:flex-row gap-6">
               <Link
                 href="/student"
-                className="inline-flex items-center justify-center px-10 py-4 border border-transparent text-lg font-semibold rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition-colors duration-200"
+                className="inline-flex items-center justify-center px-10 py-4 border border-transparent text-lg font-semibold rounded-lg text-white bg-[#800000] hover:bg-[#800000] transition-colors duration-200"
               >
                 Pilih Jurusan Sekarang
                 <svg
@@ -75,7 +77,7 @@ export default function HeroSection() {
                 </div>
                 <div className="flex items-center space-x-2">
                   <svg
-                    className="w-5 h-5 text-blue-500"
+                    className="w-5 h-5 text-red-500"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -135,7 +137,7 @@ export default function HeroSection() {
             <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-200">
               <div className="space-y-6">
                 <div className="text-center">
-                  <div className="w-16 h-16 bg-blue-600 rounded-xl flex items-center justify-center mx-auto mb-4">
+                  <div className="w-16 h-16 bg-[#800000] rounded-xl flex items-center justify-center mx-auto mb-4">
                     <svg
                       className="w-8 h-8 text-white"
                       fill="none"
@@ -159,8 +161,8 @@ export default function HeroSection() {
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg border border-blue-100">
-                    <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                  <div className="flex items-center space-x-3 p-3 bg rounded-lg border border-red-100 bg-red-50">
+                    <div className="w-3 h-3 bg-red-500 rounded-full"></div>
                     <span className="font-medium text-gray-800 text-sm">
                       Ilmu Komputer
                     </span>
@@ -185,7 +187,7 @@ export default function HeroSection() {
                   </div>
                 </div>
 
-                <div className="bg-blue-600 text-white p-4 rounded-lg text-center">
+                <div className="bg-[#800000] text-white p-4 rounded-lg text-center">
                   <p className="font-semibold">Dapatkan Rekomendasi</p>
                   <p className="text-xs opacity-90 mt-1">
                     Berdasarkan data resmi Pusmendik

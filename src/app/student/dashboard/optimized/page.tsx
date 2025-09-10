@@ -208,7 +208,7 @@ export default function OptimizedStudentDashboardPage() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading...</p>
         </div>
       </div>
@@ -313,7 +313,7 @@ export default function OptimizedStudentDashboardPage() {
               <select
                 value={selectedRumpunIlmu}
                 onChange={(e) => setSelectedRumpunIlmu(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
               >
                 <option value="all">Semua Rumpun Ilmu</option>
                 {rumpunIlmuList.map((rumpunIlmu) => (
@@ -329,7 +329,7 @@ export default function OptimizedStudentDashboardPage() {
                 placeholder="Cari jurusan..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
               />
             </div>
           </div>
@@ -337,7 +337,7 @@ export default function OptimizedStudentDashboardPage() {
           {/* Majors Grid */}
           {loadingMajors ? (
             <div className="text-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600 mx-auto"></div>
               <p className="mt-2 text-gray-600">Loading majors...</p>
             </div>
           ) : (
@@ -354,13 +354,13 @@ export default function OptimizedStudentDashboardPage() {
                     {major.description}
                   </p>
                   <div className="flex items-center justify-between">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
                       {major.rumpun_ilmu}
                     </span>
                     <div className="flex space-x-2">
                       <button
                         onClick={() => handleViewMajorDetail(major)}
-                        className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                        className="text-red-600 hover:text-red-800 text-sm font-medium"
                       >
                         Detail
                       </button>

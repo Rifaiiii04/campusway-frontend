@@ -88,7 +88,7 @@ export default function TeacherDashboard() {
   const [showAddClassModal, setShowAddClassModal] = useState(false);
   const [schoolId, setSchoolId] = useState<number | null>(null);
 
-  // TKA Schedules state
+  // ArahPotensi Schedules state
   const [tkaSchedules, setTkaSchedules] = useState<TkaSchedule[]>([]);
   const [upcomingSchedules, setUpcomingSchedules] = useState<TkaSchedule[]>([]);
   const [loadingSchedules, setLoadingSchedules] = useState(false);
@@ -129,11 +129,11 @@ export default function TeacherDashboard() {
     setDarkMode(!darkMode);
   };
 
-  // Load TKA schedules separately
+  // Load ArahPotensi schedules separately
   const loadTkaSchedules = useCallback(async (schoolId: number) => {
     try {
       setLoadingSchedules(true);
-      console.log("🔄 Loading TKA schedules for school:", schoolId);
+      console.log("🔄 Loading ArahPotensi schedules for school:", schoolId);
 
       // Try loading without schoolId first (global schedules)
       let schedulesResponse, upcomingResponse;
@@ -143,14 +143,17 @@ export default function TeacherDashboard() {
           studentApiService.getTkaSchedules(), // Try without schoolId first
           studentApiService.getUpcomingTkaSchedules(),
         ]);
-        console.log("📊 TKA Schedules Response (global):", schedulesResponse);
+        console.log(
+          "📊 ArahPotensi Schedules Response (global):",
+          schedulesResponse
+        );
         console.log(
           "📊 Upcoming Schedules Response (global):",
           upcomingResponse
         );
       } catch (globalErr) {
         console.warn(
-          "⚠️ Global TKA loading failed, trying with schoolId:",
+          "⚠️ Global ArahPotensi loading failed, trying with schoolId:",
           globalErr
         );
         // Fallback to school-specific loading
@@ -158,7 +161,10 @@ export default function TeacherDashboard() {
           studentApiService.getTkaSchedules(schoolId),
           studentApiService.getUpcomingTkaSchedules(schoolId),
         ]);
-        console.log("📊 TKA Schedules Response (school):", schedulesResponse);
+        console.log(
+          "📊 ArahPotensi Schedules Response (school):",
+          schedulesResponse
+        );
         console.log(
           "📊 Upcoming Schedules Response (school):",
           upcomingResponse
@@ -170,9 +176,13 @@ export default function TeacherDashboard() {
         const schedules = schedulesResponse.data || [];
         setTkaSchedules(schedules);
         setSchedulesLoaded(true);
-        console.log("✅ TKA schedules loaded:", schedules.length, schedules);
+        console.log(
+          "✅ ArahPotensi schedules loaded:",
+          schedules.length,
+          schedules
+        );
       } else {
-        console.warn("⚠️ TKA schedules failed:", schedulesResponse);
+        console.warn("⚠️ ArahPotensi schedules failed:", schedulesResponse);
         setTkaSchedules([]);
         setSchedulesLoaded(false);
       }
@@ -187,7 +197,7 @@ export default function TeacherDashboard() {
         setUpcomingSchedules([]);
       }
     } catch (scheduleErr: unknown) {
-      console.error("❌ Error loading TKA schedules:", scheduleErr);
+      console.error("❌ Error loading ArahPotensi schedules:", scheduleErr);
       setTkaSchedules([]);
       setUpcomingSchedules([]);
       setSchedulesLoaded(false);
@@ -214,7 +224,7 @@ export default function TeacherDashboard() {
       const majorStatsResponse = await apiService.getMajorStatistics();
       setMajorStatistics(majorStatsResponse.data.major_statistics);
 
-      // Note: TKA schedules will be loaded by the useEffect that watches schoolId
+      // Note: ArahPotensi schedules will be loaded by the useEffect that watches schoolId
     } catch (err: unknown) {
       console.error("Error loading data:", err);
       setError(err instanceof Error ? err.message : "Gagal memuat data");
@@ -228,19 +238,19 @@ export default function TeacherDashboard() {
     loadDataFromAPI();
   }, [loadDataFromAPI]);
 
-  // Force load TKA schedules on component mount
+  // Force load ArahPotensi schedules on component mount
   useEffect(() => {
     console.log("🔄 Component mounted, checking for schoolId...");
     if (schoolId) {
       console.log(
-        "🔄 SchoolId available on mount, loading TKA schedules:",
+        "🔄 SchoolId available on mount, loading ArahPotensi schedules:",
         schoolId
       );
       loadTkaSchedules(schoolId);
     }
   }, []); // Run only on mount
 
-  // Load TKA schedules when schoolId changes
+  // Load ArahPotensi schedules when schoolId changes
   useEffect(() => {
     console.log(
       "🔄 useEffect triggered - schoolId:",
@@ -249,18 +259,21 @@ export default function TeacherDashboard() {
       typeof loadTkaSchedules
     );
     if (schoolId) {
-      console.log("🔄 SchoolId changed, loading TKA schedules:", schoolId);
+      console.log(
+        "🔄 SchoolId changed, loading ArahPotensi schedules:",
+        schoolId
+      );
       loadTkaSchedules(schoolId);
     } else {
-      console.log("⚠️ No schoolId available for TKA schedules");
+      console.log("⚠️ No schoolId available for ArahPotensi schedules");
     }
   }, [schoolId]); // Remove loadTkaSchedules from dependencies to prevent infinite loops
 
-  // Load TKA schedules on component mount and window focus
+  // Load ArahPotensi schedules on component mount and window focus
   useEffect(() => {
     const handleFocus = () => {
       if (schoolId && activeMenu === "tka-schedules") {
-        console.log("🔄 Window focused, refreshing TKA schedules...");
+        console.log("🔄 Window focused, refreshing ArahPotensi schedules...");
         loadTkaSchedules(schoolId);
       }
     };
@@ -288,21 +301,21 @@ export default function TeacherDashboard() {
     console.log("Class clicked:", classItem);
   };
 
-  // Refresh TKA schedules manually
+  // Refresh ArahPotensi schedules manually
   const refreshTkaSchedules = useCallback(async () => {
     if (schoolId) {
-      console.log("🔄 Manually refreshing TKA schedules...");
+      console.log("🔄 Manually refreshing ArahPotensi schedules...");
       await loadTkaSchedules(schoolId);
     }
   }, [schoolId]); // Remove loadTkaSchedules from dependencies
 
-  // Handle menu change and refresh TKA schedules when TKA menu is selected
+  // Handle menu change and refresh ArahPotensi schedules when ArahPotensi menu is selected
   const handleMenuChange = (menuId: string) => {
     setActiveMenu(menuId);
 
-    // Refresh TKA schedules when TKA menu is selected
+    // Refresh ArahPotensi schedules when ArahPotensi menu is selected
     if (menuId === "tka-schedules" && schoolId) {
-      console.log("🔄 TKA menu selected, refreshing schedules...");
+      console.log("🔄 ArahPotensi menu selected, refreshing schedules...");
       refreshTkaSchedules();
     }
   };
@@ -628,32 +641,32 @@ export default function TeacherDashboard() {
   // Data untuk title dan description setiap halaman
   const pageMetadata = {
     dashboard: {
-      title: "Dashboard - Sistem TKA Guru",
+      title: "Dashboard - Sistem ArahPotensi Guru",
       description:
         "Dashboard utama guru dengan overview statistik siswa, kelas, dan hasil tes",
     },
     students: {
-      title: "Data Siswa - Sistem TKA Guru",
+      title: "Data Siswa - Sistem ArahPotensi Guru",
       description:
         "Kelola data siswa, lihat profil, dan monitor status tes setiap siswa",
     },
     classes: {
-      title: "Manajemen Kelas - Sistem TKA Guru",
+      title: "Manajemen Kelas - Sistem ArahPotensi Guru",
       description:
         "Kelola kelas, lihat performa kelas, dan statistik per kelas",
     },
     tests: {
-      title: "Tes & Hasil - Sistem TKA Guru",
+      title: "Tes & Hasil - Sistem ArahPotensi Guru",
       description:
         "Monitor hasil tes siswa, analisis performa, dan rekomendasi jurusan",
     },
     reports: {
-      title: "Laporan & Analisis - Sistem TKA Guru",
+      title: "Laporan & Analisis - Sistem ArahPotensi Guru",
       description:
         "Generate laporan, analisis statistik, dan ranking performa siswa",
     },
     settings: {
-      title: "Pengaturan - Sistem TKA Guru",
+      title: "Pengaturan - Sistem ArahPotensi Guru",
       description: "Pengaturan profil guru, sistem, dan keamanan akun",
     },
   };
@@ -666,7 +679,12 @@ export default function TeacherDashboard() {
     { id: "dashboard", label: "Dashboard", icon: "📊", path: "/teacher" },
     { id: "students", label: "Data Siswa", icon: "👥", path: "/teacher" },
     { id: "classes", label: "Kelas", icon: "🏫", path: "/teacher" },
-    { id: "tka-schedules", label: "Jadwal TKA", icon: "🗓️", path: "/teacher" },
+    {
+      id: "tka-schedules",
+      label: "Jadwal ArahPotensi",
+      icon: "🗓️",
+      path: "/teacher",
+    },
     { id: "tests", label: "Tes & Hasil", icon: "📝", path: "/teacher" },
     { id: "reports", label: "Laporan", icon: "📋", path: "/teacher" },
     { id: "settings", label: "Pengaturan", icon: "⚙️", path: "/teacher" },
@@ -706,8 +724,8 @@ export default function TeacherDashboard() {
               <div className="flex items-center justify-between mb-6">
                 <div>
                   <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                    <span className="text-blue-600">📅</span>
-                    Jadwal TKA
+                    <span className="text-red-600">📅</span>
+                    Jadwal ArahPotensi
                   </h2>
                   <p className="text-gray-600">
                     Jadwal pelaksanaan Tes Kemampuan Akademik
@@ -717,7 +735,7 @@ export default function TeacherDashboard() {
                   <button
                     onClick={refreshTkaSchedules}
                     disabled={loadingSchedules}
-                    className="px-3 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                    className="px-3 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                   >
                     <span className={loadingSchedules ? "animate-spin" : ""}>
                       🔄
@@ -727,7 +745,7 @@ export default function TeacherDashboard() {
                   <div className="text-sm text-gray-500">
                     Total: {tkaSchedules.length} jadwal
                   </div>
-                  <div className="text-sm text-blue-600 font-medium">
+                  <div className="text-sm text-red-600 font-medium">
                     Mendatang: {upcomingSchedules.length} jadwal
                   </div>
                   <div className="text-sm text-green-600 font-medium">
@@ -753,9 +771,9 @@ export default function TeacherDashboard() {
 
               {loadingSchedules ? (
                 <div className="flex items-center justify-center py-12">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600"></div>
                   <span className="ml-2 text-gray-600">
-                    Memuat jadwal TKA...
+                    Memuat jadwal ArahPotensi...
                   </span>
                 </div>
               ) : (
@@ -764,7 +782,7 @@ export default function TeacherDashboard() {
                   {upcomingSchedules.length > 0 && (
                     <div>
                       <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                        <span className="text-blue-600">📅</span>
+                        <span className="text-red-600">📅</span>
                         Jadwal Mendatang
                       </h3>
                       <div className="grid gap-4">
@@ -786,7 +804,7 @@ export default function TeacherDashboard() {
                         <span className="text-gray-600">📋</span>
                         {upcomingSchedules.length > 0
                           ? "Semua Jadwal"
-                          : "Jadwal TKA"}
+                          : "Jadwal ArahPotensi"}
                       </h3>
                       <div className="grid gap-4">
                         {tkaSchedules
@@ -810,11 +828,11 @@ export default function TeacherDashboard() {
                       <div className="text-center py-12">
                         <div className="text-6xl mb-4">📅</div>
                         <h3 className="text-lg font-medium text-gray-900 mb-2">
-                          Belum ada jadwal TKA
+                          Belum ada jadwal ArahPotensi
                         </h3>
                         <p className="text-gray-500">
-                          Jadwal TKA akan muncul di sini setelah dibuat oleh
-                          Super Admin
+                          Jadwal ArahPotensi akan muncul di sini setelah dibuat
+                          oleh Super Admin
                         </p>
                       </div>
                     )}
@@ -876,7 +894,7 @@ export default function TeacherDashboard() {
         }`}
       >
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-red-600 mx-auto"></div>
           <p className={`mt-4 ${darkMode ? "text-gray-400" : "text-gray-600"}`}>
             Memuat Dashboard Guru...
           </p>
@@ -955,7 +973,7 @@ export default function TeacherDashboard() {
                   {getPageTitle()}
                 </h1>
                 <p className={darkMode ? "text-gray-400" : "text-gray-600"}>
-                  Selamat datang di sistem TKA
+                  Selamat datang di sistem ArahPotensi
                 </p>
               </div>
               <div className="flex items-center space-x-4">
@@ -1004,7 +1022,7 @@ export default function TeacherDashboard() {
                   className={`px-4 py-2 rounded-lg transition-colors cursor-pointer relative z-30 ${
                     loading
                       ? "bg-gray-400 text-gray-200 cursor-not-allowed"
-                      : "bg-blue-600 text-white hover:bg-blue-700"
+                      : "bg-red-600 text-white hover:bg-red-700"
                   }`}
                   style={{ pointerEvents: loading ? "none" : "auto" }}
                 >

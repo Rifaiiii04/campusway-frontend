@@ -24,11 +24,11 @@ export default function DashboardContent({
   loadingSchedules = false,
 }: DashboardContentProps) {
   // Debug logging
-  console.log("🔍 DashboardContent - TKA Schedules:", tkaSchedules);
+  console.log("🔍 DashboardContent - ArahPotensi Schedules:", tkaSchedules);
   console.log("🔍 DashboardContent - Upcoming Schedules:", upcomingSchedules);
   console.log("🔍 DashboardContent - Loading Schedules:", loadingSchedules);
   console.log(
-    "🔍 DashboardContent - TKA Schedules Length:",
+    "🔍 DashboardContent - ArahPotensi Schedules Length:",
     tkaSchedules?.length || 0
   );
   console.log(
@@ -44,7 +44,7 @@ export default function DashboardContent({
           dashboardData?.students_by_class.map((cls) => cls.student_count) ||
           [],
         backgroundColor: [
-          "rgba(54, 162, 235, 0.8)",
+          "rgba(128, 0, 0, 0.8)",
           "rgba(255, 99, 132, 0.8)",
           "rgba(255, 205, 86, 0.8)",
           "rgba(75, 192, 192, 0.8)",
@@ -52,7 +52,7 @@ export default function DashboardContent({
           "rgba(255, 159, 64, 0.8)",
         ],
         borderColor: [
-          "rgba(54, 162, 235, 1)",
+          "rgba(128, 0, 0, 1)",
           "rgba(255, 99, 132, 1)",
           "rgba(255, 205, 86, 1)",
           "rgba(75, 192, 192, 1)",
@@ -74,14 +74,14 @@ export default function DashboardContent({
           dashboardData?.top_majors.map((major) => major.student_count) || [],
         backgroundColor: [
           "rgba(75, 192, 192, 0.8)",
-          "rgba(54, 162, 235, 0.8)",
+          "rgba(128, 0, 0, 0.8)",
           "rgba(255, 99, 132, 0.8)",
           "rgba(255, 205, 86, 0.8)",
           "rgba(153, 102, 255, 0.8)",
         ],
         borderColor: [
           "rgba(75, 192, 192, 1)",
-          "rgba(54, 162, 235, 1)",
+          "rgba(128, 0, 0, 1)",
           "rgba(255, 99, 132, 1)",
           "rgba(255, 205, 86, 1)",
           "rgba(153, 102, 255, 1)",
@@ -93,7 +93,7 @@ export default function DashboardContent({
 
   return (
     <>
-      {/* TKA Schedules Section - Always visible */}
+      {/* ArahPotensi Schedules Section - Always visible */}
       <div
         className={`${
           darkMode ? "bg-gray-800" : "bg-white"
@@ -108,12 +108,12 @@ export default function DashboardContent({
             <div className="flex items-center">
               <div
                 className={`p-2 rounded-lg ${
-                  darkMode ? "bg-blue-900" : "bg-blue-100"
+                  darkMode ? "bg-red-900" : "bg-red-100"
                 } mr-3`}
               >
                 <svg
                   className={`w-6 h-6 ${
-                    darkMode ? "text-blue-300" : "text-blue-600"
+                    darkMode ? "text-red-300" : "text-red-600"
                   }`}
                   fill="none"
                   stroke="currentColor"
@@ -133,14 +133,14 @@ export default function DashboardContent({
                     darkMode ? "text-gray-100" : "text-gray-900"
                   }`}
                 >
-                  Jadwal TKA Mendatang
+                  Jadwal ArahPotensi Mendatang
                 </h3>
                 <p
                   className={`text-sm ${
                     darkMode ? "text-gray-400" : "text-gray-600"
                   }`}
                 >
-                  Jadwal pelaksanaan Tes Kemampuan Akademik
+                  Jadwal pelaksanaan ArahPotensi
                 </p>
               </div>
             </div>
@@ -154,7 +154,7 @@ export default function DashboardContent({
               </div>
               <div
                 className={`text-sm font-medium ${
-                  darkMode ? "text-blue-300" : "text-blue-600"
+                  darkMode ? "text-red-300" : "text-red-600"
                 }`}
               >
                 Mendatang: {upcomingSchedules.length} jadwal
@@ -166,13 +166,13 @@ export default function DashboardContent({
         <div className="p-6">
           {loadingSchedules ? (
             <div className="flex items-center justify-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600"></div>
               <span
                 className={`ml-2 ${
                   darkMode ? "text-gray-400" : "text-gray-600"
                 }`}
               >
-                Memuat jadwal TKA...
+                Memuat jadwal ArahPotensi...
               </span>
             </div>
           ) : (
@@ -234,7 +234,7 @@ export default function DashboardContent({
                       darkMode ? "text-gray-400" : "text-gray-600"
                     }`}
                   >
-                    Belum ada jadwal TKA
+                    Belum ada jadwal ArahPotensi
                   </p>
                 </div>
               )}
@@ -251,9 +251,9 @@ export default function DashboardContent({
           } rounded-lg shadow p-6`}
         >
           <div className="flex items-center">
-            <div className="p-2 bg-blue-100 rounded-lg">
+            <div className="p-2 bg-red-100 rounded-lg">
               <svg
-                className="w-6 h-6 text-blue-600"
+                className="w-6 h-6 text-red-600"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -416,12 +416,12 @@ export default function DashboardContent({
           <div className="flex items-center mb-4">
             <div
               className={`p-2 rounded-lg ${
-                darkMode ? "bg-blue-900" : "bg-blue-100"
+                darkMode ? "bg-red-900" : "bg-red-100"
               } mr-3`}
             >
               <svg
                 className={`w-6 h-6 ${
-                  darkMode ? "text-blue-300" : "text-blue-600"
+                  darkMode ? "text-red-300" : "text-red-600"
                 }`}
                 fill="none"
                 stroke="currentColor"
@@ -610,7 +610,7 @@ export default function DashboardContent({
                           }`}
                         >
                           <div
-                            className="bg-blue-600 h-2 rounded-full"
+                            className="bg-red-600 h-2 rounded-full"
                             style={{ width: `${completionRate}%` }}
                           ></div>
                         </div>

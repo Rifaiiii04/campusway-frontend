@@ -111,7 +111,7 @@ export default function TkaScheduleList({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Cari berdasarkan judul, deskripsi..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
             />
           </div>
 
@@ -132,7 +132,7 @@ export default function TkaScheduleList({
                     | "cancelled"
                 )
               }
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
             >
               <option value="all">Semua Status ({schedules.length})</option>
               <option value="scheduled">
@@ -162,7 +162,7 @@ export default function TkaScheduleList({
                   e.target.value as "all" | "regular" | "makeup" | "special"
                 )
               }
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
             >
               <option value="all">Semua Tipe ({schedules.length})</option>
               <option value="regular">
@@ -185,7 +185,7 @@ export default function TkaScheduleList({
               onChange={(e) =>
                 setSortBy(e.target.value as "date" | "title" | "status")
               }
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
             >
               <option value="date">Tanggal</option>
               <option value="title">Judul</option>
@@ -203,7 +203,7 @@ export default function TkaScheduleList({
                 setStatusFilter("all");
                 setTypeFilter("all");
               }}
-              className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+              className="text-sm text-red-600 hover:text-red-800 font-medium"
             >
               🔄 Reset Filter
             </button>
@@ -217,7 +217,7 @@ export default function TkaScheduleList({
           Menampilkan {filteredSchedules.length} dari {schedules.length} jadwal
         </p>
         {filteredSchedules.length !== schedules.length && (
-          <p className="text-sm text-blue-600">Filter aktif</p>
+          <p className="text-sm text-red-600">Filter aktif</p>
         )}
       </div>
 
@@ -226,11 +226,11 @@ export default function TkaScheduleList({
         <div className="text-center py-12 bg-white rounded-lg shadow-sm border">
           <div className="text-6xl mb-4">📅</div>
           <h3 className="text-xl font-semibold text-gray-900 mb-2">
-            Tidak ada jadwal TKA
+            Tidak ada jadwal ArahPotensi
           </h3>
           <p className="text-gray-600">
             {schedules.length === 0
-              ? "Belum ada jadwal TKA yang tersedia"
+              ? "Belum ada jadwal ArahPotensi yang tersedia"
               : "Tidak ada jadwal yang sesuai dengan filter yang dipilih"}
           </p>
           {(searchQuery || statusFilter !== "all" || typeFilter !== "all") && (
@@ -240,7 +240,7 @@ export default function TkaScheduleList({
                 setStatusFilter("all");
                 setTypeFilter("all");
               }}
-              className="mt-4 text-blue-600 hover:text-blue-800 font-medium"
+              className="mt-4 text-red-600 hover:text-red-800 font-medium"
             >
               Reset Filter
             </button>

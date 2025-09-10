@@ -207,7 +207,7 @@ export default function StudentRegistration({
       <div className="max-w-2xl w-full space-y-8">
         {/* Header */}
         <div className="text-center">
-          <div className="mx-auto h-16 w-16 bg-green-600 rounded-lg flex items-center justify-center shadow-lg mb-6">
+          <div className="mx-auto h-16 w-16 bg-red-600 rounded-lg flex items-center justify-center shadow-lg mb-6">
             <svg
               className="h-10 w-10 text-white"
               fill="none"
@@ -249,7 +249,7 @@ export default function StudentRegistration({
                   type="text"
                   required
                   maxLength={10}
-                  className="block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-black transition-all duration-200"
+                  className="block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-black transition-all duration-200"
                   placeholder="Masukkan NISN (10 digit)"
                   value={formData.nisn}
                   onChange={handleInputChange}
@@ -269,7 +269,7 @@ export default function StudentRegistration({
                   name="name"
                   type="text"
                   required
-                  className="block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-black transition-all duration-200"
+                  className="block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-black transition-all duration-200"
                   placeholder="Masukkan nama lengkap"
                   value={formData.name}
                   onChange={handleInputChange}
@@ -291,7 +291,7 @@ export default function StudentRegistration({
                   id="npsn_sekolah"
                   name="npsn_sekolah"
                   required
-                  className="block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-black transition-all duration-200"
+                  className="block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-black transition-all duration-200"
                   value={formData.npsn_sekolah}
                   onChange={handleSchoolChange}
                 >
@@ -317,7 +317,7 @@ export default function StudentRegistration({
                   name="kelas"
                   type="text"
                   required
-                  className="block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-black transition-all duration-200"
+                  className="block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-black transition-all duration-200"
                   placeholder="Contoh: XII IPA 1"
                   value={formData.kelas}
                   onChange={handleInputChange}
@@ -339,7 +339,7 @@ export default function StudentRegistration({
                   id="email"
                   name="email"
                   type="email"
-                  className="block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-black transition-all duration-200"
+                  className="block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-black transition-all duration-200"
                   placeholder="Masukkan email"
                   value={formData.email}
                   onChange={handleInputChange}
@@ -358,7 +358,7 @@ export default function StudentRegistration({
                   id="phone"
                   name="phone"
                   type="tel"
-                  className="block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-black transition-all duration-200"
+                  className="block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-black transition-all duration-200"
                   placeholder="Contoh: 081234567890"
                   value={formData.phone}
                   onChange={handleInputChange}
@@ -378,7 +378,7 @@ export default function StudentRegistration({
                 id="parent_phone"
                 name="parent_phone"
                 type="tel"
-                className="block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-black transition-all duration-200"
+                className="block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-black transition-all duration-200"
                 placeholder="Contoh: 081234567891"
                 value={formData.parent_phone}
                 onChange={handleInputChange}
@@ -401,7 +401,7 @@ export default function StudentRegistration({
                     type={showPassword ? "text" : "password"}
                     required
                     minLength={6}
-                    className="block w-full pl-3 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-black transition-all duration-200"
+                    className="block w-full pl-3 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-black transition-all duration-200"
                     placeholder="Minimal 6 karakter"
                     value={formData.password}
                     onChange={handleInputChange}
@@ -464,7 +464,7 @@ export default function StudentRegistration({
                     name="confirmPassword"
                     type={showConfirmPassword ? "text" : "password"}
                     required
-                    className="block w-full pl-3 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-black transition-all duration-200"
+                    className="block w-full pl-3 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-black transition-all duration-200"
                     placeholder="Ulangi password"
                     value={formData.confirmPassword}
                     onChange={handleInputChange}
@@ -543,11 +543,11 @@ export default function StudentRegistration({
 
             {/* Success Message */}
             {success && (
-              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                 <div className="flex">
                   <div className="flex-shrink-0">
                     <svg
-                      className="h-5 w-5 text-green-400"
+                      className="h-5 w-5 text-red-400"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -561,7 +561,7 @@ export default function StudentRegistration({
                     </svg>
                   </div>
                   <div className="ml-3">
-                    <p className="text-sm text-green-600">{success}</p>
+                    <p className="text-sm text-red-600">{success}</p>
                   </div>
                 </div>
               </div>
@@ -572,7 +572,7 @@ export default function StudentRegistration({
               <button
                 type="submit"
                 disabled={loading}
-                className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
               >
                 {loading ? (
                   <div className="flex items-center">
@@ -626,19 +626,20 @@ export default function StudentRegistration({
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button
               onClick={onBackToLogin}
-              className="text-green-600 hover:text-green-700 text-sm font-medium transition-colors"
+              className="text-red-600 hover:text-red-700 text-sm font-medium transition-colors"
             >
               ← Kembali ke Login
             </button>
             <Link
               href="/landing"
-              className="text-blue-600 hover:text-blue-700 text-sm font-medium transition-colors"
+              className="text-red-600 hover:text-red-700 text-sm font-medium transition-colors"
             >
               ← Kembali ke Halaman Utama
             </Link>
           </div>
           <p className="text-xs text-gray-500">
-            © 2024 Sistem TKA. Dibuat dengan ❤️ untuk pendidikan Indonesia.
+            &copy; 2025 Arah Potensi. All rights reserved. Dibuat Oleh Mahasiswa
+            FICT Horizon University
           </p>
         </div>
       </div>

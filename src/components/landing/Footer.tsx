@@ -2,16 +2,16 @@ import Link from "next/link";
 
 export default function Footer() {
   return (
-    <footer id="contact" className="bg-gray-900 text-white py-24">
+    <footer id="contact" className="bg-[#3f1212] text-white py-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-4 md:grid-cols-2 gap-16">
           {/* Brand Section */}
           <div className="lg:col-span-1">
             <div className="flex items-center space-x-4 mb-10">
-              <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center">
-                <span className="text-white font-bold text-xl">F</span>
+              <div className="w-12 h-12 bg-[#800000] rounded-xl flex items-center justify-center">
+                <span className="text-white font-bold text-xl">AP</span>
               </div>
-              <h3 className="text-3xl font-bold text-white">FITME</h3>
+              <h3 className="text-3xl font-bold text-white">Arah Potensi</h3>
             </div>
             <p className="text-gray-300 mb-10 leading-relaxed text-lg">
               Platform pemilihan jurusan terpercaya untuk membantu siswa/i
@@ -23,7 +23,7 @@ export default function Footer() {
                 href="https://www.instagram.com/muhamadrifaiiii04?igsh=eTF2djZuNTJmdmd5"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-12 h-12 bg-gray-800 rounded-xl flex items-center justify-center hover:bg-blue-600 transition-colors duration-300"
+                className="w-12 h-12 bg-gray-800 rounded-xl flex items-center justify-center hover:bg-red-600 transition-colors duration-300"
               >
                 <svg
                   className="w-6 h-6"
@@ -37,7 +37,7 @@ export default function Footer() {
                 href="http://www.linkedin.com/in/muhamad-rifai-553a212a7"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-12 h-12 bg-gray-800 rounded-xl flex items-center justify-center hover:bg-blue-600 transition-colors duration-300"
+                className="w-12 h-12 bg-gray-800 rounded-xl flex items-center justify-center hover:bg-red-600 transition-colors duration-300"
               >
                 <svg
                   className="w-6 h-6"
@@ -57,7 +57,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="/student"
-                  className="text-gray-300 hover:text-blue-400 transition-colors duration-200 text-lg"
+                  className="text-gray-300 hover:text-red-400 transition-colors duration-200 text-lg"
                 >
                   Pilih Jurusan
                 </Link>
@@ -65,7 +65,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="/login"
-                  className="text-gray-300 hover:text-blue-400 transition-colors duration-200 text-lg"
+                  className="text-gray-300 hover:text-red-400 transition-colors duration-200 text-lg"
                 >
                   Login Guru
                 </Link>
@@ -73,7 +73,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="#features"
-                  className="text-gray-300 hover:text-blue-400 transition-colors duration-200 text-lg"
+                  className="text-gray-300 hover:text-red-400 transition-colors duration-200 text-lg"
                 >
                   Fitur
                 </Link>
@@ -81,7 +81,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="#about"
-                  className="text-gray-300 hover:text-blue-400 transition-colors duration-200 text-lg"
+                  className="text-gray-300 hover:text-red-400 transition-colors duration-200 text-lg"
                 >
                   Tentang
                 </Link>
@@ -168,7 +168,7 @@ export default function Footer() {
             <div className="space-y-10">
               <div className="bg-gray-800/50 rounded-2xl p-8 border border-gray-700">
                 <div className="flex items-center space-x-4 mb-6">
-                  <div className="w-14 h-14 bg-blue-600 rounded-xl flex items-center justify-center">
+                  <div className="w-14 h-14 bg-[#800000] rounded-xl flex items-center justify-center">
                     <span className="text-white font-bold text-lg">MR</span>
                   </div>
                   <div>
@@ -197,7 +197,7 @@ export default function Footer() {
                     href="http://www.linkedin.com/in/muhamad-rifai-553a212a7"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-gray-400 hover:text-blue-400 transition-colors duration-300"
+                    className="text-gray-400 hover:text-red-400 transition-colors duration-300"
                   >
                     <svg
                       className="w-6 h-6"
@@ -212,7 +212,7 @@ export default function Footer() {
 
               <div className="bg-gray-800/50 rounded-2xl p-8 border border-gray-700">
                 <div className="flex items-center space-x-4 mb-6">
-                  <div className="w-14 h-14 bg-purple-600 rounded-xl flex items-center justify-center">
+                  <div className="w-14 h-14 bg-[#800000] rounded-xl flex items-center justify-center">
                     <span className="text-white font-bold text-lg">RY</span>
                   </div>
                   <div>
@@ -241,7 +241,7 @@ export default function Footer() {
                     href="https://www.linkedin.com/in/raihan-yaskur-a6324336a?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-gray-400 hover:text-blue-400 transition-colors duration-300"
+                    className="text-gray-400 hover:text-red-400 transition-colors duration-300"
                   >
                     <svg
                       className="w-6 h-6"
@@ -260,25 +260,25 @@ export default function Footer() {
         <div className="border-t border-gray-700 mt-24 pt-12">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-8 md:space-y-0">
             <p className="text-gray-400 text-center md:text-left text-lg">
-              &copy; 2024 FITME. All rights reserved. Dibuat dengan ❤️ untuk
-              masa depan pendidikan Indonesia.
+              &copy; 2024 Arah Potensi. All rights reserved. Dibuat Oleh
+              Mahasiswa FICT Horizon University
             </p>
             <div className="flex space-x-10">
               <Link
                 href="/student"
-                className="text-gray-400 hover:text-blue-400 transition-colors duration-300"
+                className="text-gray-400 hover:text-red-400 transition-colors duration-300"
               >
                 Privacy Policy
               </Link>
               <Link
                 href="/login"
-                className="text-gray-400 hover:text-blue-400 transition-colors duration-300"
+                className="text-gray-400 hover:text-red-400 transition-colors duration-300"
               >
                 Terms of Service
               </Link>
               <Link
                 href="#contact"
-                className="text-gray-400 hover:text-blue-400 transition-colors duration-300"
+                className="text-gray-400 hover:text-red-400 transition-colors duration-300"
               >
                 Contact Us
               </Link>

@@ -23,7 +23,7 @@ export default function TkaSchedulePage() {
     try {
       setLoading(true);
       setError("");
-      console.log("🔄 Loading TKA schedules...");
+      console.log("🔄 Loading ArahPotensi schedules...");
 
       const [schedulesResponse, upcomingResponse] = await Promise.all([
         studentApiService.getTkaSchedules(),
@@ -42,13 +42,15 @@ export default function TkaSchedulePage() {
       setUpcomingSchedules(upcoming);
       setCompletedSchedules(completed);
 
-      console.log("✅ TKA schedules loaded:", allSchedules.length);
+      console.log("✅ ArahPotensi schedules loaded:", allSchedules.length);
       console.log("✅ Upcoming schedules:", upcoming.length);
       console.log("✅ Completed schedules:", completed.length);
       console.log("🔄 Setting loading to false...");
     } catch (err) {
-      console.error("❌ Error loading TKA schedules:", err);
-      setError(err instanceof Error ? err.message : "Gagal memuat jadwal TKA");
+      console.error("❌ Error loading ArahPotensi schedules:", err);
+      setError(
+        err instanceof Error ? err.message : "Gagal memuat jadwal ArahPotensi"
+      );
       console.log("🔄 Setting loading to false after error...");
     } finally {
       setLoading(false);
@@ -120,7 +122,7 @@ export default function TkaSchedulePage() {
           <div className="min-h-[300px] flex items-center justify-center">
             <div className="text-center">
               <LoadingSpinner size="lg" />
-              <p className="mt-4 text-gray-600">Memuat jadwal TKA...</p>
+              <p className="mt-4 text-gray-600">Memuat jadwal ArahPotensi...</p>
               <p className="text-xs text-gray-400 mt-2">Loading state active</p>
             </div>
           </div>
@@ -135,7 +137,7 @@ export default function TkaSchedulePage() {
               <p className="text-xs text-gray-400 mb-4">Error state active</p>
               <button
                 onClick={loadTkaSchedules}
-                className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
+                className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors"
               >
                 Coba Lagi
               </button>
@@ -146,21 +148,21 @@ export default function TkaSchedulePage() {
             {/* Header */}
             <div className="text-center mb-8">
               <div className="flex items-center justify-center mb-4">
-                <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center">
+                <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center">
                   <span className="text-3xl text-white">📅</span>
                 </div>
               </div>
               <h1 className="text-4xl font-bold text-gray-900 mb-2">
-                Jadwal TKA
+                Jadwal ArahPotensi
               </h1>
               <p className="text-lg text-gray-600">
-                Lihat jadwal Tes Kemampuan Akademik (TKA) yang tersedia
+                Lihat jadwal Tes Kemampuan Akademik (ArahPotensi) yang tersedia
               </p>
             </div>
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               <div className="bg-white rounded-xl shadow-lg p-6 text-center">
-                <div className="text-3xl font-bold text-blue-600 mb-2">
+                <div className="text-3xl font-bold text-red-600 mb-2">
                   {tkaSchedules.length}
                 </div>
                 <div className="text-gray-600">Total Jadwal</div>
@@ -195,7 +197,7 @@ export default function TkaSchedulePage() {
                       }
                       className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
                         activeTab === tab.id
-                          ? "border-blue-500 text-blue-600"
+                          ? "border-red-500 text-red-600"
                           : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                       }`}
                     >
@@ -220,7 +222,7 @@ export default function TkaSchedulePage() {
             <div className="text-center mt-8">
               <button
                 onClick={loadTkaSchedules}
-                className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                className="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors font-medium"
               >
                 🔄 Refresh Jadwal
               </button>

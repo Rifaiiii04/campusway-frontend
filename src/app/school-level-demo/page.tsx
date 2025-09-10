@@ -34,19 +34,24 @@ export default function SchoolLevelDemoPage() {
             📋 Informasi Sistem
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200">
-              <h3 className="text-lg font-bold text-blue-800 mb-4 flex items-center">
+            <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-6 border border-red-200">
+              <h3 className="text-lg font-bold text-red-800 mb-4 flex items-center">
                 <span className="text-2xl mr-2">🏫</span>
                 SMA/MA
               </h3>
-              <ul className="text-sm text-blue-700 space-y-2">
+              <ul className="text-sm text-red-700 space-y-2">
                 <li>• Mata pelajaran umum sesuai kurikulum</li>
                 <li>• Fokus pada persiapan ke perguruan tinggi</li>
                 <li>
-                  • Mata pelajaran wajib: Matematika Lanjutan, Bahasa Indonesia Lanjutan, Bahasa Inggris Lanjutan
+                  • Mata pelajaran wajib: Matematika Lanjutan, Bahasa Indonesia
+                  Lanjutan, Bahasa Inggris Lanjutan
                 </li>
                 <li>
-                  • Mata pelajaran pilihan: Fisika, Kimia, Biologi, Ekonomi, Sosiologi, Geografi, Sejarah, Antropologi, PPKn/Pendidikan Pancasila, Bahasa Arab, Bahasa Jerman, Bahasa Prancis, Bahasa Jepang, Bahasa Korea, Bahasa Mandarin, Produk/Projek Kreatif dan Kewirausahaan
+                  • Mata pelajaran pilihan: Fisika, Kimia, Biologi, Ekonomi,
+                  Sosiologi, Geografi, Sejarah, Antropologi, PPKn/Pendidikan
+                  Pancasila, Bahasa Arab, Bahasa Jerman, Bahasa Prancis, Bahasa
+                  Jepang, Bahasa Korea, Bahasa Mandarin, Produk/Projek Kreatif
+                  dan Kewirausahaan
                 </li>
               </ul>
             </div>

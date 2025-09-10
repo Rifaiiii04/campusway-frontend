@@ -74,7 +74,7 @@ export default function ApiHealthCheck() {
         <button
           onClick={checkHealth}
           disabled={loading}
-          className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? "Checking..." : "Refresh"}
         </button>
@@ -114,7 +114,7 @@ export default function ApiHealthCheck() {
             <span className="text-sm font-medium text-gray-600">
               Response Time:
             </span>
-            <span className="text-sm font-medium text-blue-600">
+            <span className="text-sm font-medium text-red-600">
               {healthData.response_time}
             </span>
           </div>
@@ -148,8 +148,8 @@ export default function ApiHealthCheck() {
         </div>
       )}
 
-      <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded">
-        <p className="text-xs text-blue-700">
+      <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded">
+        <p className="text-xs text-red-700">
           <strong>Optimized API:</strong> Using cached endpoints for faster
           response times. Auto-refreshes every 30 seconds.
         </p>

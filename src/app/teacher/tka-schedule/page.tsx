@@ -39,7 +39,7 @@ export default function TeacherTkaSchedulePage() {
     try {
       setLoading(true);
       setError("");
-      console.log("🔄 Loading TKA schedules for school:", schoolId);
+      console.log("🔄 Loading ArahPotensi schedules for school:", schoolId);
 
       const [schedulesResponse, upcomingResponse] = await Promise.all([
         studentApiService.getTkaSchedules(),
@@ -58,12 +58,14 @@ export default function TeacherTkaSchedulePage() {
       setUpcomingSchedules(upcoming);
       setCompletedSchedules(completed);
 
-      console.log("✅ TKA schedules loaded:", allSchedules.length);
+      console.log("✅ ArahPotensi schedules loaded:", allSchedules.length);
       console.log("✅ Upcoming schedules:", upcoming.length);
       console.log("✅ Completed schedules:", completed.length);
     } catch (err) {
-      console.error("❌ Error loading TKA schedules:", err);
-      setError(err instanceof Error ? err.message : "Gagal memuat jadwal TKA");
+      console.error("❌ Error loading ArahPotensi schedules:", err);
+      setError(
+        err instanceof Error ? err.message : "Gagal memuat jadwal ArahPotensi"
+      );
     } finally {
       setLoading(false);
     }
@@ -159,7 +161,7 @@ export default function TeacherTkaSchedulePage() {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
         <div className="text-center">
           <LoadingSpinner size="lg" />
-          <p className="mt-4 text-gray-600">Memuat jadwal TKA...</p>
+          <p className="mt-4 text-gray-600">Memuat jadwal ArahPotensi...</p>
         </div>
       </div>
     );
@@ -174,7 +176,7 @@ export default function TeacherTkaSchedulePage() {
           <p className="text-gray-600 mb-4">{error}</p>
           <button
             onClick={loadTkaSchedules}
-            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
+            className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors"
           >
             Coba Lagi
           </button>
@@ -189,22 +191,23 @@ export default function TeacherTkaSchedulePage() {
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-4">
-            <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center">
+            <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center">
               <span className="text-3xl text-white">📅</span>
             </div>
           </div>
           <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            Manajemen Jadwal TKA
+            Manajemen Jadwal ArahPotensi
           </h1>
           <p className="text-lg text-gray-600">
-            Kelola jadwal Tes Kemampuan Akademik (TKA) untuk sekolah Anda
+            Kelola jadwal Tes Kemampuan Akademik (ArahPotensi) untuk sekolah
+            Anda
           </p>
         </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="bg-white rounded-xl shadow-lg p-6 text-center">
-            <div className="text-3xl font-bold text-blue-600 mb-2">
+            <div className="text-3xl font-bold text-red-600 mb-2">
               {tkaSchedules.length}
             </div>
             <div className="text-gray-600">Total Jadwal</div>
@@ -228,10 +231,10 @@ export default function TeacherTkaSchedulePage() {
           <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Kelola Jadwal TKA
+                Kelola Jadwal ArahPotensi
               </h3>
               <p className="text-gray-600">
-                Tambah, edit, atau hapus jadwal TKA untuk sekolah Anda
+                Tambah, edit, atau hapus jadwal ArahPotensi untuk sekolah Anda
               </p>
             </div>
             <div className="flex gap-3">
@@ -240,7 +243,7 @@ export default function TeacherTkaSchedulePage() {
                   // TODO: Implement add schedule functionality
                   console.log("Add new schedule");
                 }}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors font-medium"
               >
                 ➕ Tambah Jadwal
               </button>
@@ -270,7 +273,7 @@ export default function TeacherTkaSchedulePage() {
                   }
                   className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
                     activeTab === tab.id
-                      ? "border-blue-500 text-blue-600"
+                      ? "border-red-500 text-red-600"
                       : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                   }`}
                 >
@@ -300,7 +303,7 @@ export default function TeacherTkaSchedulePage() {
         <div className="text-center mt-8">
           <button
             onClick={loadTkaSchedules}
-            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+            className="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors font-medium"
           >
             🔄 Refresh Jadwal
           </button>

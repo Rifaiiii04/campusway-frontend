@@ -20,7 +20,7 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   };
 
   const colorClasses = {
-    primary: "border-blue-500",
+    primary: "border-red-500",
     secondary: "border-gray-500",
     white: "border-white",
   };
@@ -48,13 +48,13 @@ export const BouncingDots: React.FC<{ className?: string }> = ({
 }) => {
   return (
     <div className={`flex space-x-1 ${className}`}>
-      <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" />
+      <div className="w-2 h-2 bg-red-500 rounded-full animate-bounce" />
       <div
-        className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"
+        className="w-2 h-2 bg-red-500 rounded-full animate-bounce"
         style={{ animationDelay: "0.1s" }}
       />
       <div
-        className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"
+        className="w-2 h-2 bg-red-500 rounded-full animate-bounce"
         style={{ animationDelay: "0.2s" }}
       />
     </div>

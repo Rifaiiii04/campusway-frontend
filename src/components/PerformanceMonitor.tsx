@@ -121,9 +121,9 @@ export default function PerformanceMonitor() {
       {/* Summary Stats */}
       {metrics.length > 0 && (
         <div className="grid grid-cols-3 gap-4 mb-6">
-          <div className="bg-blue-50 p-3 rounded">
-            <div className="text-sm text-blue-600 font-medium">Total Tests</div>
-            <div className="text-2xl font-bold text-blue-800">
+          <div className="bg-red-50 p-3 rounded">
+            <div className="text-sm text-red-600 font-medium">Total Tests</div>
+            <div className="text-2xl font-bold text-red-800">
               {metrics.length}
             </div>
           </div>

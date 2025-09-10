@@ -1,13 +1,15 @@
-# Data Files untuk Sistem TKA
+# Data Files untuk Sistem ArahPotensi
 
-Folder ini berisi file-file data yang digunakan untuk sistem Tes Kemampuan Akademik (TKA).
+Folder ini berisi file-file data yang digunakan untuk sistem Tes Kemampuan Akademik (ArahPotensi).
 
 ## 📁 File yang Tersedia
 
 ### 1. `guru.json` - Data Akun Guru/Sekolah
+
 Berisi data akun login untuk guru dan sekolah yang dapat mengakses dashboard guru.
 
 **Struktur Data:**
+
 ```json
 {
   "guru": [
@@ -29,14 +31,17 @@ Berisi data akun login untuk guru dan sekolah yang dapat mengakses dashboard gur
 ```
 
 **Akun Demo Guru:**
+
 - **NPSN:** 20212345
 - **Password:** guru123
 - **Sekolah:** SMA Negeri 1 Jakarta
 
 ### 2. `siswa.json` - Data Siswa
-Berisi data siswa yang dapat mengikuti tes TKA.
+
+Berisi data siswa yang dapat mengikuti tes ArahPotensi.
 
 **Struktur Data:**
+
 ```json
 {
   "siswa": [
@@ -61,15 +66,18 @@ Berisi data siswa yang dapat mengikuti tes TKA.
 ```
 
 **Akun Demo Siswa:**
+
 - **NISN:** 2024001
 - **Password:** siswa123
 - **Nama:** Ahmad Rizki
 - **Kelas:** X IPA 1
 
-### 3. `soal.json` - Bank Soal TKA
+### 3. `soal.json` - Bank Soal ArahPotensi
+
 Berisi kumpulan soal tes kemampuan akademik dengan 3 mata pelajaran.
 
 **Struktur Data:**
+
 ```json
 {
   "questions": [
@@ -111,6 +119,7 @@ Berisi kumpulan soal tes kemampuan akademik dengan 3 mata pelajaran.
 ## 🎯 Komposisi Soal
 
 ### Matematika (5 Soal)
+
 1. Operasi hitung campuran
 2. Sistem persamaan linear
 3. Akar kuadrat
@@ -118,6 +127,7 @@ Berisi kumpulan soal tes kemampuan akademik dengan 3 mata pelajaran.
 5. Perkalian desimal
 
 ### Bahasa Indonesia (5 Soal)
+
 1. Jenis kata (pronomina relatif)
 2. Sinonim
 3. Jenis kata (verba)
@@ -125,6 +135,7 @@ Berisi kumpulan soal tes kemampuan akademik dengan 3 mata pelajaran.
 5. Antonim
 
 ### Bahasa Inggris (5 Soal)
+
 1. Jenis kata (adjective)
 2. Simple Present Tense
 3. Past Tense
@@ -134,12 +145,14 @@ Berisi kumpulan soal tes kemampuan akademik dengan 3 mata pelajaran.
 ## 🔐 Cara Login
 
 ### Untuk Guru:
+
 1. Buka halaman login guru (`/login`)
 2. Masukkan NPSN: `20212345`
 3. Masukkan Password: `guru123`
 4. Klik "Login"
 
 ### Untuk Siswa:
+
 1. Buka halaman login siswa (`/student`)
 2. Masukkan NISN: `2024001`
 3. Masukkan Password: `siswa123`

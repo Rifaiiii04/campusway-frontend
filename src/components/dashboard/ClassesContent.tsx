@@ -101,7 +101,7 @@ export default function ClassesContent({
       <div className="flex justify-between items-center">
         <button
           onClick={onAddClass}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+          className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
         >
           + Tambah Kelas
         </button>

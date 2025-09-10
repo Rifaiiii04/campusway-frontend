@@ -157,7 +157,7 @@ export default function SchoolLogin({
       <div className="max-w-md w-full space-y-8">
         {/* Header */}
         <div className="text-center">
-          <div className="mx-auto h-16 w-16 bg-blue-600 rounded-lg flex items-center justify-center shadow-lg mb-6">
+          <div className="mx-auto h-16 w-16 bg-red-600 rounded-lg flex items-center justify-center shadow-lg mb-6">
             <svg
               className="h-10 w-10 text-white"
               fill="none"
@@ -214,7 +214,7 @@ export default function SchoolLogin({
                   name="npsn"
                   type="text"
                   required
-                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black transition-all duration-200 placeholder-black/50"
+                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-black transition-all duration-200 placeholder-black/50"
                   placeholder={
                     userType === "guru"
                       ? "Masukkan NPSN sekolah"
@@ -255,7 +255,7 @@ export default function SchoolLogin({
                   name="password"
                   type={showPassword ? "text" : "password"}
                   required
-                  className="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black transition-all duration-200 placeholder-black/50"
+                  className="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-black transition-all duration-200 placeholder-black/50"
                   placeholder="Masukkan password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -338,8 +338,8 @@ export default function SchoolLogin({
                 disabled={loading}
                 className={`group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 ${
                   userType === "guru"
-                    ? "bg-blue-600 hover:bg-blue-700 focus:ring-blue-500"
-                    : "bg-green-600 hover:bg-green-700 focus:ring-green-500"
+                    ? "bg-red-600 hover:bg-red-700 focus:ring-red-500"
+                    : "bg-red-600 hover:bg-red-700 focus:ring-red-500"
                 }`}
               >
                 {loading ? (
@@ -419,14 +419,14 @@ export default function SchoolLogin({
           <div>
             <Link
               href="/landing"
-              className="text-blue-600 hover:text-blue-700 text-sm font-medium transition-colors"
+              className="text-red-600 hover:text-red-700 text-sm font-medium transition-colors"
             >
               ← Kembali ke Halaman Utama
             </Link>
           </div>
           <p className="text-xs text-gray-500">
-            © 2024 Dashboard Sekolah. Dibuat dengan ❤️ untuk pendidikan
-            Indonesia.
+            &copy; 2025 Arah Potensi. All rights reserved. Dibuat Oleh Mahasiswa
+            FICT Horizon University
           </p>
         </div>
       </div>

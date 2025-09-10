@@ -295,7 +295,7 @@ export default function SchoolDashboard() {
             <div className="space-y-3">
               <button
                 onClick={retryConnection}
-                className="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                className="w-full px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
               >
                 Coba Lagi
               </button>
@@ -308,8 +308,8 @@ export default function SchoolDashboard() {
               </button>
             </div>
 
-            <div className="mt-4 p-3 bg-blue-50 rounded border border-blue-200">
-              <p className="text-sm text-blue-800">
+            <div className="mt-4 p-3 bg-red-50 rounded border border-red-200">
+              <p className="text-sm text-red-800">
                 <strong>Troubleshooting:</strong>
                 <br />
                 1. Pastikan backend Laravel berjalan di port 8000
@@ -356,9 +356,9 @@ export default function SchoolDashboard() {
               } rounded-lg shadow p-6`}
             >
               <div className="flex items-center">
-                <div className="p-2 bg-blue-100 rounded-lg">
+                <div className="p-2 bg-red-100 rounded-lg">
                   <svg
-                    className="w-6 h-6 text-blue-600"
+                    className="w-6 h-6 text-red-600"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"

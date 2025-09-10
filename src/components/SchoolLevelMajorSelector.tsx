@@ -110,7 +110,7 @@ const SchoolLevelMajorSelector = ({
       case "Wajib":
         return "bg-red-100 text-red-800";
       case "Pilihan":
-        return "bg-blue-100 text-blue-800";
+        return "bg-red-100 text-red-800";
       case "Produk_Kreatif_Kewirausahaan":
         return "bg-green-100 text-green-800";
       default:
@@ -121,7 +121,7 @@ const SchoolLevelMajorSelector = ({
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center p-16 bg-white rounded-xl shadow-lg border border-gray-100">
-        <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-200 border-t-blue-600 mb-6"></div>
+        <div className="animate-spin rounded-full h-16 w-16 border-4 border-red-200 border-t-red-600 mb-6"></div>
         <h3 className="text-xl font-semibold text-gray-700 mb-2">
           Memuat Data...
         </h3>
@@ -195,12 +195,12 @@ const SchoolLevelMajorSelector = ({
             📊 Statistik {schoolLevel}
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 text-center border border-blue-200">
-              <div className="text-4xl font-bold text-blue-700 mb-2">
+            <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-6 text-center border border-red-200">
+              <div className="text-4xl font-bold text-red-700 mb-2">
                 {stats[schoolLevel === "SMA/MA" ? "sma_ma" : "smk_mak"]
                   ?.majors_count || 0}
               </div>
-              <div className="text-sm font-semibold text-blue-800 uppercase tracking-wide">
+              <div className="text-sm font-semibold text-red-800 uppercase tracking-wide">
                 Total Jurusan
               </div>
             </div>
@@ -265,7 +265,7 @@ const SchoolLevelMajorSelector = ({
           {subjects.map((subject) => (
             <div
               key={subject.id}
-              className="bg-gradient-to-br from-white to-gray-50 border-2 border-gray-200 rounded-xl p-6 hover:shadow-xl hover:border-blue-300 transition-all duration-300 transform hover:-translate-y-1"
+              className="bg-gradient-to-br from-white to-gray-50 border-2 border-gray-200 rounded-xl p-6 hover:shadow-xl hover:border-red-300 transition-all duration-300 transform hover:-translate-y-1"
             >
               <div className="flex items-start justify-between mb-4">
                 <h4 className="font-bold text-lg text-gray-800 leading-tight pr-2">
@@ -305,10 +305,10 @@ const SchoolLevelMajorSelector = ({
             <div
               key={major.id}
               onClick={() => handleMajorClick(major)}
-              className="bg-gradient-to-br from-white to-gray-50 border-2 border-gray-200 rounded-xl p-8 hover:shadow-2xl hover:border-blue-400 transition-all duration-300 transform hover:-translate-y-2 cursor-pointer group"
+              className="bg-gradient-to-br from-white to-gray-50 border-2 border-gray-200 rounded-xl p-8 hover:shadow-2xl hover:border-red-400 transition-all duration-300 transform hover:-translate-y-2 cursor-pointer group"
             >
               <div className="mb-6">
-                <h4 className="font-bold text-xl text-gray-800 mb-3 group-hover:text-blue-700 transition-colors">
+                <h4 className="font-bold text-xl text-gray-800 mb-3 group-hover:text-red-700 transition-colors">
                   {major.major_name}
                 </h4>
                 <p className="text-gray-600 leading-relaxed text-sm">
@@ -346,7 +346,7 @@ const SchoolLevelMajorSelector = ({
 
                 <div>
                   <h5 className="text-sm font-bold text-gray-700 mb-3 flex items-center">
-                    <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs mr-2">
+                    <span className="bg-red-100 text-red-700 px-2 py-1 rounded-full text-xs mr-2">
                       DIUTAMAKAN
                     </span>
                     Mata Pelajaran Diutamakan:
@@ -357,7 +357,7 @@ const SchoolLevelMajorSelector = ({
                       .map((subject: string, index: number) => (
                         <span
                           key={index}
-                          className="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full border border-blue-200"
+                          className="px-3 py-1 bg-red-100 text-red-800 text-xs font-medium rounded-full border border-red-200"
                         >
                           {subject}
                         </span>
