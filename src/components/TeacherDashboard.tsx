@@ -963,7 +963,7 @@ export default function TeacherDashboard() {
               sidebarOpen ? "left-64" : "left-16"
             }`}
           >
-            <div className="flex justify-between items-center py-4 px-6">
+            <div className="flex justify-between items-center py-3 px-6">
               <div>
                 <h1
                   className={`text-2xl font-bold ${
@@ -1039,7 +1039,7 @@ export default function TeacherDashboard() {
           </div>
 
           {/* Content Area */}
-          <div className="flex-1 p-6 overflow-auto mt-24">
+          <div className="flex-1 p-4 overflow-auto mt-16">
             {renderContent()}
           </div>
         </div>

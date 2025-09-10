@@ -97,7 +97,7 @@ export default function DashboardContent({
       <div
         className={`${
           darkMode ? "bg-gray-800" : "bg-white"
-        } rounded-lg shadow mb-8`}
+        } rounded-lg shadow mb-4`}
       >
         <div
           className={`px-6 py-4 border-b ${

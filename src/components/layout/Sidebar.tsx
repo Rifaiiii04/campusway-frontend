@@ -19,6 +19,12 @@ export default function Sidebar({
     { id: "dashboard", label: "Dashboard", icon: "📊", path: "/teacher" },
     { id: "students", label: "Data Siswa", icon: "👥", path: "/teacher" },
     { id: "classes", label: "Manajemen Kelas", icon: "🏫", path: "/teacher" },
+    {
+      id: "tka-schedules",
+      label: "Jadwal ArahPotensi",
+      icon: "🗓️",
+      path: "/teacher/tka-schedule",
+    },
     { id: "tests", label: "Tes & Hasil", icon: "📝", path: "/teacher" },
     {
       id: "reports",
