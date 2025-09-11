@@ -57,14 +57,12 @@ export default function StudentDashboardClient() {
   const [successMessage, setSuccessMessage] = useState("");
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [passwordData, setPasswordData] = useState({
-    currentPassword: "",
     newPassword: "",
     confirmPassword: "",
   });
   const [passwordError, setPasswordError] = useState("");
   const [passwordSuccess, setPasswordSuccess] = useState("");
   const [loadingPassword, setLoadingPassword] = useState(false);
-  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   // ArahPotensi Schedules state
@@ -384,7 +382,6 @@ export default function StudentDashboardClient() {
   const handleCancelPasswordChange = useCallback(() => {
     setShowChangePassword(false);
     setPasswordData({
-      currentPassword: "",
       newPassword: "",
       confirmPassword: "",
     });
@@ -414,11 +411,6 @@ export default function StudentDashboardClient() {
     setPasswordSuccess("");
 
     // Validation
-    if (!passwordData.currentPassword) {
-      setPasswordError("Password lama harus diisi");
-      return;
-    }
-
     if (!passwordData.newPassword) {
       setPasswordError("Password baru harus diisi");
       return;
@@ -434,11 +426,6 @@ export default function StudentDashboardClient() {
       return;
     }
 
-    if (passwordData.currentPassword === passwordData.newPassword) {
-      setPasswordError("Password baru harus berbeda dengan password lama");
-      return;
-    }
-
     setLoadingPassword(true);
 
     try {
@@ -449,7 +436,6 @@ export default function StudentDashboardClient() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          currentPassword: passwordData.currentPassword,
           newPassword: passwordData.newPassword,
         }),
       });
@@ -457,7 +443,6 @@ export default function StudentDashboardClient() {
       if (response.ok) {
         setPasswordSuccess("Password berhasil diubah!");
         setPasswordData({
-          currentPassword: "",
           newPassword: "",
           confirmPassword: "",
         });
@@ -537,7 +522,7 @@ export default function StudentDashboardClient() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-4 gap-4">
             <div className="flex items-center">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-purple-500 via-pink-500 to-indigo-500 rounded-xl sm:rounded-2xl flex items-center justify-center mr-3 sm:mr-4 shadow-lg">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-red-800 rounded-xl sm:rounded-2xl flex items-center justify-center mr-3 sm:mr-4 shadow-lg">
                 <svg
                   className="w-5 h-5 sm:w-6 sm:h-6 text-white"
                   fill="none"
@@ -553,7 +538,7 @@ export default function StudentDashboardClient() {
                 </svg>
               </div>
               <div>
-                <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                <h1 className="text-xl sm:text-2xl font-bold text-red-800">
                   Portal Jurusan
                 </h1>
                 <p className="text-gray-600 text-xs sm:text-sm">
@@ -612,7 +597,7 @@ export default function StudentDashboardClient() {
               </button>
               <button
                 onClick={handleLogout}
-                className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-4 sm:px-6 py-2 rounded-lg sm:rounded-xl hover:from-red-600 hover:to-pink-600 transition-all duration-200 flex items-center shadow-lg hover:shadow-xl hover:scale-105"
+                className="bg-red-800 text-white px-4 sm:px-6 py-2 rounded-lg sm:rounded-xl hover:bg-red-900 transition-all duration-200 flex items-center shadow-lg hover:shadow-xl hover:scale-105"
               >
                 <svg
                   className="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2"
@@ -639,7 +624,7 @@ export default function StudentDashboardClient() {
         {/* Welcome Card */}
         <div className="bg-white/70 backdrop-blur-sm rounded-2xl sm:rounded-3xl shadow-2xl p-6 sm:p-8 mb-6 sm:mb-8 border border-white/20">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-r from-green-400 via-red-500 to-purple-600 rounded-2xl sm:rounded-3xl flex items-center justify-center shadow-xl">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-red-800 rounded-2xl sm:rounded-3xl flex items-center justify-center shadow-xl">
               <svg
                 className="w-8 h-8 sm:w-10 sm:h-10 text-white"
                 fill="none"
@@ -676,7 +661,7 @@ export default function StudentDashboardClient() {
                 )}
                 {/* Jurusan yang dipilih */}
                 {appliedMajors.length > 0 ? (
-                  <div className="mt-3 p-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
+                  <div className="mt-3 p-3 bg-red-50 rounded-lg border border-red-200">
                     <p className="text-green-800 text-sm font-medium mb-1 flex items-center">
                       <svg
                         className="w-4 h-4 mr-2"
@@ -707,7 +692,7 @@ export default function StudentDashboardClient() {
                     </div>
                   </div>
                 ) : (
-                  <div className="mt-3 p-3 bg-gradient-to-r from-red-50 to-cyan-50 rounded-lg border border-red-200">
+                  <div className="mt-3 p-3 bg-red-50 rounded-lg border border-red-200">
                     <p className="text-red-800 text-sm font-medium flex items-center">
                       <svg
                         className="w-4 h-4 mr-2"
@@ -741,7 +726,7 @@ export default function StudentDashboardClient() {
 
         {/* ArahPotensi Schedules Notification - PUSMENDIK Standard */}
         {upcomingSchedules.length > 0 && (
-          <div className="bg-gradient-to-r from-red-500 to-indigo-600 rounded-2xl sm:rounded-3xl shadow-2xl p-6 sm:p-8 mb-6 sm:mb-8 border border-white/20">
+          <div className="bg-red-800 rounded-2xl sm:rounded-3xl shadow-2xl p-6 sm:p-8 mb-6 sm:mb-8 border border-white/20">
             <div className="text-center mb-6">
               <div className="flex items-center justify-center mb-4">
                 <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
@@ -1092,46 +1077,45 @@ export default function StudentDashboardClient() {
                 </svg>
                 Daftar Jurusan ({filteredMajors.length} jurusan ditemukan)
               </h4>
-              <div className="grid gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                 {filteredMajors.map((major) => (
                   <div
                     key={major.id}
-                    className="bg-white/60 backdrop-blur-sm border-2 border-white/30 rounded-xl sm:rounded-2xl p-4 sm:p-6 hover:shadow-xl hover:scale-[1.01] sm:hover:scale-[1.02] transition-all duration-300 hover:border-purple-200"
+                    className="bg-white/60 backdrop-blur-sm border-2 border-white/30 rounded-xl sm:rounded-2xl p-4 sm:p-6 hover:shadow-xl hover:scale-[1.01] sm:hover:scale-[1.02] transition-all duration-300 hover:border-red-200"
                   >
-                    <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4">
-                      <div className="flex-1">
-                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-3">
-                          <h5 className="text-lg sm:text-xl font-bold text-gray-900">
-                            {major.major_name}
-                          </h5>
-                          <span
-                            className={`px-3 sm:px-4 py-1 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm font-bold w-fit ${
-                              major.rumpun_ilmu === "ILMU ALAM"
-                                ? "bg-gradient-to-r from-red-100 to-cyan-100 text-red-800 border border-red-200"
-                                : major.rumpun_ilmu === "ILMU SOSIAL"
-                                ? "bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border border-green-200"
-                                : major.rumpun_ilmu === "HUMANIORA"
-                                ? "bg-gradient-to-r from-purple-100 to-purple-200 text-purple-800 border border-purple-200"
-                                : major.rumpun_ilmu === "ILMU FORMAL"
-                                ? "bg-gradient-to-r from-orange-100 to-yellow-100 text-orange-800 border border-orange-200"
-                                : major.rumpun_ilmu === "ILMU TERAPAN"
-                                ? "bg-gradient-to-r from-red-100 to-pink-100 text-red-800 border border-red-200"
-                                : "bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800 border border-gray-200"
-                            }`}
-                          >
-                            {major.rumpun_ilmu}
-                          </span>
-                        </div>
-                        <p className="text-gray-600 text-sm sm:text-base leading-relaxed">
-                          {major.description}
-                        </p>
+                    <div className="flex flex-col h-full">
+                      <div className="flex flex-col gap-2 mb-3">
+                        <h5 className="text-lg sm:text-xl font-bold text-gray-900 line-clamp-2">
+                          {major.major_name}
+                        </h5>
+                        <span
+                          className={`px-3 sm:px-4 py-1 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm font-bold w-fit ${
+                            major.rumpun_ilmu === "ILMU ALAM"
+                              ? "bg-red-100 text-red-800 border border-red-200"
+                              : major.rumpun_ilmu === "ILMU SOSIAL"
+                              ? "bg-green-100 text-green-800 border border-green-200"
+                              : major.rumpun_ilmu === "HUMANIORA"
+                              ? "bg-purple-100 text-purple-800 border border-purple-200"
+                              : major.rumpun_ilmu === "ILMU FORMAL"
+                              ? "bg-orange-100 text-orange-800 border border-orange-200"
+                              : major.rumpun_ilmu === "ILMU TERAPAN"
+                              ? "bg-red-100 text-red-800 border border-red-200"
+                              : "bg-gray-100 text-gray-800 border border-gray-200"
+                          }`}
+                        >
+                          {major.rumpun_ilmu}
+                        </span>
                       </div>
-                      <div className="flex flex-col sm:flex-row lg:flex-col gap-2 sm:gap-3 lg:gap-3 lg:ml-6">
+                      <p className="text-gray-600 text-sm leading-relaxed line-clamp-3 flex-grow">
+                        {major.description?.split(" ").slice(0, 15).join(" ")}
+                        ...
+                      </p>
+                      <div className="flex flex-col gap-2 mt-4">
                         {/* Show selection status indicator */}
                         {isMajorSelected(major.id) ? (
-                          <div className="flex items-center justify-center px-4 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl bg-gradient-to-r from-green-100 to-emerald-100 border-2 border-green-300 text-green-800">
+                          <div className="flex items-center justify-center px-3 py-2 rounded-lg bg-green-100 border-2 border-green-300 text-green-800">
                             <svg
-                              className="w-4 h-4 sm:w-5 sm:h-5 mr-2"
+                              className="w-4 h-4 mr-2"
                               fill="none"
                               stroke="currentColor"
                               viewBox="0 0 24 24"
@@ -1143,17 +1127,17 @@ export default function StudentDashboardClient() {
                                 d="M5 13l4 4L19 7"
                               />
                             </svg>
-                            <span className="font-bold text-sm sm:text-base">
-                              Jurusan Dipilih
+                            <span className="font-semibold text-sm">
+                              Terpilih
                             </span>
                           </div>
                         ) : (
                           <button
                             onClick={() => handleApplyMajor(major)}
-                            className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl transition-all duration-200 flex items-center justify-center shadow-lg hover:shadow-xl hover:scale-105"
+                            className="bg-red-800 hover:bg-red-900 text-white px-3 py-2 rounded-lg transition-all duration-200 flex items-center justify-center shadow-lg hover:shadow-xl hover:scale-105"
                           >
                             <svg
-                              className="w-4 h-4 sm:w-5 sm:h-5 mr-2"
+                              className="w-4 h-4 mr-2"
                               fill="none"
                               stroke="currentColor"
                               viewBox="0 0 24 24"
@@ -1165,15 +1149,13 @@ export default function StudentDashboardClient() {
                                 d="M12 6v6m0 0v6m0-6h6m-6 0H6"
                               />
                             </svg>
-                            <span className="font-bold text-sm sm:text-base">
-                              Pilih Jurusan
-                            </span>
+                            <span className="font-semibold text-sm">Pilih</span>
                           </button>
                         )}
                         <button
                           onClick={() => handleShowMajorDetail(major)}
                           disabled={loadingMajorDetail}
-                          className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl hover:from-blue-600 hover:to-cyan-600 transition-all duration-200 flex items-center justify-center shadow-lg hover:shadow-xl hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg transition-all duration-200 flex items-center justify-center shadow-lg hover:shadow-xl hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           {loadingMajorDetail ? (
                             <svg
@@ -1197,7 +1179,7 @@ export default function StudentDashboardClient() {
                             </svg>
                           ) : (
                             <svg
-                              className="w-4 h-4 sm:w-5 sm:h-5 mr-2"
+                              className="w-4 h-4 mr-2"
                               fill="none"
                               stroke="currentColor"
                               viewBox="0 0 24 24"
@@ -1206,19 +1188,11 @@ export default function StudentDashboardClient() {
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
                                 strokeWidth={2}
-                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                              />
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                               />
                             </svg>
                           )}
-                          <span className="font-bold text-sm sm:text-base">
-                            {loadingMajorDetail ? "Loading..." : "Lihat Detail"}
-                          </span>
+                          <span className="font-semibold text-sm">Detail</span>
                         </button>
                       </div>
                     </div>
@@ -1270,7 +1244,7 @@ export default function StudentDashboardClient() {
               {appliedMajors.map((major) => (
                 <div
                   key={major.id}
-                  className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-2xl p-6 shadow-lg"
+                  className="bg-red-50 border-2 border-red-200 rounded-2xl p-6 shadow-lg"
                 >
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
@@ -1281,16 +1255,16 @@ export default function StudentDashboardClient() {
                         <span
                           className={`px-4 py-2 rounded-xl text-sm font-bold ${
                             major.rumpun_ilmu === "ILMU ALAM"
-                              ? "bg-gradient-to-r from-red-100 to-cyan-100 text-red-800 border border-red-200"
+                              ? "bg-red-100 text-red-800 border border-red-200"
                               : major.rumpun_ilmu === "ILMU SOSIAL"
-                              ? "bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border border-green-200"
+                              ? "bg-green-100 text-green-800 border border-green-200"
                               : major.rumpun_ilmu === "HUMANIORA"
-                              ? "bg-gradient-to-r from-purple-100 to-purple-200 text-purple-800 border border-purple-200"
+                              ? "bg-purple-100 text-purple-800 border border-purple-200"
                               : major.rumpun_ilmu === "ILMU FORMAL"
-                              ? "bg-gradient-to-r from-orange-100 to-yellow-100 text-orange-800 border border-orange-200"
+                              ? "bg-orange-100 text-orange-800 border border-orange-200"
                               : major.rumpun_ilmu === "ILMU TERAPAN"
-                              ? "bg-gradient-to-r from-red-100 to-pink-100 text-red-800 border border-red-200"
-                              : "bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800 border border-gray-200"
+                              ? "bg-red-100 text-red-800 border border-red-200"
+                              : "bg-gray-100 text-gray-800 border border-gray-200"
                           }`}
                         >
                           {major.rumpun_ilmu === "ILMU ALAM"
@@ -1306,7 +1280,7 @@ export default function StudentDashboardClient() {
                             : "📋"}{" "}
                           {major.rumpun_ilmu}
                         </span>
-                        <span className="px-4 py-2 rounded-xl text-sm font-bold bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border border-green-200 ml-2">
+                        <span className="px-4 py-2 rounded-xl text-sm font-bold bg-green-100 text-green-800 border border-green-200 ml-2">
                           ✅ Terpilih
                         </span>
                       </div>
@@ -1327,10 +1301,10 @@ export default function StudentDashboardClient() {
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-white/20">
               {/* Modal Header */}
-              <div className="sticky top-0 bg-gradient-to-r from-purple-50 to-pink-50 border-b border-gray-200 rounded-t-2xl px-6 py-4">
+              <div className="sticky top-0 bg-red-50 border-b border-gray-200 rounded-t-2xl px-6 py-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+                    <div className="w-12 h-12 bg-red-800 rounded-xl flex items-center justify-center">
                       <svg
                         className="w-6 h-6 text-white"
                         fill="none"
@@ -1737,10 +1711,10 @@ export default function StudentDashboardClient() {
           >
             <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-white/20">
               {/* Modal Header */}
-              <div className="sticky top-0 bg-gradient-to-r from-purple-50 to-pink-50 border-b border-gray-200 rounded-t-2xl px-6 py-4">
+              <div className="sticky top-0 bg-red-50 border-b border-gray-200 rounded-t-2xl px-6 py-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+                    <div className="w-12 h-12 bg-red-800 rounded-xl flex items-center justify-center">
                       <svg
                         className="w-6 h-6 text-white"
                         fill="none"
@@ -1981,70 +1955,6 @@ export default function StudentDashboardClient() {
                     </div>
                   ) : (
                     <div className="bg-gray-50 rounded-lg p-4 space-y-4">
-                      {/* Current Password */}
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Password Lama
-                        </label>
-                        <div className="relative">
-                          <input
-                            type={showCurrentPassword ? "text" : "password"}
-                            value={passwordData.currentPassword}
-                            onChange={(e) =>
-                              handlePasswordInputChange(
-                                "currentPassword",
-                                e.target.value
-                              )
-                            }
-                            className="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent text-black transition-all duration-200"
-                            placeholder="Masukkan password lama"
-                          />
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setShowCurrentPassword(!showCurrentPassword)
-                            }
-                            className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600 transition-colors duration-200"
-                          >
-                            {showCurrentPassword ? (
-                              <svg
-                                className="h-5 w-5"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"
-                                />
-                              </svg>
-                            ) : (
-                              <svg
-                                className="h-5 w-5"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                                />
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                                />
-                              </svg>
-                            )}
-                          </button>
-                        </div>
-                      </div>
-
                       {/* New Password */}
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
