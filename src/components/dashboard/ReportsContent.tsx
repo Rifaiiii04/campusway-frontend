@@ -2,6 +2,9 @@
 
 import { Bar, Doughnut } from "react-chartjs-2";
 import { Student, MajorStatistics, DashboardData } from "../../services/api";
+import { useRef } from "react";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 
 interface ReportsContentProps {
   students: Student[];
@@ -16,6 +19,244 @@ export default function ReportsContent({
   dashboardData,
   darkMode,
 }: ReportsContentProps) {
+  const reportRef = useRef<HTMLDivElement>(null);
+
+  const handleExportPDF = async () => {
+    try {
+      // Create a completely isolated iframe to avoid any external CSS interference
+      const iframe = document.createElement("iframe");
+      iframe.style.cssText = `
+        position: absolute;
+        left: -9999px;
+        top: 0;
+        width: 800px;
+        height: 600px;
+        border: none;
+        background: white;
+      `;
+
+      document.body.appendChild(iframe);
+
+      // Wait for iframe to load
+      await new Promise((resolve) => {
+        iframe.onload = resolve;
+        iframe.src = "about:blank";
+      });
+
+      const iframeDoc =
+        iframe.contentDocument || iframe.contentWindow?.document;
+      if (!iframeDoc) {
+        throw new Error("Could not access iframe document");
+      }
+
+      // Create completely isolated HTML content
+      iframeDoc.open();
+      iframeDoc.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <style>
+            * {
+              margin: 0;
+              padding: 0;
+              box-sizing: border-box;
+            }
+            body {
+              font-family: Arial, sans-serif;
+              background: white;
+              color: black;
+              padding: 20px;
+            }
+            .title {
+              font-size: 24px;
+              font-weight: bold;
+              margin-bottom: 20px;
+              color: #dc2626;
+              text-align: center;
+            }
+            .stats-section {
+              display: flex;
+              gap: 20px;
+              margin-bottom: 30px;
+              flex-wrap: wrap;
+            }
+            .stat-card {
+              padding: 20px;
+              border-radius: 8px;
+              flex: 1;
+              min-width: 150px;
+              color: white;
+            }
+            .completion-card {
+              background: linear-gradient(to right, #ef4444, #dc2626);
+            }
+            .total-card {
+              background: linear-gradient(to right, #22c55e, #16a34a);
+            }
+            .choice-card {
+              background: linear-gradient(to right, #eab308, #ca8a04);
+            }
+            .popular-card {
+              background: linear-gradient(to right, #a855f7, #9333ea);
+            }
+            .stat-label {
+              font-size: 14px;
+              margin-bottom: 5px;
+            }
+            .stat-value {
+              font-size: 24px;
+              font-weight: bold;
+            }
+            .charts-section {
+              display: flex;
+              gap: 20px;
+              margin-bottom: 30px;
+              flex-wrap: wrap;
+            }
+            .chart-card {
+              background: white;
+              border: 1px solid #e5e7eb;
+              padding: 20px;
+              border-radius: 8px;
+              flex: 1;
+              min-width: 300px;
+            }
+            .chart-title {
+              font-size: 18px;
+              font-weight: bold;
+              margin-bottom: 15px;
+              color: #111827;
+            }
+            .chart-content {
+              text-align: center;
+              color: #6b7280;
+            }
+            .chart-item {
+              margin: 5px 0;
+              padding: 5px;
+              color: white;
+              border-radius: 4px;
+            }
+            .chart-item-0 { background-color: #ef4444; }
+            .chart-item-1 { background-color: #fbbf24; }
+            .chart-item-2 { background-color: #a855f7; }
+            .chart-item-3 { background-color: #22c55e; }
+            .chart-item-4 { background-color: #eab308; }
+          </style>
+        </head>
+        <body>
+          <h1 class="title">Laporan & Analisis - ArahPotensi</h1>
+          
+          <div class="stats-section">
+            <div class="stat-card completion-card">
+              <div class="stat-label">Tingkat Penyelesaian</div>
+              <div class="stat-value">${
+                dashboardData?.statistics.completion_percentage?.toFixed(1) ||
+                "0"
+              }%</div>
+            </div>
+            <div class="stat-card total-card">
+              <div class="stat-label">Total Siswa</div>
+              <div class="stat-value">${
+                dashboardData?.statistics.total_students || "0"
+              }</div>
+            </div>
+            <div class="stat-card choice-card">
+              <div class="stat-label">Siswa Memilih Jurusan</div>
+              <div class="stat-value">${
+                dashboardData?.statistics.students_with_choice || "0"
+              }</div>
+            </div>
+            <div class="stat-card popular-card">
+              <div class="stat-label">Jurusan Populer</div>
+              <div class="stat-value">${
+                dashboardData?.top_majors[0]?.major_name || "N/A"
+              }</div>
+            </div>
+          </div>
+          
+          <div class="charts-section">
+            <div class="chart-card">
+              <h3 class="chart-title">Distribusi Kelas</h3>
+              <div class="chart-content">
+                ${
+                  dashboardData?.students_by_class
+                    .map(
+                      (cls, index) =>
+                        `<div class="chart-item chart-item-${index % 5}">${
+                          cls.kelas
+                        }: ${cls.student_count} siswa</div>`
+                    )
+                    .join("") || "Tidak ada data"
+                }
+              </div>
+            </div>
+            <div class="chart-card">
+              <h3 class="chart-title">Statistik Jurusan</h3>
+              <div class="chart-content">
+                ${
+                  majorStatistics
+                    .map(
+                      (major, index) =>
+                        `<div class="chart-item chart-item-${index % 5}">${
+                          major.major_name
+                        }: ${major.student_count} siswa</div>`
+                    )
+                    .join("") || "Tidak ada data"
+                }
+              </div>
+            </div>
+          </div>
+        </body>
+        </html>
+      `);
+      iframeDoc.close();
+
+      // Wait for content to render
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      // Create canvas from the iframe content
+      const canvas = await html2canvas(iframeDoc.body, {
+        useCORS: true,
+        allowTaint: true,
+        background: "#ffffff",
+        width: 800,
+        height: iframeDoc.body.scrollHeight,
+      });
+
+      // Clean up
+      document.body.removeChild(iframe);
+
+      // Create PDF
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "mm", "a4");
+      const imgWidth = 210;
+      const pageHeight = 295;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      let heightLeft = imgHeight;
+
+      let position = 0;
+
+      // Add first page
+      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+
+      // Add additional pages if needed
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+
+      // Save the PDF
+      pdf.save("laporan-arahpotensi.pdf");
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      alert("Gagal mengexport PDF. Silakan coba lagi.");
+    }
+  };
   const classChartData = {
     labels: dashboardData?.students_by_class.map((cls) => cls.kelas) || [],
     datasets: [
@@ -73,27 +314,14 @@ export default function ReportsContent({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" ref={reportRef}>
       {/* Header */}
       <div className="flex justify-between items-center">
         <div className="flex space-x-3">
-          <button className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors flex items-center">
-            <svg
-              className="w-4 h-4 mr-2"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-              />
-            </svg>
-            Generate Laporan
-          </button>
-          <button className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center">
+          <button
+            onClick={handleExportPDF}
+            className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center"
+          >
             <svg
               className="w-4 h-4 mr-2"
               fill="none"

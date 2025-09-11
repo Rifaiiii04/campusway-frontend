@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import ErrorModal from "./modals/ErrorModal";
 import Link from "next/link";
 import { studentApiService } from "../services/api";
 
@@ -19,6 +20,8 @@ export default function SchoolLogin({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [loadingMessage, setLoadingMessage] = useState("");
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorTitle, setErrorTitle] = useState("");
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -140,9 +143,75 @@ export default function SchoolLogin({
       }
     } catch (err: unknown) {
       console.error("💥 Error during login:", err);
-      const errorMessage =
-        err instanceof Error ? err.message : "Terjadi kesalahan saat login";
-      setError(errorMessage);
+
+      let errorMessage = "Terjadi kesalahan saat login";
+
+      if (err instanceof Error) {
+        const message = err.message.toLowerCase();
+
+        // Handle specific error cases
+        if (
+          message.includes("password salah") ||
+          message.includes("invalid password")
+        ) {
+          errorMessage =
+            userType === "guru"
+              ? "Password salah. Silakan periksa kembali password Anda."
+              : "Password salah. Silakan periksa kembali password Anda.";
+        } else if (
+          message.includes("npsn tidak ditemukan") ||
+          message.includes("nisn tidak ditemukan")
+        ) {
+          errorMessage =
+            userType === "guru"
+              ? "NPSN tidak ditemukan. Silakan periksa kembali NPSN sekolah Anda."
+              : "NISN tidak ditemukan. Silakan periksa kembali NISN Anda.";
+        } else if (
+          message.includes("timeout") ||
+          message.includes("server tidak merespons")
+        ) {
+          errorMessage =
+            "Server tidak merespons. Silakan coba lagi dalam beberapa saat.";
+        } else if (message.includes("network") || message.includes("fetch")) {
+          errorMessage =
+            "Tidak dapat terhubung ke server. Periksa koneksi internet Anda.";
+        } else if (
+          message.includes("unauthorized") ||
+          message.includes("401")
+        ) {
+          errorMessage =
+            userType === "guru"
+              ? "NPSN atau password salah. Silakan periksa kembali kredensial Anda."
+              : "NISN atau password salah. Silakan periksa kembali kredensial Anda.";
+        } else if (message.includes("not found") || message.includes("404")) {
+          errorMessage =
+            userType === "guru"
+              ? "NPSN tidak ditemukan dalam sistem."
+              : "NISN tidak ditemukan dalam sistem.";
+        } else {
+          // Use the original error message if it's user-friendly
+          errorMessage = err.message;
+        }
+      }
+
+      // Show modal for critical errors, inline for minor ones
+      if (
+        errorMessage.includes("Password") ||
+        errorMessage.includes("NPSN") ||
+        errorMessage.includes("NISN")
+      ) {
+        setErrorTitle(
+          errorMessage.includes("Password")
+            ? "Password Salah"
+            : errorMessage.includes("NPSN") || errorMessage.includes("NISN")
+            ? "Kredensial Tidak Ditemukan"
+            : "Login Gagal"
+        );
+        setError(errorMessage);
+        setShowErrorModal(true);
+      } else {
+        setError(errorMessage);
+      }
     } finally {
       setLoading(false);
     }
@@ -307,11 +376,11 @@ export default function SchoolLogin({
 
             {/* Error Message */}
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4 animate-in slide-in-from-top-2 duration-300">
                 <div className="flex">
                   <div className="flex-shrink-0">
                     <svg
-                      className="h-5 w-5 text-red-400"
+                      className="h-5 w-5 text-red-500"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -325,7 +394,25 @@ export default function SchoolLogin({
                     </svg>
                   </div>
                   <div className="ml-3">
+                    <h3 className="text-sm font-medium text-red-800 mb-1">
+                      {error.includes("Password")
+                        ? "Password Salah"
+                        : error.includes("NPSN") || error.includes("NISN")
+                        ? "Kredensial Tidak Ditemukan"
+                        : error.includes("Server")
+                        ? "Masalah Koneksi"
+                        : "Login Gagal"}
+                    </h3>
                     <p className="text-sm text-red-600">{error}</p>
+                    <div className="mt-2">
+                      <button
+                        type="button"
+                        onClick={() => setError("")}
+                        className="text-xs text-red-500 hover:text-red-700 underline"
+                      >
+                        Tutup pesan
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -430,6 +517,18 @@ export default function SchoolLogin({
           </p>
         </div>
       </div>
+
+      {/* Error Modal */}
+      <ErrorModal
+        isOpen={showErrorModal}
+        onClose={() => {
+          setShowErrorModal(false);
+          setError("");
+        }}
+        title={errorTitle}
+        message={error}
+        type="error"
+      />
     </div>
   );
 }

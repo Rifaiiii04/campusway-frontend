@@ -1,14 +1,121 @@
 "use client";
 
+import { useState, useEffect } from "react";
+
 interface SettingsContentProps {
   darkMode: boolean;
   onToggleDarkMode: () => void;
+}
+
+interface SchoolData {
+  id: number;
+  npsn: string;
+  name: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export default function SettingsContent({
   darkMode,
   onToggleDarkMode,
 }: SettingsContentProps) {
+  const [schoolData, setSchoolData] = useState<SchoolData | null>(null);
+  const [passwordData, setPasswordData] = useState({
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [passwordLoading, setPasswordLoading] = useState(false);
+  const [passwordError, setPasswordError] = useState("");
+  const [passwordSuccess, setPasswordSuccess] = useState("");
+
+  useEffect(() => {
+    // Get school data from localStorage
+    if (typeof window !== "undefined") {
+      const storedSchoolData = localStorage.getItem("school_data");
+      if (storedSchoolData) {
+        try {
+          const parsedData = JSON.parse(storedSchoolData);
+          setSchoolData(parsedData);
+        } catch (error) {
+          console.error("Error parsing school data:", error);
+        }
+      }
+    }
+  }, []);
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setPasswordData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+    // Clear errors when user starts typing
+    if (passwordError) setPasswordError("");
+    if (passwordSuccess) setPasswordSuccess("");
+  };
+
+  const handlePasswordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordLoading(true);
+    setPasswordError("");
+    setPasswordSuccess("");
+
+    // Validation
+    if (!passwordData.newPassword) {
+      setPasswordError("Password baru harus diisi");
+      setPasswordLoading(false);
+      return;
+    }
+
+    if (passwordData.newPassword.length < 6) {
+      setPasswordError("Password minimal 6 karakter");
+      setPasswordLoading(false);
+      return;
+    }
+
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      setPasswordError("Konfirmasi password tidak sesuai");
+      setPasswordLoading(false);
+      return;
+    }
+
+    try {
+      // Get school token
+      const token = localStorage.getItem("school_token");
+      if (!token) {
+        throw new Error("Anda belum login");
+      }
+
+      // Call API to change password using the same pattern as other API calls
+      const API_BASE_URL =
+        process.env.NEXT_PUBLIC_API_BASE_URL ||
+        "http://127.0.0.1:8000/api/school";
+      const response = await fetch(`${API_BASE_URL}/change-password`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          new_password: passwordData.newPassword,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setPasswordSuccess("Password berhasil diubah");
+        setPasswordData({ newPassword: "", confirmPassword: "" });
+      } else {
+        setPasswordError(data.message || "Gagal mengubah password");
+      }
+    } catch (error) {
+      console.error("Error changing password:", error);
+      setPasswordError("Terjadi kesalahan saat mengubah password");
+    } finally {
+      setPasswordLoading(false);
+    }
+  };
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -18,9 +125,9 @@ export default function SettingsContent({
         </button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Profile Settings */}
-        <div className="lg:col-span-2 space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* School Profile Settings */}
+        <div className="space-y-6">
           <div
             className={`${
               darkMode ? "bg-gray-800" : "bg-white"
@@ -36,92 +143,54 @@ export default function SettingsContent({
                   darkMode ? "text-gray-100" : "text-gray-900"
                 }`}
               >
-                Profil Guru
+                Profil Sekolah
               </h3>
             </div>
             <div className="p-6 space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label
-                    className={`block text-sm font-medium mb-2 ${
-                      darkMode ? "text-gray-300" : "text-gray-700"
-                    }`}
-                  >
-                    Nama Lengkap
-                  </label>
-                  <input
-                    type="text"
-                    defaultValue="Guru ArahPotensi"
-                    placeholder="Masukkan nama lengkap guru"
-                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 ${
-                      darkMode
-                        ? "bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-300"
-                        : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
-                    }`}
-                  />
-                </div>
-                <div>
-                  <label
-                    className={`block text-sm font-medium mb-2 ${
-                      darkMode ? "text-gray-300" : "text-gray-700"
-                    }`}
-                  >
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    defaultValue="guru@tka.sch.id"
-                    placeholder="Masukkan alamat email guru"
-                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-red-500 focus:border-red-500 ${
-                      darkMode
-                        ? "bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-300"
-                        : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
-                    }`}
-                  />
-                </div>
-                <div>
-                  <label
-                    className={`block text-sm font-medium mb-2 ${
-                      darkMode ? "text-gray-300" : "text-gray-700"
-                    }`}
-                  >
-                    NIP
-                  </label>
-                  <input
-                    type="text"
-                    defaultValue="197001012000031001"
-                    placeholder="Masukkan NIP guru"
-                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-red-500 focus:border-red-500 ${
-                      darkMode
-                        ? "bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-300"
-                        : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
-                    }`}
-                  />
-                </div>
-                <div>
-                  <label
-                    className={`block text-sm font-medium mb-2 ${
-                      darkMode ? "text-gray-300" : "text-gray-700"
-                    }`}
-                  >
-                    No. Telepon
-                  </label>
-                  <input
-                    type="text"
-                    defaultValue="+62 812-3456-7890"
-                    placeholder="Masukkan nomor telepon guru"
-                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-red-500 focus:border-red-500 ${
-                      darkMode
-                        ? "bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-300"
-                        : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
-                    }`}
-                  />
-                </div>
+              <div>
+                <label
+                  className={`block text-sm font-medium mb-2 ${
+                    darkMode ? "text-gray-300" : "text-gray-700"
+                  }`}
+                >
+                  Nama Sekolah
+                </label>
+                <input
+                  type="text"
+                  value={schoolData?.name ?? "Memuat..."}
+                  readOnly
+                  className={`w-full px-3 py-2 border rounded-md bg-gray-100 cursor-not-allowed ${
+                    darkMode
+                      ? "bg-gray-600 border-gray-500 text-gray-300"
+                      : "bg-gray-100 border-gray-300 text-gray-500"
+                  }`}
+                />
+              </div>
+              <div>
+                <label
+                  className={`block text-sm font-medium mb-2 ${
+                    darkMode ? "text-gray-300" : "text-gray-700"
+                  }`}
+                >
+                  NPSN
+                </label>
+                <input
+                  type="text"
+                  value={schoolData?.npsn ?? "Memuat..."}
+                  readOnly
+                  className={`w-full px-3 py-2 border rounded-md bg-gray-100 cursor-not-allowed ${
+                    darkMode
+                      ? "bg-gray-600 border-gray-500 text-gray-300"
+                      : "bg-gray-100 border-gray-300 text-gray-500"
+                  }`}
+                />
               </div>
             </div>
           </div>
+        </div>
 
-          {/* System Settings */}
+        {/* System Settings */}
+        <div className="space-y-6">
           <div
             className={`${
               darkMode ? "bg-gray-800" : "bg-white"
@@ -141,58 +210,6 @@ export default function SettingsContent({
               </h3>
             </div>
             <div className="p-6 space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p
-                    className={`text-sm font-medium ${
-                      darkMode ? "text-gray-100" : "text-gray-900"
-                    }`}
-                  >
-                    Notifikasi Email
-                  </p>
-                  <p
-                    className={`text-sm ${
-                      darkMode ? "text-gray-400" : "text-gray-500"
-                    }`}
-                  >
-                    Terima notifikasi untuk hasil tes baru
-                  </p>
-                </div>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    className="sr-only peer"
-                    defaultChecked
-                  />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-red-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-600"></div>
-                </label>
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p
-                    className={`text-sm font-medium ${
-                      darkMode ? "text-gray-100" : "text-gray-900"
-                    }`}
-                  >
-                    Auto Backup
-                  </p>
-                  <p
-                    className={`text-sm ${
-                      darkMode ? "text-gray-400" : "text-gray-500"
-                    }`}
-                  >
-                    Backup otomatis data setiap hari
-                  </p>
-                </div>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    className="sr-only peer"
-                    defaultChecked
-                  />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-red-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-600"></div>
-                </label>
-              </div>
               <div className="flex items-center justify-between">
                 <div>
                   <p
@@ -229,7 +246,7 @@ export default function SettingsContent({
             </div>
           </div>
 
-          {/* Security Settings */}
+          {/* Password Change */}
           <div
             className={`${
               darkMode ? "bg-gray-800" : "bg-white"
@@ -245,275 +262,82 @@ export default function SettingsContent({
                   darkMode ? "text-gray-100" : "text-gray-900"
                 }`}
               >
-                Keamanan
+                Ubah Password
               </h3>
             </div>
             <div className="p-6 space-y-4">
-              <div>
-                <label
-                  className={`block text-sm font-medium mb-2 ${
-                    darkMode ? "text-gray-300" : "text-gray-700"
-                  }`}
-                >
-                  Password Lama
-                </label>
-                <input
-                  type="password"
-                  placeholder="Masukkan password lama"
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-red-500 focus:border-red-500 ${
-                    darkMode
-                      ? "bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-300"
-                      : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
-                  }`}
-                />
-              </div>
-              <div>
-                <label
-                  className={`block text-sm font-medium mb-2 ${
-                    darkMode ? "text-gray-300" : "text-gray-700"
-                  }`}
-                >
-                  Password Baru
-                </label>
-                <input
-                  type="password"
-                  placeholder="Masukkan password baru"
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-red-500 focus:border-red-500 ${
-                    darkMode
-                      ? "bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-300"
-                      : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
-                  }`}
-                />
-              </div>
-              <div>
-                <label
-                  className={`block text-sm font-medium mb-2 ${
-                    darkMode ? "text-gray-300" : "text-gray-700"
-                  }`}
-                >
-                  Konfirmasi Password Baru
-                </label>
-                <input
-                  type="password"
-                  placeholder="Konfirmasi password baru"
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-red-500 focus:border-red-500 ${
-                    darkMode
-                      ? "bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-300"
-                      : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
-                  }`}
-                />
-              </div>
-              <button className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors">
-                Ubah Password
-              </button>
-            </div>
-          </div>
-        </div>
+              <form onSubmit={handlePasswordSubmit} className="space-y-4">
+                <div>
+                  <label
+                    className={`block text-sm font-medium mb-2 ${
+                      darkMode ? "text-gray-300" : "text-gray-700"
+                    }`}
+                  >
+                    Password Baru
+                  </label>
+                  <input
+                    type="password"
+                    name="newPassword"
+                    value={passwordData.newPassword}
+                    onChange={handlePasswordChange}
+                    placeholder="Masukkan password baru"
+                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-red-500 focus:border-red-500 ${
+                      darkMode
+                        ? "bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-300"
+                        : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
+                    }`}
+                    disabled={passwordLoading}
+                  />
+                </div>
+                <div>
+                  <label
+                    className={`block text-sm font-medium mb-2 ${
+                      darkMode ? "text-gray-300" : "text-gray-700"
+                    }`}
+                  >
+                    Konfirmasi Password Baru
+                  </label>
+                  <input
+                    type="password"
+                    name="confirmPassword"
+                    value={passwordData.confirmPassword}
+                    onChange={handlePasswordChange}
+                    placeholder="Konfirmasi password baru"
+                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-red-500 focus:border-red-500 ${
+                      darkMode
+                        ? "bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-300"
+                        : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
+                    }`}
+                    disabled={passwordLoading}
+                  />
+                </div>
 
-        {/* Quick Actions */}
-        <div className="space-y-6">
-          <div
-            className={`${
-              darkMode ? "bg-gray-800" : "bg-white"
-            } rounded-lg shadow`}
-          >
-            <div
-              className={`px-6 py-4 border-b ${
-                darkMode ? "border-gray-700" : "border-gray-200"
-              }`}
-            >
-              <h3
-                className={`text-lg font-semibold ${
-                  darkMode ? "text-gray-100" : "text-gray-900"
-                }`}
-              >
-                Aksi Cepat
-              </h3>
-            </div>
-            <div className="p-6 space-y-3">
-              <button
-                className={`w-full text-left px-4 py-3 rounded-lg transition-colors ${
-                  darkMode
-                    ? "bg-red-900/50 text-red-300 hover:bg-red-800/50"
-                    : "bg-red-50 text-red-700 hover:bg-red-100"
-                }`}
-              >
-                <div className="flex items-center">
-                  <svg
-                    className="w-5 h-5 mr-3"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0L8 8m4-4v12"
-                    />
-                  </svg>
-                  Export Data Siswa
-                </div>
-              </button>
-              <button
-                className={`w-full text-left px-4 py-3 rounded-lg transition-colors ${
-                  darkMode
-                    ? "bg-green-900/50 text-green-300 hover:bg-green-800/50"
-                    : "bg-green-50 text-green-700 hover:bg-green-100"
-                }`}
-              >
-                <div className="flex items-center">
-                  <svg
-                    className="w-5 h-5 mr-3"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
-                    />
-                  </svg>
-                  Import Data Siswa
-                </div>
-              </button>
-              <button
-                className={`w-full text-left px-4 py-3 rounded-lg transition-colors ${
-                  darkMode
-                    ? "bg-yellow-900/50 text-yellow-300 hover:bg-yellow-800/50"
-                    : "bg-yellow-50 text-yellow-700 hover:bg-yellow-100"
-                }`}
-              >
-                <div className="flex items-center">
-                  <svg
-                    className="w-5 h-5 mr-3"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                    />
-                  </svg>
-                  Generate Laporan
-                </div>
-              </button>
-              <button
-                className={`w-full text-left px-4 py-3 rounded-lg transition-colors ${
-                  darkMode
-                    ? "bg-purple-900/50 text-purple-300 hover:bg-purple-800/50"
-                    : "bg-purple-50 text-purple-700 hover:bg-purple-100"
-                }`}
-              >
-                <div className="flex items-center">
-                  <svg
-                    className="w-5 h-5 mr-3"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"
-                    />
-                  </svg>
-                  Backup Data
-                </div>
-              </button>
-            </div>
-          </div>
+                {/* Error Message */}
+                {passwordError && (
+                  <div className="p-3 bg-red-50 border border-red-200 rounded-md">
+                    <p className="text-sm text-red-600">{passwordError}</p>
+                  </div>
+                )}
 
-          {/* System Info */}
-          <div
-            className={`${
-              darkMode ? "bg-gray-800" : "bg-white"
-            } rounded-lg shadow`}
-          >
-            <div
-              className={`px-6 py-4 border-b ${
-                darkMode ? "border-gray-700" : "border-gray-200"
-              }`}
-            >
-              <h3
-                className={`text-lg font-semibold ${
-                  darkMode ? "text-gray-100" : "text-gray-900"
-                }`}
-              >
-                Info Sistem
-              </h3>
-            </div>
-            <div className="p-6 space-y-3">
-              <div className="flex justify-between">
-                <span
-                  className={`text-sm ${
-                    darkMode ? "text-gray-400" : "text-gray-600"
-                  }`}
+                {/* Success Message */}
+                {passwordSuccess && (
+                  <div className="p-3 bg-green-50 border border-green-200 rounded-md">
+                    <p className="text-sm text-green-600">{passwordSuccess}</p>
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={passwordLoading}
+                  className={`w-full px-4 py-2 rounded-lg transition-colors ${
+                    passwordLoading
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : "bg-red-600 hover:bg-red-700"
+                  } text-white`}
                 >
-                  Versi Sistem
-                </span>
-                <span
-                  className={`text-sm font-medium ${
-                    darkMode ? "text-gray-100" : "text-gray-900"
-                  }`}
-                >
-                  v1.0.0
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span
-                  className={`text-sm ${
-                    darkMode ? "text-gray-400" : "text-gray-600"
-                  }`}
-                >
-                  Last Backup
-                </span>
-                <span
-                  className={`text-sm font-medium ${
-                    darkMode ? "text-gray-100" : "text-gray-900"
-                  }`}
-                >
-                  2024-01-20
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span
-                  className={`text-sm ${
-                    darkMode ? "text-gray-400" : "text-gray-600"
-                  }`}
-                >
-                  Storage Used
-                </span>
-                <span
-                  className={`text-sm font-medium ${
-                    darkMode ? "text-gray-100" : "text-gray-900"
-                  }`}
-                >
-                  2.5 GB
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span
-                  className={`text-sm ${
-                    darkMode ? "text-gray-400" : "text-gray-600"
-                  }`}
-                >
-                  Active Users
-                </span>
-                <span
-                  className={`text-sm font-medium ${
-                    darkMode ? "text-gray-100" : "text-gray-900"
-                  }`}
-                >
-                  150 siswa
-                </span>
-              </div>
+                  {passwordLoading ? "Mengubah Password..." : "Ubah Password"}
+                </button>
+              </form>
             </div>
           </div>
         </div>

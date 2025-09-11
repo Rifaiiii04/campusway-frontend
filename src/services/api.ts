@@ -374,7 +374,20 @@ export const apiService = {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Login gagal");
+        // Provide more specific error messages based on status code
+        if (response.status === 401) {
+          throw new Error("NPSN atau password salah");
+        } else if (response.status === 404) {
+          throw new Error("NPSN tidak ditemukan");
+        } else if (response.status === 422) {
+          throw new Error(data.message || "Data tidak valid");
+        } else if (response.status >= 500) {
+          throw new Error(
+            "Server sedang mengalami masalah. Silakan coba lagi nanti"
+          );
+        } else {
+          throw new Error(data.message || "Login gagal");
+        }
       }
 
       return data;
@@ -846,7 +859,20 @@ export const studentApiService = {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Login gagal");
+        // Provide more specific error messages based on status code
+        if (response.status === 401) {
+          throw new Error("NISN atau password salah");
+        } else if (response.status === 404) {
+          throw new Error("NISN tidak ditemukan");
+        } else if (response.status === 422) {
+          throw new Error(data.message || "Data tidak valid");
+        } else if (response.status >= 500) {
+          throw new Error(
+            "Server sedang mengalami masalah. Silakan coba lagi nanti"
+          );
+        } else {
+          throw new Error(data.message || "Login gagal");
+        }
       }
 
       return data;
