@@ -1740,7 +1740,7 @@ export default function StudentDashboardClient() {
                         Pengaturan
                       </h3>
                       <p className="text-gray-600 text-sm">
-                        Kelola pengaturan akun dan preferensi
+                        Kelola pengaturan akun dan pilihan
                       </p>
                     </div>
                   </div>

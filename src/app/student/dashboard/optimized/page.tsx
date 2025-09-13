@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import PageTitle from "../../../../components/PageTitle";
 import { useMajors, useStudentChoice } from "../../../../hooks/useMajors";
 import { studentApiService } from "../../../../services/api";
+import StudentSubjectsDisplay from "../../../../components/student/StudentSubjectsDisplay";
 
 interface StudentData {
   id: number;
@@ -43,6 +44,7 @@ export default function OptimizedStudentDashboardPage() {
   } | null>(null);
   const [error, setError] = useState("");
   const [selectedRumpunIlmu, setSelectedRumpunIlmu] = useState("all");
+  const [showSubjects, setShowSubjects] = useState(false);
 
   // Use SWR hooks for data fetching with caching
   const { majors: availableMajors, isLoading: loadingMajors } = useMajors();
@@ -291,8 +293,16 @@ export default function OptimizedStudentDashboardPage() {
                         </p>
                       )}
                     </div>
-                    <div className="text-green-600">
-                      <span className="text-2xl">✅</span>
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={() => setShowSubjects(true)}
+                        className="px-3 py-1 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
+                      >
+                        Lihat Mata Uji
+                      </button>
+                      <div className="text-green-600">
+                        <span className="text-2xl">✅</span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -498,6 +508,18 @@ export default function OptimizedStudentDashboardPage() {
                 </svg>
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Student Subjects Modal */}
+      {showSubjects && studentData && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-4 mx-auto p-5 border w-11/12 max-w-6xl shadow-lg rounded-md bg-white">
+            <StudentSubjectsDisplay
+              studentId={studentData.id}
+              onClose={() => setShowSubjects(false)}
+            />
           </div>
         </div>
       )}

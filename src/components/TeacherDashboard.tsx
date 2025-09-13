@@ -707,6 +707,7 @@ export default function TeacherDashboard() {
             students={students}
             darkMode={darkMode}
             onAddStudent={openAddStudentModal}
+            schoolId={schoolId}
           />
         );
       case "classes":

@@ -4,23 +4,27 @@ import { useState } from "react";
 import DeleteConfirmationModal from "../modals/DeleteConfirmationModal";
 import EditStudentModal from "../modals/EditStudentModal";
 import StudentDetailModal from "../modals/StudentDetailModal";
+import ImportStudentsModal from "../modals/ImportStudentsModal";
 import { Student, apiService } from "../../services/api";
 
 interface StudentsContentProps {
   students: Student[];
   darkMode: boolean;
   onAddStudent: () => void;
+  schoolId: number;
 }
 
 export default function StudentsContent({
   students,
   darkMode,
   onAddStudent,
+  schoolId,
 }: StudentsContentProps) {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [viewingStudent, setViewingStudent] = useState<Student | null>(null);
 
@@ -139,6 +143,20 @@ export default function StudentsContent({
     setShowDetailModal(false);
     setViewingStudent(null);
   };
+
+  const handleImportClick = () => {
+    setShowImportModal(true);
+  };
+
+  const handleImportCancel = () => {
+    setShowImportModal(false);
+  };
+
+  const handleImportSuccess = () => {
+    setShowImportModal(false);
+    // Refresh the page to show updated data
+    window.location.reload();
+  };
   return (
     <div className="space-y-6">
       {/* Header dengan tombol tambah */}
@@ -149,6 +167,12 @@ export default function StudentsContent({
             className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
           >
             + Tambah Siswa
+          </button>
+          <button
+            onClick={handleImportClick}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            📥 Import Excel/CSV
           </button>
         </div>
       </div>
@@ -515,6 +539,14 @@ export default function StudentsContent({
         onClose={handleDetailClose}
         student={viewingStudent}
         darkMode={darkMode}
+      />
+
+      {/* Import Students Modal */}
+      <ImportStudentsModal
+        isOpen={showImportModal}
+        onClose={handleImportCancel}
+        onImportSuccess={handleImportSuccess}
+        schoolId={schoolId}
       />
     </div>
   );

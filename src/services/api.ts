@@ -693,6 +693,57 @@ export const apiService = {
     return data;
   },
 
+  // Import Students
+  async importStudents(formData: FormData) {
+    const response = await fetch(`${API_BASE_URL}/students/import`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+      body: formData,
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || "Gagal mengimport data siswa");
+    }
+
+    return data;
+  },
+
+  // Download Import Template
+  async downloadImportTemplate() {
+    const response = await fetch(`${API_BASE_URL}/students/import/template`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Gagal mengunduh template");
+    }
+
+    return response;
+  },
+
+  // Get Import Rules
+  async getImportRules() {
+    const response = await fetch(`${API_BASE_URL}/students/import/rules`, {
+      method: "GET",
+      headers: getAuthHeaders(),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || "Gagal mengambil aturan import");
+    }
+
+    return data;
+  },
+
   // Get ArahPotensi Schedules
   async getTkaSchedules(
     schoolId?: number
@@ -1138,6 +1189,60 @@ export const studentApiService = {
       console.error("❌ Upcoming ArahPotensi Schedules API error:", error);
       // Return empty data instead of throwing error to prevent UI crashes
       return { success: true, data: [] };
+    }
+  },
+
+  // Get Student Subjects based on major choice
+  async getStudentSubjects(studentId: number) {
+    try {
+      const response = await fetch(
+        `${STUDENT_API_BASE_URL}/student-subjects/${studentId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Gagal mengambil mata pelajaran siswa");
+      }
+
+      return data;
+    } catch (error) {
+      console.error("Error getting student subjects:", error);
+      throw error;
+    }
+  },
+
+  // Get Subjects for Major (preview)
+  async getSubjectsForMajor(majorId: number, educationLevel: string) {
+    try {
+      const response = await fetch(
+        `${STUDENT_API_BASE_URL}/subjects-for-major?major_id=${majorId}&education_level=${educationLevel}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.message || "Gagal mengambil mata pelajaran untuk jurusan"
+        );
+      }
+
+      return data;
+    } catch (error) {
+      console.error("Error getting subjects for major:", error);
+      throw error;
     }
   },
 };
