@@ -362,12 +362,15 @@ export default function TeacherDashboard() {
     setShowAddClassModal(false);
   };
 
-  const handleAddClass = (classData: { name: string; grade: string }) => {
+  const handleAddClass = (classData: { name: string }) => {
     // Simulasi penambahan kelas
     console.log("Menambahkan kelas baru:", classData);
 
     // Tampilkan notifikasi sukses
-    alert("Kelas berhasil ditambahkan!");
+    alert(`Kelas "${classData.name}" berhasil ditambahkan!`);
+
+    // Refresh data siswa untuk menampilkan kelas baru
+    loadStudents(true);
   };
 
   const handleLogout = () => {

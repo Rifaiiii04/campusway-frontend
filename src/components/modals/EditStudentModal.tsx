@@ -203,29 +203,26 @@ export default function EditStudentModal({
                 >
                   Kelas <span className="text-red-500">*</span>
                 </label>
-                <select
+                <input
+                  type="text"
                   required
                   value={editedStudent.class}
                   onChange={(e) => handleInputChange("class", e.target.value)}
+                  placeholder="Contoh: XII TKJ 1, XI TKRO 2, X MM 1, dll"
                   className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all duration-200 ${
                     darkMode
                       ? "bg-gray-700 border-gray-600 text-gray-100 hover:border-gray-500"
                       : "bg-white border-gray-300 text-gray-900 hover:border-gray-400"
                   }`}
+                />
+                <p
+                  className={`text-xs mt-1 ${
+                    darkMode ? "text-gray-400" : "text-gray-500"
+                  }`}
                 >
-                  <option value="X IPA 1">X IPA 1</option>
-                  <option value="X IPA 2">X IPA 2</option>
-                  <option value="X IPS 1">X IPS 1</option>
-                  <option value="X IPS 2">X IPS 2</option>
-                  <option value="XI IPA 1">XI IPA 1</option>
-                  <option value="XI IPA 2">XI IPA 2</option>
-                  <option value="XI IPS 1">XI IPS 1</option>
-                  <option value="XI IPS 2">XI IPS 2</option>
-                  <option value="XII IPA 1">XII IPA 1</option>
-                  <option value="XII IPA 2">XII IPA 2</option>
-                  <option value="XII IPS 1">XII IPS 1</option>
-                  <option value="XII IPS 2">XII IPS 2</option>
-                </select>
+                  Masukkan kelas sesuai dengan sistem sekolah (SMK: XII
+                  TKJ/AK/MM, SMA: XII IPA/IPS, dll)
+                </p>
               </div>
 
               <div>
