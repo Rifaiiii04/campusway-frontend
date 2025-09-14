@@ -34,19 +34,46 @@ export default function TeacherDashboardClient() {
       const token = localStorage.getItem("school_token");
       const storedSchoolData = localStorage.getItem("school_data");
 
-      if (token && storedSchoolData) {
-        const parsedSchoolData = JSON.parse(storedSchoolData);
-        setSchoolData(parsedSchoolData);
-        setIsAuthenticated(true);
+      console.log("🔍 Checking authentication:", {
+        hasToken: !!token,
+        hasSchoolData: !!storedSchoolData,
+        schoolDataValue: storedSchoolData,
+      });
+
+      if (
+        token &&
+        storedSchoolData &&
+        storedSchoolData !== "undefined" &&
+        storedSchoolData !== "null" &&
+        storedSchoolData.trim() !== ""
+      ) {
+        try {
+          const parsedSchoolData = JSON.parse(storedSchoolData);
+          console.log("✅ Successfully parsed school data:", parsedSchoolData);
+          setSchoolData(parsedSchoolData);
+          setIsAuthenticated(true);
+        } catch (parseError) {
+          console.error("❌ JSON parse error:", parseError);
+          console.log("🔍 Problematic data:", storedSchoolData);
+          // Clear invalid data
+          localStorage.removeItem("school_token");
+          localStorage.removeItem("school_data");
+          setIsAuthenticated(false);
+          router.push("/login");
+        }
       } else {
+        console.log(
+          "⚠️ Missing or invalid authentication data, redirecting to login"
+        );
         // Redirect ke halaman login jika tidak ada token
         router.push("/login");
       }
     } catch (error) {
-      console.error("Error parsing school data:", error);
+      console.error("❌ Error in authentication check:", error);
       // Jika data tidak valid, hapus dan redirect ke login
       localStorage.removeItem("school_token");
       localStorage.removeItem("school_data");
+      setIsAuthenticated(false);
       router.push("/login");
     } finally {
       setLoading(false);

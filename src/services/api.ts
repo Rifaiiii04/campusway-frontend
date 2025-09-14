@@ -439,7 +439,10 @@ export const apiService = {
     }
 
     const schoolData = localStorage.getItem("school_data");
-    const schoolId = schoolData ? JSON.parse(schoolData).id : "unknown";
+    const schoolId =
+      schoolData && schoolData !== "undefined" && schoolData !== "null"
+        ? JSON.parse(schoolData).id
+        : "unknown";
 
     return fetchWithCache(
       `${API_BASE_URL}/dashboard`,
@@ -461,7 +464,10 @@ export const apiService = {
     }
 
     const schoolData = localStorage.getItem("school_data");
-    const schoolId = schoolData ? JSON.parse(schoolData).id : "unknown";
+    const schoolId =
+      schoolData && schoolData !== "undefined" && schoolData !== "null"
+        ? JSON.parse(schoolData).id
+        : "unknown";
 
     // If force refresh, bypass cache
     if (forceRefresh) {

@@ -26,7 +26,7 @@ interface ImportResult {
   }>;
   errors: Array<{
     row: number;
-    data: any;
+    data: Record<string, unknown>;
     errors: string[];
   }>;
 }

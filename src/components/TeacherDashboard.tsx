@@ -248,7 +248,7 @@ export default function TeacherDashboard() {
       );
       loadTkaSchedules(schoolId);
     }
-  }, []); // Run only on mount
+  }, [schoolId, loadTkaSchedules]); // Include dependencies
 
   // Load ArahPotensi schedules when schoolId changes
   useEffect(() => {
@@ -267,7 +267,7 @@ export default function TeacherDashboard() {
     } else {
       console.log("⚠️ No schoolId available for ArahPotensi schedules");
     }
-  }, [schoolId]); // Remove loadTkaSchedules from dependencies to prevent infinite loops
+  }, [schoolId, loadTkaSchedules]); // Include loadTkaSchedules dependency
 
   // Load ArahPotensi schedules on component mount and window focus
   useEffect(() => {
@@ -291,7 +291,7 @@ export default function TeacherDashboard() {
         window.removeEventListener("focus", handleFocus);
       };
     }
-  }, [schoolId, activeMenu]); // Remove loadTkaSchedules from dependencies
+  }, [schoolId, activeMenu, loadTkaSchedules]); // Include loadTkaSchedules dependency
 
   const handleClassClick = (classItem: {
     kelas: string;
@@ -307,7 +307,7 @@ export default function TeacherDashboard() {
       console.log("🔄 Manually refreshing ArahPotensi schedules...");
       await loadTkaSchedules(schoolId);
     }
-  }, [schoolId]); // Remove loadTkaSchedules from dependencies
+  }, [schoolId, loadTkaSchedules]); // Include loadTkaSchedules dependency
 
   // Handle menu change and refresh ArahPotensi schedules when ArahPotensi menu is selected
   const handleMenuChange = (menuId: string) => {
@@ -702,13 +702,17 @@ export default function TeacherDashboard() {
   const renderContent = () => {
     switch (activeMenu) {
       case "students":
-        return (
+        return schoolId ? (
           <StudentsContent
             students={students}
             darkMode={darkMode}
             onAddStudent={openAddStudentModal}
             schoolId={schoolId}
           />
+        ) : (
+          <div className="text-center text-gray-500 p-8">
+            School ID tidak tersedia
+          </div>
         );
       case "classes":
         return (

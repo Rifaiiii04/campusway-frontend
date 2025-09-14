@@ -4,7 +4,7 @@ import { useState } from "react";
 import DeleteConfirmationModal from "../modals/DeleteConfirmationModal";
 import EditStudentModal from "../modals/EditStudentModal";
 import StudentDetailModal from "../modals/StudentDetailModal";
-import ImportStudentsModal from "../modals/ImportStudentsModal";
+import ComingSoonModal from "../modals/ComingSoonModal";
 import { Student, apiService } from "../../services/api";
 
 interface StudentsContentProps {
@@ -18,13 +18,13 @@ export default function StudentsContent({
   students,
   darkMode,
   onAddStudent,
-  schoolId,
+  schoolId: _schoolId, // Prefixed with underscore to indicate intentionally unused
 }: StudentsContentProps) {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
-  const [showImportModal, setShowImportModal] = useState(false);
+  const [showComingSoonModal, setShowComingSoonModal] = useState(false);
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [viewingStudent, setViewingStudent] = useState<Student | null>(null);
 
@@ -145,18 +145,13 @@ export default function StudentsContent({
   };
 
   const handleImportClick = () => {
-    setShowImportModal(true);
+    setShowComingSoonModal(true);
   };
 
-  const handleImportCancel = () => {
-    setShowImportModal(false);
+  const handleComingSoonClose = () => {
+    setShowComingSoonModal(false);
   };
 
-  const handleImportSuccess = () => {
-    setShowImportModal(false);
-    // Refresh the page to show updated data
-    window.location.reload();
-  };
   return (
     <div className="space-y-6">
       {/* Header dengan tombol tambah */}
@@ -541,12 +536,12 @@ export default function StudentsContent({
         darkMode={darkMode}
       />
 
-      {/* Import Students Modal */}
-      <ImportStudentsModal
-        isOpen={showImportModal}
-        onClose={handleImportCancel}
-        onImportSuccess={handleImportSuccess}
-        schoolId={schoolId}
+      {/* Coming Soon Modal */}
+      <ComingSoonModal
+        isOpen={showComingSoonModal}
+        onClose={handleComingSoonClose}
+        feature="Import Data Siswa"
+        description="Fitur import data siswa dari file Excel/CSV sedang dalam pengembangan. Anda dapat menambahkan siswa secara manual menggunakan tombol 'Tambah Siswa'."
       />
     </div>
   );

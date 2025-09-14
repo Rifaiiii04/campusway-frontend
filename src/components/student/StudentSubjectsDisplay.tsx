@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { studentApiService } from "../../services/api";
 
 interface Subject {
@@ -32,6 +32,13 @@ interface StudentSubjectsData {
     optional: Subject[];
     total_count: number;
   };
+  curriculum: {
+    merdeka: string[];
+    "2013_ipa": string[];
+    "2013_ips": string[];
+    "2013_bahasa": string[];
+  };
+  career_prospects: string;
   rules: {
     mandatory_count: number;
     mandatory_subjects: string[];
@@ -54,11 +61,7 @@ export default function StudentSubjectsDisplay({
   const [data, setData] = useState<StudentSubjectsData | null>(null);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    loadStudentSubjects();
-  }, [studentId]);
-
-  const loadStudentSubjects = async () => {
+  const loadStudentSubjects = useCallback(async () => {
     try {
       setLoading(true);
       const response = await studentApiService.getStudentSubjects(studentId);
@@ -74,7 +77,11 @@ export default function StudentSubjectsDisplay({
     } finally {
       setLoading(false);
     }
-  };
+  }, [studentId]);
+
+  useEffect(() => {
+    loadStudentSubjects();
+  }, [loadStudentSubjects]);
 
   if (loading) {
     return (
@@ -300,6 +307,117 @@ export default function StudentSubjectsDisplay({
           ))}
         </div>
       </div>
+
+      {/* Curriculum Subjects */}
+      <div className="mb-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+          <span className="w-8 h-8 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center text-sm font-bold mr-3">
+            📚
+          </span>
+          Mata Pelajaran Kurikulum
+        </h3>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Kurikulum Merdeka */}
+          <div className="border border-purple-200 rounded-lg p-4 bg-purple-50">
+            <h4 className="font-medium text-purple-800 mb-3 flex items-center">
+              <span className="w-6 h-6 bg-purple-200 text-purple-600 rounded-full flex items-center justify-center text-xs font-bold mr-2">
+                M
+              </span>
+              Kurikulum Merdeka
+            </h4>
+            {data.curriculum.merdeka && data.curriculum.merdeka.length > 0 ? (
+              <div className="space-y-2">
+                {data.curriculum.merdeka.map((subject, index) => (
+                  <div key={index} className="text-sm text-purple-700 bg-white rounded px-3 py-2 border border-purple-100">
+                    {subject}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-purple-500 italic">Belum ada mata pelajaran kurikulum merdeka</p>
+            )}
+          </div>
+
+          {/* Kurikulum 2013 - IPA */}
+          <div className="border border-green-200 rounded-lg p-4 bg-green-50">
+            <h4 className="font-medium text-green-800 mb-3 flex items-center">
+              <span className="w-6 h-6 bg-green-200 text-green-600 rounded-full flex items-center justify-center text-xs font-bold mr-2">
+                I
+              </span>
+              Kurikulum 2013 - IPA
+            </h4>
+            {data.curriculum["2013_ipa"] && data.curriculum["2013_ipa"].length > 0 ? (
+              <div className="space-y-2">
+                {data.curriculum["2013_ipa"].map((subject, index) => (
+                  <div key={index} className="text-sm text-green-700 bg-white rounded px-3 py-2 border border-green-100">
+                    {subject}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-green-500 italic">Belum ada mata pelajaran kurikulum 2013 IPA</p>
+            )}
+          </div>
+
+          {/* Kurikulum 2013 - IPS */}
+          <div className="border border-blue-200 rounded-lg p-4 bg-blue-50">
+            <h4 className="font-medium text-blue-800 mb-3 flex items-center">
+              <span className="w-6 h-6 bg-blue-200 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold mr-2">
+                S
+              </span>
+              Kurikulum 2013 - IPS
+            </h4>
+            {data.curriculum["2013_ips"] && data.curriculum["2013_ips"].length > 0 ? (
+              <div className="space-y-2">
+                {data.curriculum["2013_ips"].map((subject, index) => (
+                  <div key={index} className="text-sm text-blue-700 bg-white rounded px-3 py-2 border border-blue-100">
+                    {subject}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-blue-500 italic">Belum ada mata pelajaran kurikulum 2013 IPS</p>
+            )}
+          </div>
+
+          {/* Kurikulum 2013 - Bahasa */}
+          <div className="border border-orange-200 rounded-lg p-4 bg-orange-50">
+            <h4 className="font-medium text-orange-800 mb-3 flex items-center">
+              <span className="w-6 h-6 bg-orange-200 text-orange-600 rounded-full flex items-center justify-center text-xs font-bold mr-2">
+                B
+              </span>
+              Kurikulum 2013 - Bahasa
+            </h4>
+            {data.curriculum["2013_bahasa"] && data.curriculum["2013_bahasa"].length > 0 ? (
+              <div className="space-y-2">
+                {data.curriculum["2013_bahasa"].map((subject, index) => (
+                  <div key={index} className="text-sm text-orange-700 bg-white rounded px-3 py-2 border border-orange-100">
+                    {subject}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-orange-500 italic">Belum ada mata pelajaran kurikulum 2013 Bahasa</p>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Career Prospects */}
+      {data.career_prospects && (
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+            <span className="w-8 h-8 bg-yellow-100 text-yellow-600 rounded-full flex items-center justify-center text-sm font-bold mr-3">
+              💼
+            </span>
+            Prospek Karir
+          </h3>
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+            <p className="text-yellow-800">{data.career_prospects}</p>
+          </div>
+        </div>
+      )}
 
       {/* Summary */}
       <div className="bg-gray-50 rounded-lg p-4">
