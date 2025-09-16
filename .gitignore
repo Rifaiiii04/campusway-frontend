@@ -39,3 +39,182 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# ===========================================
+# SENSITIVE DATA FILES - DO NOT COMMIT
+# ===========================================
+# Personal data files containing sensitive information
+src/data/guru.json
+src/data/siswa.json
+src/data/soal.json
+
+# ===========================================
+# DEVELOPMENT & TESTING FILES
+# ===========================================
+# Batch files for development
+*.bat
+*.ps1
+
+# Test HTML files
+test*.html
+*test*.html
+
+# Test JavaScript files
+test*.js
+*test*.js
+verify_*.js
+check_*.js
+clear_*.js
+force_*.js
+
+# Development utilities
+add-pusmendik-data.html
+clear-localStorage.html
+
+# ===========================================
+# DOCUMENTATION & NOTES
+# ===========================================
+# Development documentation and notes
+FIX_*.md
+NETWORK-*.md
+TKA-*.md
+MODAL-*.md
+PUSMENDIK-*.md
+
+# ===========================================
+# IDE & EDITOR FILES
+# ===========================================
+# VS Code
+.vscode/
+*.code-workspace
+
+# JetBrains IDEs
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# ===========================================
+# OS GENERATED FILES
+# ===========================================
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# ===========================================
+# LOGS & CACHE
+# ===========================================
+# Log files
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# nyc test coverage
+.nyc_output
+
+# ===========================================
+# TEMPORARY FILES
+# ===========================================
+# Temporary folders
+tmp/
+temp/
+.tmp/
+.temp/
+
+# ===========================================
+# SECURITY & CONFIGURATION
+# ===========================================
+# Local configuration files
+config.local.*
+*.local.*
+
+# API keys and secrets
+secrets.json
+api-keys.json
+.secrets/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# ===========================================
+# BUILD & DIST FILES
+# ===========================================
+# Build outputs
+dist/
+build/
+out/
+
+# Package files
+*.tgz
+*.tar.gz
