@@ -711,6 +711,7 @@ export default function TeacherDashboard() {
             darkMode={darkMode}
             onAddStudent={openAddStudentModal}
             schoolId={schoolId}
+            onImportSuccess={() => loadStudents(true)}
           />
         ) : (
           <div className="text-center text-gray-500 p-8">

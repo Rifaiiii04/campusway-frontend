@@ -701,10 +701,15 @@ export const apiService = {
 
   // Import Students
   async importStudents(formData: FormData) {
-    const response = await fetch(`${API_BASE_URL}/students/import`, {
+    const token = getToken();
+    if (!token) {
+      throw new Error("Token tidak ditemukan");
+    }
+
+    const response = await fetch(`${API_BASE_URL}/import-students`, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
+        Authorization: `Bearer ${token}`,
       },
       body: formData,
     });
@@ -720,10 +725,15 @@ export const apiService = {
 
   // Download Import Template
   async downloadImportTemplate() {
-    const response = await fetch(`${API_BASE_URL}/students/import/template`, {
+    const token = getToken();
+    if (!token) {
+      throw new Error("Token tidak ditemukan");
+    }
+
+    const response = await fetch(`${API_BASE_URL}/import-template`, {
       method: "GET",
       headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
+        Authorization: `Bearer ${token}`,
       },
     });
 
@@ -736,7 +746,7 @@ export const apiService = {
 
   // Get Import Rules
   async getImportRules() {
-    const response = await fetch(`${API_BASE_URL}/students/import/rules`, {
+    const response = await fetch(`${API_BASE_URL}/import-rules`, {
       method: "GET",
       headers: getAuthHeaders(),
     });

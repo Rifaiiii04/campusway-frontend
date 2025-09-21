@@ -4,7 +4,7 @@ import { useState } from "react";
 import DeleteConfirmationModal from "../modals/DeleteConfirmationModal";
 import EditStudentModal from "../modals/EditStudentModal";
 import StudentDetailModal from "../modals/StudentDetailModal";
-import ComingSoonModal from "../modals/ComingSoonModal";
+import ImportStudentsModal from "../modals/ImportStudentsModal";
 import { Student, apiService } from "../../services/api";
 
 interface StudentsContentProps {
@@ -12,19 +12,21 @@ interface StudentsContentProps {
   darkMode: boolean;
   onAddStudent: () => void;
   schoolId: number;
+  onImportSuccess?: () => void;
 }
 
 export default function StudentsContent({
   students,
   darkMode,
   onAddStudent,
-  schoolId: _schoolId, // Prefixed with underscore to indicate intentionally unused
+  schoolId,
+  onImportSuccess,
 }: StudentsContentProps) {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
-  const [showComingSoonModal, setShowComingSoonModal] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [viewingStudent, setViewingStudent] = useState<Student | null>(null);
 
@@ -145,11 +147,17 @@ export default function StudentsContent({
   };
 
   const handleImportClick = () => {
-    setShowComingSoonModal(true);
+    setShowImportModal(true);
   };
 
-  const handleComingSoonClose = () => {
-    setShowComingSoonModal(false);
+  const handleImportClose = () => {
+    setShowImportModal(false);
+  };
+
+  const handleImportSuccess = () => {
+    if (onImportSuccess) {
+      onImportSuccess();
+    }
   };
 
   return (
@@ -536,12 +544,13 @@ export default function StudentsContent({
         darkMode={darkMode}
       />
 
-      {/* Coming Soon Modal */}
-      <ComingSoonModal
-        isOpen={showComingSoonModal}
-        onClose={handleComingSoonClose}
-        feature="Import Data Siswa"
-        description="Fitur import data siswa dari file Excel/CSV sedang dalam pengembangan. Anda dapat menambahkan siswa secara manual menggunakan tombol 'Tambah Siswa'."
+      {/* Import Students Modal */}
+      <ImportStudentsModal
+        isOpen={showImportModal}
+        onClose={handleImportClose}
+        onImportSuccess={handleImportSuccess}
+        schoolId={schoolId}
+        darkMode={darkMode}
       />
     </div>
   );
