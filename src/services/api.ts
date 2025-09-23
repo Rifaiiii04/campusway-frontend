@@ -777,6 +777,21 @@ export const apiService = {
     return data;
   },
 
+  // Get Classes List
+  async getClasses() {
+    const response = await fetch(`${API_BASE_URL}/classes`, {
+      method: "GET",
+      headers: getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      throw new Error("Gagal mengambil daftar kelas");
+    }
+
+    const data = await response.json();
+    return data;
+  },
+
   // Get ArahPotensi Schedules
   async getTkaSchedules(
     schoolId?: number

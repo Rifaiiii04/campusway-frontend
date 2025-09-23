@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import DeleteConfirmationModal from "../modals/DeleteConfirmationModal";
 import EditStudentModal from "../modals/EditStudentModal";
 import StudentDetailModal from "../modals/StudentDetailModal";
@@ -22,6 +22,9 @@ export default function StudentsContent({
   schoolId,
   onImportSuccess,
 }: StudentsContentProps) {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedClass, setSelectedClass] = useState("");
+  const [selectedMajor, setSelectedMajor] = useState("");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -29,6 +32,49 @@ export default function StudentsContent({
   const [showImportModal, setShowImportModal] = useState(false);
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [viewingStudent, setViewingStudent] = useState<Student | null>(null);
+  const [classes, setClasses] = useState<{ name: string; value: string }[]>([]);
+  const [loadingClasses, setLoadingClasses] = useState(false);
+
+  // Load classes from API
+  useEffect(() => {
+    const loadClasses = async () => {
+      try {
+        setLoadingClasses(true);
+        const response = await apiService.getClasses();
+        if (response.success) {
+          setClasses(response.data.classes);
+        }
+      } catch (error) {
+        console.error("Error loading classes:", error);
+      } finally {
+        setLoadingClasses(false);
+      }
+    };
+
+    if (schoolId) {
+      loadClasses();
+    }
+  }, [schoolId]);
+
+  // Filter students based on search and filters
+  const filteredStudents = students.filter((student) => {
+    const matchesSearch =
+      student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      student.nisn.includes(searchTerm) ||
+      (student.email &&
+        student.email.toLowerCase().includes(searchTerm.toLowerCase()));
+
+    const matchesClass = !selectedClass || student.class === selectedClass;
+
+    const matchesMajor =
+      !selectedMajor ||
+      (student.chosen_major &&
+        student.chosen_major.name
+          .toLowerCase()
+          .includes(selectedMajor.toLowerCase()));
+
+    return matchesSearch && matchesClass && matchesMajor;
+  });
 
   const handleDeleteClick = (student: Student) => {
     setSelectedStudent(student);
@@ -197,6 +243,8 @@ export default function StudentsContent({
             </label>
             <input
               type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Masukkan nama atau NIS siswa..."
               className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 ${
                 darkMode
@@ -214,36 +262,30 @@ export default function StudentsContent({
               Kelas
             </label>
             <select
+              value={selectedClass}
+              onChange={(e) => setSelectedClass(e.target.value)}
               className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 ${
                 darkMode
                   ? "bg-gray-700 border-gray-600 text-gray-100"
                   : "bg-white border-gray-300 text-gray-900"
               }`}
+              disabled={loadingClasses}
             >
               <option
                 value=""
                 className={`${darkMode ? "text-gray-300" : "text-gray-500"}`}
               >
-                Semua Kelas
+                {loadingClasses ? "Memuat kelas..." : "Semua Kelas"}
               </option>
-              <option
-                value="X IPA 1"
-                className={`${darkMode ? "text-gray-100" : "text-gray-900"}`}
-              >
-                X IPA 1
-              </option>
-              <option
-                value="X IPA 2"
-                className={`${darkMode ? "text-gray-100" : "text-gray-900"}`}
-              >
-                X IPA 2
-              </option>
-              <option
-                value="X IPS 1"
-                className={`${darkMode ? "text-gray-100" : "text-gray-900"}`}
-              >
-                X IPS 1
-              </option>
+              {classes.map((classItem) => (
+                <option
+                  key={classItem.value}
+                  value={classItem.value}
+                  className={`${darkMode ? "text-gray-100" : "text-gray-900"}`}
+                >
+                  {classItem.name}
+                </option>
+              ))}
             </select>
           </div>
           <div>
@@ -281,6 +323,26 @@ export default function StudentsContent({
               </option>
             </select>
           </div>
+          <div>
+            <label
+              className={`block text-sm font-medium mb-2 ${
+                darkMode ? "text-gray-300" : "text-gray-700"
+              }`}
+            >
+              Cari Jurusan
+            </label>
+            <input
+              type="text"
+              value={selectedMajor}
+              onChange={(e) => setSelectedMajor(e.target.value)}
+              placeholder="Masukkan nama jurusan..."
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 ${
+                darkMode
+                  ? "bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-300"
+                  : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
+              }`}
+            />
+          </div>
         </div>
       </div>
 
@@ -298,7 +360,7 @@ export default function StudentsContent({
               darkMode ? "text-gray-100" : "text-gray-900"
             }`}
           >
-            Daftar Siswa ({students.length})
+            Daftar Siswa ({filteredStudents.length})
           </h3>
         </div>
         <div className="overflow-x-auto">
@@ -353,7 +415,7 @@ export default function StudentsContent({
                   : "bg-white divide-gray-200"
               } divide-y`}
             >
-              {students.map((student) => (
+              {filteredStudents.map((student) => (
                 <tr
                   key={student.id}
                   className={
