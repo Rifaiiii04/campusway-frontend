@@ -763,21 +763,6 @@ export default function TeacherDashboard() {
                 </div>
               </div>
 
-              {/* Debug Info */}
-              {process.env.NODE_ENV === "development" && (
-                <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-sm">
-                  <div className="font-semibold text-yellow-800">
-                    Debug Info:
-                  </div>
-                  <div>Loading: {loadingSchedules ? "Yes" : "No"}</div>
-                  <div>Total Schedules: {tkaSchedules.length}</div>
-                  <div>Upcoming Schedules: {upcomingSchedules.length}</div>
-                  <div>Schedules Loaded: {schedulesLoaded ? "Yes" : "No"}</div>
-                  <div>School ID: {schoolId}</div>
-                  <div>Active Menu: {activeMenu}</div>
-                </div>
-              )}
-
               {loadingSchedules ? (
                 <div className="flex items-center justify-center py-12">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600"></div>

@@ -730,15 +730,32 @@ export const apiService = {
       throw new Error("Token tidak ditemukan");
     }
 
+    console.log(
+      "🔍 Downloading template from:",
+      `${API_BASE_URL}/import-template`
+    );
+    console.log("🔍 Using token:", token ? "Token present" : "No token");
+
     const response = await fetch(`${API_BASE_URL}/import-template`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
+        Accept: "text/csv, application/csv, */*",
       },
     });
 
+    console.log("🔍 Response status:", response.status);
+    console.log(
+      "🔍 Response headers:",
+      Object.fromEntries(response.headers.entries())
+    );
+
     if (!response.ok) {
-      throw new Error("Gagal mengunduh template");
+      const errorText = await response.text();
+      console.error("❌ Template download error:", errorText);
+      throw new Error(
+        `Gagal mengunduh template: ${response.status} ${response.statusText}`
+      );
     }
 
     return response;

@@ -137,23 +137,35 @@ export default function ImportStudentsModal({
       setIsDownloadingTemplate(true);
       setError("");
 
+      console.log("🚀 Starting template download...");
       const response = await apiService.downloadImportTemplate();
 
+      console.log("📥 Response received, creating blob...");
       // Download file
       const blob = await response.blob();
+      console.log("📦 Blob created, size:", blob.size, "type:", blob.type);
+
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
       link.download = `template_import_siswa_${
         new Date().toISOString().split("T")[0]
       }.csv`;
+
+      console.log("🔗 Download link created, triggering download...");
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
+
+      console.log("✅ Template download completed successfully");
     } catch (error) {
-      console.error("Error downloading template:", error);
-      setError("Gagal mengunduh template. Silakan coba lagi.");
+      console.error("❌ Error downloading template:", error);
+      setError(
+        `Gagal mengunduh template: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
     } finally {
       setIsDownloadingTemplate(false);
     }
@@ -162,7 +174,7 @@ export default function ImportStudentsModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50">
       <div
         className={`${
           darkMode ? "bg-gray-800" : "bg-white"
@@ -233,6 +245,24 @@ export default function ImportStudentsModal({
                 >
                   Download template CSV untuk memastikan format data yang benar
                 </p>
+                <div
+                  className={`text-xs mt-2 p-2 rounded ${
+                    darkMode
+                      ? "bg-gray-600 text-gray-200"
+                      : "bg-yellow-50 text-yellow-800"
+                  }`}
+                >
+                  <strong>💡 Tips untuk nomor handphone di Excel:</strong>
+                  <ul className="mt-1 ml-4 list-disc">
+                    <li>
+                      Gunakan format: <code>="081234567890"</code> agar angka 0
+                      di depan tidak hilang
+                    </li>
+                    <li>
+                      Atau format kolom sebagai "Text" sebelum memasukkan nomor
+                    </li>
+                  </ul>
+                </div>
                 <button
                   onClick={downloadTemplate}
                   disabled={isDownloadingTemplate}
