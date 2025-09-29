@@ -255,11 +255,12 @@ export default function ImportStudentsModal({
                   <strong>💡 Tips untuk nomor handphone di Excel:</strong>
                   <ul className="mt-1 ml-4 list-disc">
                     <li>
-                      Gunakan format: <code>="081234567890"</code> agar angka 0
-                      di depan tidak hilang
+                      Gunakan format: <code>=&quot;081234567890&quot;</code>{" "}
+                      agar angka 0 di depan tidak hilang
                     </li>
                     <li>
-                      Atau format kolom sebagai "Text" sebelum memasukkan nomor
+                      Atau format kolom sebagai &quot;Text&quot; sebelum
+                      memasukkan nomor
                     </li>
                   </ul>
                 </div>

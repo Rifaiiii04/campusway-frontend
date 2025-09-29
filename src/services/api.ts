@@ -5,14 +5,28 @@ import { apiPerformance } from "@/utils/performanceMonitor";
 const getApiBaseUrl = () => {
   if (typeof window !== "undefined") {
     const hostname = window.location.hostname;
+    console.log("🔧 getApiBaseUrl hostname:", hostname);
+    console.log("🔧 window.location:", window.location.href);
+
     if (hostname === "localhost" || hostname === "127.0.0.1") {
-      return "http://127.0.0.1:8000";
+      const url = "http://127.0.0.1:8000";
+      console.log("🔧 getApiBaseUrl returning (localhost):", url);
+      return url;
+    } else if (hostname === "10.112.234.213") {
+      // Specific handling for the network IP
+      const url = "http://10.112.234.213:8000";
+      console.log("🔧 getApiBaseUrl returning (network IP):", url);
+      return url;
     } else {
-      // For network access, use the same hostname but different port
-      return `http://${hostname}:8000`;
+      // For other network access, use the same hostname but different port
+      const url = `http://${hostname}:8000`;
+      console.log("🔧 getApiBaseUrl returning (other network):", url);
+      return url;
     }
   }
-  return "http://127.0.0.1:8000";
+  const url = "http://127.0.0.1:8000";
+  console.log("🔧 getApiBaseUrl (server-side) returning:", url);
+  return url;
 };
 
 const API_BASE_URL =
@@ -21,15 +35,33 @@ const API_BASE_URL =
 const STUDENT_API_BASE_URL =
   process.env.NEXT_PUBLIC_STUDENT_API_BASE_URL || `${getApiBaseUrl()}/api/web`;
 
+// Force override for network access
+if (
+  typeof window !== "undefined" &&
+  window.location.hostname === "10.112.234.213"
+) {
+  const STUDENT_API_BASE_URL_OVERRIDE = "http://10.112.234.213:8000/api/web";
+  console.log(
+    "🔧 Overriding STUDENT_API_BASE_URL to:",
+    STUDENT_API_BASE_URL_OVERRIDE
+  );
+}
+
 const SCHOOL_LEVEL_API_BASE_URL =
   process.env.NEXT_PUBLIC_SCHOOL_LEVEL_API_BASE_URL ||
   `${getApiBaseUrl()}/api/school-level`;
 
 // Debug logging
 console.log("🔧 STUDENT_API_BASE_URL:", STUDENT_API_BASE_URL);
+console.log("🔧 API_BASE_URL:", API_BASE_URL);
+console.log("🔧 getApiBaseUrl():", getApiBaseUrl());
 console.log(
   "🔧 NEXT_PUBLIC_STUDENT_API_BASE_URL env:",
   process.env.NEXT_PUBLIC_STUDENT_API_BASE_URL
+);
+console.log(
+  "🔧 NEXT_PUBLIC_API_BASE_URL env:",
+  process.env.NEXT_PUBLIC_API_BASE_URL
 );
 
 // Enhanced fetch with caching and performance monitoring
@@ -54,6 +86,9 @@ async function fetchWithCache<T>(
   let timeoutId: NodeJS.Timeout | undefined = undefined;
 
   try {
+    console.log("🌐 fetchWithCache making request to:", url);
+    console.log("🌐 fetchWithCache options:", options);
+
     const controller = new AbortController();
     timeoutId = setTimeout(() => {
       console.warn(`Request timeout for ${url}`);
@@ -68,6 +103,9 @@ async function fetchWithCache<T>(
         ...options.headers,
       },
     });
+
+    console.log("🌐 fetchWithCache response status:", response.status);
+    console.log("🌐 fetchWithCache response ok:", response.ok);
 
     // Clear timeout on successful response
     if (timeoutId) {
@@ -1029,7 +1067,14 @@ export const studentApiService = {
   // Get All Active Majors
   async getMajors(): Promise<{ success: boolean; data: Major[] }> {
     try {
-      const url = `${STUDENT_API_BASE_URL}/majors?t=${Date.now()}`;
+      // Force correct URL for network access
+      let baseUrl = STUDENT_API_BASE_URL;
+      if (typeof window !== "undefined" && window.location.hostname === "10.112.234.213") {
+        baseUrl = "http://10.112.234.213:8000/api/web";
+        console.log("🔧 Using network URL override for getMajors:", baseUrl);
+      }
+      
+      const url = `${baseUrl}/majors?t=${Date.now()}`;
       console.log("🔍 getMajors URL:", url);
       return fetchWithCache(
         url,
@@ -1118,8 +1163,23 @@ export const studentApiService = {
     studentId: number
   ): Promise<{ success: boolean; data: StudentChoice }> {
     try {
+      // Force correct URL for network access
+      let baseUrl = STUDENT_API_BASE_URL;
+      if (
+        typeof window !== "undefined" &&
+        window.location.hostname === "10.112.234.213"
+      ) {
+        baseUrl = "http://10.112.234.213:8000/api/web";
+        console.log("🔧 Using network URL override:", baseUrl);
+      }
+
+      const url = `${baseUrl}/student-choice/${studentId}`;
+      console.log("🔍 getStudentChoice URL:", url);
+      console.log("🔍 STUDENT_API_BASE_URL:", STUDENT_API_BASE_URL);
+      console.log("🔍 studentId:", studentId);
+
       return fetchWithCache(
-        `${STUDENT_API_BASE_URL}/student-choice/${studentId}`,
+        url,
         {},
         cacheKeys.studentChoice(studentId),
         2 * 60 * 1000 // 2 minutes cache

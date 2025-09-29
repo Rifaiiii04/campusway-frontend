@@ -190,17 +190,26 @@ export default function StudentDashboardClient() {
       const storedStudentData = localStorage.getItem("student_data");
 
       if (token && storedStudentData) {
-        const parsedData = JSON.parse(storedStudentData);
-        setStudentData(parsedData);
-        setIsAuthenticated(true);
+        try {
+          const parsedData = JSON.parse(storedStudentData);
+          setStudentData(parsedData);
+          setIsAuthenticated(true);
 
-        // Load data in parallel
-        // Always load student choice from database regardless of has_choice
-        await Promise.all([
-          loadMajors(),
-          loadStudentChoice(parsedData),
-          loadTkaSchedules(),
-        ]);
+          // Load data in parallel
+          // Always load student choice from database regardless of has_choice
+          await Promise.all([
+            loadMajors(),
+            loadStudentChoice(parsedData),
+            loadTkaSchedules(),
+          ]);
+        } catch (parseError) {
+          console.error("Error parsing student data:", parseError);
+          // Clear invalid data from localStorage
+          localStorage.removeItem("student_token");
+          localStorage.removeItem("student_data");
+          router.push("/student");
+          return;
+        }
       } else {
         router.push("/student");
       }
