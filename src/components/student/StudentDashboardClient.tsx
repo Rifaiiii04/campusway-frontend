@@ -189,7 +189,12 @@ export default function StudentDashboardClient() {
       const token = localStorage.getItem("student_token");
       const storedStudentData = localStorage.getItem("student_data");
 
-      if (token && storedStudentData) {
+      if (
+        token &&
+        storedStudentData &&
+        storedStudentData !== "undefined" &&
+        storedStudentData !== "null"
+      ) {
         try {
           const parsedData = JSON.parse(storedStudentData);
           setStudentData(parsedData);

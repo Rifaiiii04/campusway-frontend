@@ -170,15 +170,21 @@ export default function StudentRegistration({
           "Registrasi berhasil! Silakan login dengan NISN dan password Anda."
         );
 
-        // Simpan data siswa di localStorage untuk auto-login
-        localStorage.setItem("student_token", "student_session_token");
-        localStorage.setItem(
-          "student_data",
-          JSON.stringify(response.data.student)
-        );
+        // Check if student data exists in response
+        if (response.data && response.data.student) {
+          // Simpan data siswa di localStorage untuk auto-login
+          localStorage.setItem("student_token", "student_session_token");
+          localStorage.setItem(
+            "student_data",
+            JSON.stringify(response.data.student)
+          );
 
-        // Call success callback
-        onRegistrationSuccess(response.data.student);
+          // Call success callback
+          onRegistrationSuccess(response.data.student);
+        } else {
+          console.warn("⚠️ Student data not found in response:", response);
+          setError("Data siswa tidak ditemukan dalam response server");
+        }
       } else {
         throw new Error(response.message || "Registrasi gagal");
       }
