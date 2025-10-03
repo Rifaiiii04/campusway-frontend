@@ -5,10 +5,13 @@ const nextConfig: NextConfig = {
   env: {
     NEXT_PUBLIC_API_BASE_URL:
       process.env.NEXT_PUBLIC_API_BASE_URL ||
-      "http://127.0.0.1:8000/api/school",
+      "http://103.23.198.101/super-admin/api/school",
     NEXT_PUBLIC_STUDENT_API_BASE_URL:
       process.env.NEXT_PUBLIC_STUDENT_API_BASE_URL ||
-      "http://127.0.0.1:8000/api/web",
+      "http://103.23.198.101/super-admin/api/web",
+    NEXT_PUBLIC_SUPERADMIN_API_URL:
+      process.env.NEXT_PUBLIC_SUPERADMIN_API_URL ||
+      "http://103.23.198.101/super-admin/api",
   },
 
   // Performance optimizations
