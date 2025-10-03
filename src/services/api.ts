@@ -12,19 +12,19 @@ const getApiBaseUrl = () => {
       const url = "http://127.0.0.1:8000";
       console.log("🔧 getApiBaseUrl returning (localhost):", url);
       return url;
-    } else if (hostname === "10.112.234.213") {
-      // Specific handling for the network IP
-      const url = "http://10.112.234.213:8000";
-      console.log("🔧 getApiBaseUrl returning (network IP):", url);
+    } else if (hostname === "103.23.198.101") {
+      // Production server
+      const url = "http://103.23.198.101/super-admin";
+      console.log("🔧 getApiBaseUrl returning (production):", url);
       return url;
     } else {
-      // For other network access, use the same hostname but different port
-      const url = `http://${hostname}:8000`;
+      // For other network access, use the same hostname with super-admin prefix
+      const url = `http://${hostname}/super-admin`;
       console.log("🔧 getApiBaseUrl returning (other network):", url);
       return url;
     }
   }
-  const url = "http://127.0.0.1:8000";
+  const url = "http://103.23.198.101/super-admin";
   console.log("🔧 getApiBaseUrl (server-side) returning:", url);
   return url;
 };
@@ -1069,11 +1069,14 @@ export const studentApiService = {
     try {
       // Force correct URL for network access
       let baseUrl = STUDENT_API_BASE_URL;
-      if (typeof window !== "undefined" && window.location.hostname === "10.112.234.213") {
+      if (
+        typeof window !== "undefined" &&
+        window.location.hostname === "10.112.234.213"
+      ) {
         baseUrl = "http://10.112.234.213:8000/api/web";
         console.log("🔧 Using network URL override for getMajors:", baseUrl);
       }
-      
+
       const url = `${baseUrl}/majors?t=${Date.now()}`;
       console.log("🔍 getMajors URL:", url);
       return fetchWithCache(
