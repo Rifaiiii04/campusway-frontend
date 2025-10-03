@@ -1383,7 +1383,7 @@ export const superAdminApiService = {
   },
 
   // Get Questions from SuperAdmin
-  async getQuestions(): Promise<{ success: boolean; data: any[] }> {
+  async getQuestions(): Promise<{ success: boolean; data: unknown[] }> {
     try {
       const url = `${SUPERADMIN_API_BASE_URL}/public/questions`;
       console.log("🌐 SuperAdmin Questions API URL:", url);
