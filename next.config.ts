@@ -93,6 +93,16 @@ const nextConfig: NextConfig = {
           },
         ],
       },
+      // Exclude super-admin API routes from Next.js handling
+      {
+        source: "/super-admin/api/(.*)",
+        headers: [
+          {
+            key: "X-Robots-Tag",
+            value: "noindex",
+          },
+        ],
+      },
       {
         source: "/api/(.*)",
         headers: [

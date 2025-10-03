@@ -35,6 +35,10 @@ const API_BASE_URL =
 const STUDENT_API_BASE_URL =
   process.env.NEXT_PUBLIC_STUDENT_API_BASE_URL || `${getApiBaseUrl()}/api/web`;
 
+// SuperAdmin API Base URL for ArahPotensi integration
+const SUPERADMIN_API_BASE_URL =
+  process.env.NEXT_PUBLIC_SUPERADMIN_API_URL || `${getApiBaseUrl()}/api`;
+
 // Force override for network access
 if (
   typeof window !== "undefined" &&
@@ -1353,6 +1357,83 @@ export const studentApiService = {
       return data;
     } catch (error) {
       console.error("Error getting subjects for major:", error);
+      throw error;
+    }
+  },
+};
+
+// SuperAdmin API Service for ArahPotensi integration
+export const superAdminApiService = {
+  // Get Schools from SuperAdmin
+  async getSchools(): Promise<{ success: boolean; data: School[] }> {
+    try {
+      const url = `${SUPERADMIN_API_BASE_URL}/public/schools`;
+      console.log("🌐 SuperAdmin API URL:", url);
+
+      return fetchWithCache(
+        url,
+        {},
+        "superadmin_schools",
+        5 * 60 * 1000 // 5 minutes cache
+      );
+    } catch (error) {
+      console.error("❌ Error in getSchools:", error);
+      throw error;
+    }
+  },
+
+  // Get Questions from SuperAdmin
+  async getQuestions(): Promise<{ success: boolean; data: any[] }> {
+    try {
+      const url = `${SUPERADMIN_API_BASE_URL}/public/questions`;
+      console.log("🌐 SuperAdmin Questions API URL:", url);
+
+      return fetchWithCache(
+        url,
+        {},
+        "superadmin_questions",
+        10 * 60 * 1000 // 10 minutes cache
+      );
+    } catch (error) {
+      console.error("❌ Error in getQuestions:", error);
+      throw error;
+    }
+  },
+
+  // Get Majors from SuperAdmin
+  async getMajors(): Promise<{ success: boolean; data: Major[] }> {
+    try {
+      const url = `${SUPERADMIN_API_BASE_URL}/public/majors`;
+      console.log("🌐 SuperAdmin Majors API URL:", url);
+
+      return fetchWithCache(
+        url,
+        {},
+        "superadmin_majors",
+        10 * 60 * 1000 // 10 minutes cache
+      );
+    } catch (error) {
+      console.error("❌ Error in getMajors:", error);
+      throw error;
+    }
+  },
+
+  // Health Check
+  async healthCheck(): Promise<{ status: string; message: string }> {
+    try {
+      const url = `${SUPERADMIN_API_BASE_URL}/public/health`;
+      console.log("🌐 SuperAdmin Health Check URL:", url);
+
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      return data;
+    } catch (error) {
+      console.error("❌ Error in healthCheck:", error);
       throw error;
     }
   },
