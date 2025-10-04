@@ -9,7 +9,7 @@ const getApiBaseUrl = () => {
     console.log("🔧 window.location:", window.location.href);
 
     if (hostname === "localhost" || hostname === "127.0.0.1") {
-      const url = "http://127.0.0.1:8000";
+      const url = "http://103.23.198.101/super-admin";
       console.log("🔧 getApiBaseUrl returning (localhost):", url);
       return url;
     } else if (hostname === "103.23.198.101") {
