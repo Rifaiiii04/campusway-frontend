@@ -57,7 +57,7 @@ export default function RootLayout({
           href="https://fonts.gstatic.com"
           crossOrigin="anonymous"
         />
-        <link rel="dns-prefetch" href="//127.0.0.1:8000" />
+        <link rel="dns-prefetch" href="//103.23.198.101/super-admin" />
       </head>
       <body
         className={`antialiased bg-white dark:bg-gray-900`}

@@ -21,7 +21,7 @@ export default function PerformanceMonitor() {
     const startTime = Date.now();
     try {
       const response = await fetch(
-        `http://127.0.0.1:8000/api/optimized${endpoint}`
+        `http://103.23.198.101/super-admin/api/optimized${endpoint}`
       );
       const endTime = Date.now();
 

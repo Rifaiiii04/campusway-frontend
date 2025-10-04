@@ -98,7 +98,7 @@ export default function SchoolDashboard() {
 
       // Fetch overview data
       const overviewResponse = await fetch(
-        "http://127.0.0.1:8000/api/school/dashboard/overview",
+        "http://103.23.198.101/super-admin/api/school/dashboard/overview",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -114,7 +114,7 @@ export default function SchoolDashboard() {
 
       // Fetch students data
       const studentsResponse = await fetch(
-        "http://127.0.0.1:8000/api/school/dashboard/students",
+        "http://103.23.198.101/super-admin/api/school/dashboard/students",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -130,7 +130,7 @@ export default function SchoolDashboard() {
 
       // Fetch test results data
       const testResultsResponse = await fetch(
-        "http://127.0.0.1:8000/api/school/dashboard/test-results",
+        "http://103.23.198.101/super-admin/api/school/dashboard/test-results",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -146,7 +146,7 @@ export default function SchoolDashboard() {
 
       // Fetch major statistics
       const majorStatsResponse = await fetch(
-        "http://127.0.0.1:8000/api/school/dashboard/major-statistics",
+        "http://103.23.198.101/super-admin/api/school/dashboard/major-statistics",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -162,7 +162,7 @@ export default function SchoolDashboard() {
 
       // Fetch class summary
       const classSummaryResponse = await fetch(
-        "http://127.0.0.1:8000/api/school/dashboard/class-summary",
+        "http://103.23.198.101/super-admin/api/school/dashboard/class-summary",
         {
           headers: {
             Authorization: `Bearer ${token}`,
