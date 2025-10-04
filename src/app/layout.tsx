@@ -49,7 +49,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="id" className="light"> 
+    <html lang="id" className="light">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
@@ -59,9 +59,7 @@ export default function RootLayout({
         />
         <link rel="dns-prefetch" href="//103.23.198.101/super-admin" />
       </head>
-      <body
-        className={`antialiased bg-white dark:bg-gray-900`}
-      >
+      <body className={`antialiased bg-white dark:bg-gray-900`}>
         <ErrorBoundary>
           <PerformanceProvider>
             {children}
