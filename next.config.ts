@@ -55,15 +55,15 @@ const nextConfig: NextConfig = {
   // Output configuration
   output: "export",
 
-  // Exclude super-admin paths from Next.js handling
-  async rewrites() {
-    return [
-      {
-        source: "/super-admin/:path*",
-        destination: "/super-admin/:path*",
-      },
-    ];
-  },
+  // Exclude super-admin paths from Next.js handling - DISABLE REWRITES
+  // async rewrites() {
+  //   return [
+  //     {
+  //       source: "/super-admin/:path*",
+  //       destination: "/super-admin/:path*",
+  //     },
+  //   ];
+  // },
 
   // Headers for caching and security
   async headers() {
