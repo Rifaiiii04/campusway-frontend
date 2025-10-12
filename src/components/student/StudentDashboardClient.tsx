@@ -147,11 +147,11 @@ export default function StudentDashboardClient() {
     try {
       const response = await studentApiService.getStudentChoice(studentData.id);
 
-      if (response.success && response.data) {
+      if (response.success && response.data && response.data.major) {
         const appliedMajor = {
           id: response.data.major.id,
           major_name: response.data.major.major_name,
-          rumpun_ilmu: response.data.major.rumpun_ilmu || "ILMU ALAM",
+          rumpun_ilmu: response.data.major.category || "ILMU ALAM",
           description: response.data.major.description || "",
           appliedDate: new Date(response.data.chosen_at).toLocaleDateString(
             "id-ID"
@@ -162,8 +162,9 @@ export default function StudentDashboardClient() {
         setAppliedMajors([appliedMajor]);
         setSelectedMajorId(response.data.major.id);
       } else {
-        console.log("ℹ️ No student choice found");
+        console.log("ℹ️ No student choice found or major data is null");
         setAppliedMajors([]);
+        setSelectedMajorId(null);
       }
     } catch (error) {
       console.error("❌ Error loading student choice:", error);
