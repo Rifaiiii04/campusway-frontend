@@ -3,41 +3,42 @@ import { apiPerformance } from "@/utils/performanceMonitor";
 
 // Dynamic API base URL based on current hostname
 const getApiBaseUrl = () => {
+  // Force use of localhost:8000 for all cases since server runs there
+  const url = "http://127.0.0.1:8000";
+  
   if (typeof window !== "undefined") {
     const hostname = window.location.hostname;
     console.log("🔧 getApiBaseUrl hostname:", hostname);
     console.log("🔧 window.location:", window.location.href);
-
-    if (hostname === "localhost" || hostname === "127.0.0.1") {
-      const url = "http://103.23.198.101/super-admin";
-      console.log("🔧 getApiBaseUrl returning (localhost):", url);
-      return url;
-    } else if (hostname === "103.23.198.101") {
-      // Production server
-      const url = "http://103.23.198.101/super-admin";
-      console.log("🔧 getApiBaseUrl returning (production):", url);
-      return url;
-    } else {
-      // For other network access, use the same hostname with super-admin prefix
-      const url = `http://${hostname}/super-admin`;
-      console.log("🔧 getApiBaseUrl returning (other network):", url);
-      return url;
-    }
+    console.log("🔧 Using fixed backend URL:", url);
   }
-  const url = "http://103.23.198.101/super-admin";
-  console.log("🔧 getApiBaseUrl (server-side) returning:", url);
+  
   return url;
 };
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || `${getApiBaseUrl()}/api/school`;
+// Fallback API base URL for when main server is down
+const getFallbackApiBaseUrl = () => {
+  // Always use localhost:8000 as fallback
+  return "http://127.0.0.1:8000";
+};
 
-const STUDENT_API_BASE_URL =
-  process.env.NEXT_PUBLIC_STUDENT_API_BASE_URL || `${getApiBaseUrl()}/api/web`;
+// Get API base URL with proper network detection
+const getApiBaseUrlWithNetworkDetection = () => {
+  const baseUrl = getApiBaseUrl();
+  return {
+    school: `${baseUrl}/api/school`,
+    web: `${baseUrl}/api/web`,
+    superadmin: `${baseUrl}/api`
+  };
+};
+
+const apiUrls = getApiBaseUrlWithNetworkDetection();
+
+const API_BASE_URL = apiUrls.school;
+const STUDENT_API_BASE_URL = apiUrls.web;
 
 // SuperAdmin API Base URL for ArahPotensi integration
-const SUPERADMIN_API_BASE_URL =
-  process.env.NEXT_PUBLIC_SUPERADMIN_API_URL || `${getApiBaseUrl()}/api`;
+const SUPERADMIN_API_BASE_URL = apiUrls.superadmin;
 
 // Force override for network access
 if (
@@ -56,24 +57,22 @@ const SCHOOL_LEVEL_API_BASE_URL =
   `${getApiBaseUrl()}/api/school-level`;
 
 // Debug logging
-console.log("🔧 STUDENT_API_BASE_URL:", STUDENT_API_BASE_URL);
-console.log("🔧 API_BASE_URL:", API_BASE_URL);
 console.log("🔧 getApiBaseUrl():", getApiBaseUrl());
-console.log(
-  "🔧 NEXT_PUBLIC_STUDENT_API_BASE_URL env:",
-  process.env.NEXT_PUBLIC_STUDENT_API_BASE_URL
-);
-console.log(
-  "🔧 NEXT_PUBLIC_API_BASE_URL env:",
-  process.env.NEXT_PUBLIC_API_BASE_URL
-);
+console.log("🔧 API_BASE_URL:", API_BASE_URL);
+console.log("🔧 STUDENT_API_BASE_URL:", STUDENT_API_BASE_URL);
+console.log("🔧 SUPERADMIN_API_BASE_URL:", SUPERADMIN_API_BASE_URL);
+console.log("🔧 Environment variables:");
+console.log("  - NEXT_PUBLIC_API_BASE_URL:", process.env.NEXT_PUBLIC_API_BASE_URL);
+console.log("  - NEXT_PUBLIC_STUDENT_API_BASE_URL:", process.env.NEXT_PUBLIC_STUDENT_API_BASE_URL);
+console.log("  - NEXT_PUBLIC_SUPERADMIN_API_URL:", process.env.NEXT_PUBLIC_SUPERADMIN_API_URL);
 
 // Enhanced fetch with caching and performance monitoring
 async function fetchWithCache<T>(
   url: string,
   options: RequestInit = {},
   cacheKey?: string,
-  cacheTTL: number = 3 * 60 * 1000 // 3 minutes default
+  cacheTTL: number = 3 * 60 * 1000, // 3 minutes default
+  retryCount: number = 0
 ): Promise<T> {
   // Check cache first
   if (cacheKey && clientCache.has(cacheKey)) {
@@ -120,6 +119,25 @@ async function fetchWithCache<T>(
     endTiming();
 
     if (!response.ok) {
+      // Retry for 500 errors up to 2 times
+      if (response.status === 500 && retryCount < 2) {
+        console.warn(`Server error 500, retrying... (attempt ${retryCount + 1}/2)`);
+        await new Promise(resolve => setTimeout(resolve, 1000 * (retryCount + 1))); // Exponential backoff
+        return fetchWithCache(url, options, cacheKey, cacheTTL, retryCount + 1);
+      }
+      
+      // Try fallback URL for 500 errors on first attempt
+      if (response.status === 500 && retryCount === 0) {
+        console.warn(`Server error 500, trying fallback URL...`);
+        const fallbackUrl = url.replace(getApiBaseUrl(), getFallbackApiBaseUrl());
+        console.log(`Trying fallback URL: ${fallbackUrl}`);
+        try {
+          return await fetchWithCache(fallbackUrl, options, cacheKey, cacheTTL, retryCount + 1);
+        } catch (fallbackError) {
+          console.warn(`Fallback URL also failed:`, fallbackError);
+        }
+      }
+      
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
 
@@ -146,8 +164,29 @@ async function fetchWithCache<T>(
         );
       }
       if (error.message.includes("Failed to fetch")) {
+        // Check if it's blocked by client (ad blocker, etc.)
+        if (error.message.includes("ERR_BLOCKED_BY_CLIENT")) {
+          throw new Error(
+            `Request diblokir oleh browser atau extension. Silakan nonaktifkan ad blocker atau extension yang memblokir request.`
+          );
+        }
+        // Check if it's a network connectivity issue
+        if (error.message.includes("ERR_NETWORK_CHANGED") || 
+            error.message.includes("ERR_INTERNET_DISCONNECTED")) {
+          throw new Error(
+            `Koneksi internet terputus. Periksa koneksi internet Anda dan coba lagi.`
+          );
+        }
+        // Check if it's a CORS issue
+        if (error.message.includes("ERR_CERT_AUTHORITY_INVALID") ||
+            error.message.includes("ERR_SSL_PROTOCOL_ERROR")) {
+          throw new Error(
+            `Masalah keamanan koneksi. Silakan coba akses dengan HTTP atau periksa sertifikat SSL.`
+          );
+        }
+        // Generic network error
         throw new Error(
-          `Koneksi gagal: Pastikan server backend berjalan di ${getApiBaseUrl()}`
+          `Koneksi gagal: Pastikan server backend berjalan di ${getApiBaseUrl()}. Error: ${error.message}`
         );
       }
     }
@@ -987,6 +1026,9 @@ export const studentApiService = {
     const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
 
     try {
+      console.log("🔍 Student login attempt to:", `${STUDENT_API_BASE_URL}/login`);
+      console.log("🔍 Student login data:", { nisn, password: "***" });
+      
       const response = await fetch(`${STUDENT_API_BASE_URL}/login`, {
         method: "POST",
         headers: {
@@ -997,6 +1039,9 @@ export const studentApiService = {
       });
 
       clearTimeout(timeoutId);
+      console.log("🔍 Student login response status:", response.status);
+      console.log("🔍 Student login response ok:", response.ok);
+
       const data = await response.json();
 
       if (!response.ok) {
@@ -1019,8 +1064,38 @@ export const studentApiService = {
       return data;
     } catch (error: unknown) {
       clearTimeout(timeoutId);
-      if (error instanceof Error && error.name === "AbortError") {
-        throw new Error("Timeout: Server tidak merespons dalam 8 detik");
+      console.error("💥 Student login error:", error);
+      
+      if (error instanceof Error) {
+        if (error.name === "AbortError") {
+          throw new Error("Timeout: Server tidak merespons dalam 8 detik");
+        }
+        if (error.message.includes("Failed to fetch")) {
+          // Check if it's blocked by client (ad blocker, etc.)
+          if (error.message.includes("ERR_BLOCKED_BY_CLIENT")) {
+            throw new Error(
+              `Request diblokir oleh browser atau extension. Silakan nonaktifkan ad blocker atau extension yang memblokir request.`
+            );
+          }
+          // Check if it's a network connectivity issue
+          if (error.message.includes("ERR_NETWORK_CHANGED") || 
+              error.message.includes("ERR_INTERNET_DISCONNECTED")) {
+            throw new Error(
+              `Koneksi internet terputus. Periksa koneksi internet Anda dan coba lagi.`
+            );
+          }
+          // Check if it's a CORS issue
+          if (error.message.includes("ERR_CERT_AUTHORITY_INVALID") ||
+              error.message.includes("ERR_SSL_PROTOCOL_ERROR")) {
+            throw new Error(
+              `Masalah keamanan koneksi. Silakan coba akses dengan HTTP atau periksa sertifikat SSL.`
+            );
+          }
+          // Generic network error
+          throw new Error(
+            `Koneksi gagal: Pastikan server backend berjalan di ${STUDENT_API_BASE_URL}. Error: ${error.message}`
+          );
+        }
       }
       throw error;
     }

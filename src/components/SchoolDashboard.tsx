@@ -85,6 +85,43 @@ export default function SchoolDashboard() {
     fetchDashboardData();
   }, []);
 
+  // Calculate class summary when students data changes
+  useEffect(() => {
+    if (students.length > 0) {
+      const classSummaryData = students.reduce((acc: any[], student) => {
+        const existingClass = acc.find(cls => cls.class_name === student.school_class?.name);
+        if (existingClass) {
+          existingClass.total_students++;
+          if (student.latest_test_result) {
+            existingClass.completed_tests++;
+            existingClass.total_score += student.latest_test_result.total_score;
+          }
+        } else {
+          acc.push({
+            class_id: student.school_class?.id || 0,
+            class_name: student.school_class?.name || "Unknown",
+            grade: student.school_class?.name || "Unknown",
+            total_students: 1,
+            total_tests: 1,
+            completed_tests: student.latest_test_result ? 1 : 0,
+            completion_rate: student.latest_test_result ? 100 : 0,
+            average_score: student.latest_test_result?.total_score || 0,
+            total_score: student.latest_test_result?.total_score || 0,
+          });
+        }
+        return acc;
+      }, []);
+
+      // Calculate completion rates and average scores
+      classSummaryData.forEach(cls => {
+        cls.completion_rate = cls.total_students > 0 ? Math.round((cls.completed_tests / cls.total_students) * 100) : 0;
+        cls.average_score = cls.completed_tests > 0 ? Math.round(cls.total_score / cls.completed_tests) : 0;
+      });
+
+      setClassSummary(classSummaryData);
+    }
+  }, [students]);
+
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
@@ -96,88 +133,131 @@ export default function SchoolDashboard() {
         return;
       }
 
-      // Fetch overview data
-      const overviewResponse = await fetch(
-        "http://103.23.198.101/super-admin/api/school/dashboard",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      // Import apiService
+      const { apiService } = await import("@/services/api");
 
-      if (overviewResponse.ok) {
-        const overviewData = await overviewResponse.json();
-        setOverview(overviewData.data);
+      let dashboardData = null;
+      let studentsData = [];
+      let majorStatsData = [];
+
+      try {
+        // Fetch dashboard data using apiService
+        const dashboardResponse = await apiService.getDashboard();
+        if (dashboardResponse.success && dashboardResponse.data) {
+          dashboardData = dashboardResponse.data;
+          setOverview({
+            total_students: dashboardData.statistics.total_students,
+            total_classes: dashboardData.students_by_class.length,
+            total_test_results: dashboardData.statistics.students_with_choice,
+            completed_tests: dashboardData.statistics.students_with_choice,
+            completion_rate: dashboardData.statistics.completion_percentage,
+          });
+        }
+      } catch (dashboardError) {
+        console.warn("Dashboard data fetch failed:", dashboardError);
+        // Set fallback overview data
+        setOverview({
+          total_students: 0,
+          total_classes: 0,
+          total_test_results: 0,
+          completed_tests: 0,
+          completion_rate: 0,
+        });
+        
+        // Show specific error message for 500 errors
+        if (dashboardError instanceof Error && dashboardError.message.includes("500")) {
+          setError("Server sedang mengalami masalah. Silakan coba lagi nanti atau hubungi administrator.");
+        } else {
+          setError("Gagal memuat data dashboard. Pastikan koneksi internet stabil.");
+        }
       }
 
-      // Fetch students data
-      const studentsResponse = await fetch(
-        "http://103.23.198.101/super-admin/api/school/students",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
+      try {
+        // Fetch students data using apiService
+        const studentsResponse = await apiService.getStudents();
+        if (studentsResponse.success && studentsResponse.data) {
+          studentsData = studentsResponse.data.students;
+          setStudents(studentsData);
         }
-      );
-
-      if (studentsResponse.ok) {
-        const studentsData = await studentsResponse.json();
-        setStudents(studentsData.data);
+      } catch (studentsError) {
+        console.warn("Students data fetch failed:", studentsError);
+        setStudents([]);
+        
+        // Show specific error message for 500 errors
+        if (studentsError instanceof Error && studentsError.message.includes("500")) {
+          setError("Server sedang mengalami masalah. Data siswa tidak dapat dimuat.");
+        }
       }
 
-      // Fetch test results data
-      const testResultsResponse = await fetch(
-        "http://103.23.198.101/super-admin/api/school/dashboard",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
+      try {
+        // Fetch major statistics using apiService
+        const majorStatsResponse = await apiService.getMajorStatistics();
+        if (majorStatsResponse.success && majorStatsResponse.data) {
+          majorStatsData = majorStatsResponse.data.major_statistics.map(stat => ({
+            major: stat.major_name,
+            count: stat.student_count
+          }));
+          setMajorStats(majorStatsData);
         }
-      );
-
-      if (testResultsResponse.ok) {
-        await testResultsResponse.json();
-        // Test results loaded but not stored in state
+      } catch (majorStatsError) {
+        console.warn("Major statistics fetch failed:", majorStatsError);
+        setMajorStats([]);
+        
+        // Show specific error message for 500 errors
+        if (majorStatsError instanceof Error && majorStatsError.message.includes("500")) {
+          setError("Server sedang mengalami masalah. Statistik jurusan tidak dapat dimuat.");
+        }
       }
 
-      // Fetch major statistics
-      const majorStatsResponse = await fetch(
-        "http://103.23.198.101/super-admin/api/school/major-statistics",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (majorStatsResponse.ok) {
-        const majorStatsData = await majorStatsResponse.json();
-        setMajorStats(majorStatsData.data);
+      // If we have students data but no dashboard data, calculate overview from students
+      if (studentsData.length > 0 && !dashboardData) {
+        const totalStudents = studentsData.length;
+        const studentsWithChoice = studentsData.filter(s => s.has_choice).length;
+        const completionRate = totalStudents > 0 ? Math.round((studentsWithChoice / totalStudents) * 100) : 0;
+        
+        // Get unique classes
+        const uniqueClasses = [...new Set(studentsData.map(s => s.school_class?.name).filter(Boolean))];
+        
+        setOverview({
+          total_students: totalStudents,
+          total_classes: uniqueClasses.length,
+          total_test_results: studentsWithChoice,
+          completed_tests: studentsWithChoice,
+          completion_rate: completionRate,
+        });
       }
 
-      // Fetch class summary
-      const classSummaryResponse = await fetch(
-        "http://103.23.198.101/super-admin/api/school/dashboard/class-summary",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (classSummaryResponse.ok) {
-        const classSummaryData = await classSummaryResponse.json();
-        setClassSummary(classSummaryData.data);
+      // If we have students data but no major stats, calculate from students
+      if (studentsData.length > 0 && majorStatsData.length === 0) {
+        const majorCounts: { [key: string]: number } = {};
+        studentsData.forEach(student => {
+          if (student.chosen_major?.name) {
+            majorCounts[student.chosen_major.name] = (majorCounts[student.chosen_major.name] || 0) + 1;
+          }
+        });
+        
+        const calculatedMajorStats = Object.entries(majorCounts).map(([major, count]) => ({
+          major,
+          count
+        }));
+        setMajorStats(calculatedMajorStats);
       }
+
     } catch (err) {
-      setError("Failed to fetch dashboard data");
       console.error("Dashboard data fetch error:", err);
+      
+      // Provide specific error messages based on error type
+      if (err instanceof Error) {
+        if (err.message.includes('ECONNREFUSED') || err.message.includes('Failed to fetch')) {
+          setError("Server backend tidak berjalan. Silakan jalankan server Laravel terlebih dahulu.");
+        } else if (err.message.includes('timeout')) {
+          setError("Server tidak merespons. Periksa koneksi dan coba lagi.");
+        } else {
+          setError(`Error: ${err.message}`);
+        }
+      } else {
+        setError("Failed to fetch dashboard data. Please check your connection and try again.");
+      }
     } finally {
       setLoading(false);
     }
@@ -300,9 +380,31 @@ export default function SchoolDashboard() {
                 Coba Lagi
               </button>
 
+              {error.includes("500") && (
+                <button
+                  onClick={() => {
+                    setError("");
+                    setLoading(false);
+                    // Set fallback data
+                    setOverview({
+                      total_students: 0,
+                      total_classes: 0,
+                      total_test_results: 0,
+                      completed_tests: 0,
+                      completion_rate: 0,
+                    });
+                    setStudents([]);
+                    setMajorStats([]);
+                  }}
+                  className="w-full px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700"
+                >
+                  Lanjutkan dengan Data Kosong
+                </button>
+              )}
+
               <button
                 onClick={handleLogout}
-                className="w-full px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                className="w-full px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
               >
                 Logout
               </button>
@@ -312,11 +414,19 @@ export default function SchoolDashboard() {
               <p className="text-sm text-red-800">
                 <strong>Troubleshooting:</strong>
                 <br />
-                1. Pastikan backend Laravel berjalan di port 8000
+                1. <strong>Jalankan server Laravel backend:</strong>
                 <br />
-                2. Jalankan file <code>setup.bat</code> di folder backend
+                &nbsp;&nbsp;&nbsp;• Buka terminal di folder backend
                 <br />
-                3. Periksa koneksi database SQL Server
+                &nbsp;&nbsp;&nbsp;• Jalankan: <code>php artisan serve --host=0.0.0.0 --port=8000</code>
+                <br />
+                2. Pastikan database terhubung dan migrasi sudah dijalankan
+                <br />
+                3. Periksa file <code>.env</code> di folder backend
+                <br />
+                4. Cek console browser untuk detail error
+                <br />
+                5. Pastikan port 8000 tidak digunakan aplikasi lain
               </p>
             </div>
           </div>
