@@ -96,7 +96,7 @@ async function fetchWithCache<T>(
     timeoutId = setTimeout(() => {
       console.warn(`Request timeout for ${url}`);
       controller.abort();
-    }, 10000); // 10 seconds timeout
+    }, 15000); // 15 seconds timeout
 
     const response = await fetch(url, {
       ...options,
@@ -160,7 +160,7 @@ async function fetchWithCache<T>(
     if (error instanceof Error) {
       if (error.name === "AbortError") {
         throw new Error(
-          `Request timeout: Server tidak merespons dalam 10 detik`
+          `Request timeout: Server tidak merespons dalam 15 detik`
         );
       }
       if (error.message.includes("Failed to fetch")) {
@@ -444,9 +444,12 @@ export const apiService = {
   // ...existing code...
   async login(npsn: string, password: string) {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
+    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
 
     try {
+      console.log("🔍 School login attempt to:", `${API_BASE_URL}/login`);
+      console.log("🔍 School login data:", { npsn, password: "***" });
+      
       const response = await fetch(`${API_BASE_URL}/login`, {
         method: "POST",
         headers: {
@@ -457,6 +460,9 @@ export const apiService = {
       });
 
       clearTimeout(timeoutId);
+      console.log("🔍 School login response status:", response.status);
+      console.log("🔍 School login response ok:", response.ok);
+      
       const data = await response.json();
 
       if (!response.ok) {
@@ -490,7 +496,7 @@ export const apiService = {
       });
       
       if (error instanceof Error && error.name === "AbortError") {
-        throw new Error("Timeout: Server tidak merespons dalam 8 detik");
+        throw new Error("Timeout: Server tidak merespons dalam 15 detik");
       }
       throw error;
     }
@@ -1030,7 +1036,7 @@ export const studentApiService = {
   // Student Login
   async login(nisn: string, password: string) {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
+    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
 
     try {
       console.log("🔍 Student login attempt to:", `${STUDENT_API_BASE_URL}/login`);
@@ -1075,7 +1081,7 @@ export const studentApiService = {
       
       if (error instanceof Error) {
         if (error.name === "AbortError") {
-          throw new Error("Timeout: Server tidak merespons dalam 8 detik");
+          throw new Error("Timeout: Server tidak merespons dalam 15 detik");
         }
         if (error.message.includes("Failed to fetch")) {
           // Check if it's blocked by client (ad blocker, etc.)
