@@ -872,18 +872,26 @@ export const apiService = {
   },
 
   // Get Classes List
-  async getClasses() {
-    const response = await fetch(`${API_BASE_URL}/classes`, {
-      method: "GET",
-      headers: getAuthHeaders(),
-    });
-
-    if (!response.ok) {
-      throw new Error("Gagal mengambil daftar kelas");
+  async getClasses(): Promise<{ success: boolean; data: { classes: Array<{ name: string; value: string }> } }> {
+    const token = getToken();
+    if (!token) {
+      throw new Error("Token tidak ditemukan");
     }
 
-    const data = await response.json();
-    return data;
+    const schoolData = localStorage.getItem("school_data");
+    const schoolId =
+      schoolData && schoolData !== "undefined" && schoolData !== "null"
+        ? JSON.parse(schoolData).id
+        : "unknown";
+
+    return fetchWithCache(
+      `${API_BASE_URL}/classes`,
+      {
+        headers: getAuthHeaders(),
+      },
+      cacheKeys.classes(schoolId),
+      5 * 60 * 1000 // 5 minutes cache
+    );
   },
 
   // Get ArahPotensi Schedules

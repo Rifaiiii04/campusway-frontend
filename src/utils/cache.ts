@@ -100,4 +100,5 @@ export const cacheKeys = {
   dashboard: (schoolId: number) => `dashboard_${schoolId}`,
   students: (schoolId: number) => `students_${schoolId}`,
   majorStatistics: (schoolId: number) => `major_stats_${schoolId}`,
+  classes: (schoolId: number) => `classes_${schoolId}`,
 };

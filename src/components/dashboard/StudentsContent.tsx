@@ -25,6 +25,7 @@ export default function StudentsContent({
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedClass, setSelectedClass] = useState("");
   const [selectedMajor, setSelectedMajor] = useState("");
+  const [selectedChoiceStatus, setSelectedChoiceStatus] = useState("");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -64,7 +65,7 @@ export default function StudentsContent({
       (student.email &&
         student.email.toLowerCase().includes(searchTerm.toLowerCase()));
 
-    const matchesClass = !selectedClass || student.class === selectedClass;
+    const matchesClass = !selectedClass || student.kelas === selectedClass;
 
     const matchesMajor =
       !selectedMajor ||
@@ -73,7 +74,12 @@ export default function StudentsContent({
           .toLowerCase()
           .includes(selectedMajor.toLowerCase()));
 
-    return matchesSearch && matchesClass && matchesMajor;
+    const matchesChoiceStatus = 
+      !selectedChoiceStatus ||
+      (selectedChoiceStatus === "has_choice" && student.has_choice) ||
+      (selectedChoiceStatus === "no_choice" && !student.has_choice);
+
+    return matchesSearch && matchesClass && matchesMajor && matchesChoiceStatus;
   });
 
   const handleDeleteClick = (student: Student) => {
@@ -297,6 +303,8 @@ export default function StudentsContent({
               Status Pilihan Jurusan
             </label>
             <select
+              value={selectedChoiceStatus}
+              onChange={(e) => setSelectedChoiceStatus(e.target.value)}
               className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 ${
                 darkMode
                   ? "bg-gray-700 border-gray-600 text-gray-100"
@@ -462,7 +470,7 @@ export default function StudentsContent({
                       darkMode ? "text-gray-100" : "text-gray-900"
                     }`}
                   >
-                    {student.class}
+                    {student.kelas}
                   </td>
                   <td
                     className={`px-6 py-4 whitespace-nowrap text-sm ${
