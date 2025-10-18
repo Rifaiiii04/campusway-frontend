@@ -12,7 +12,7 @@ import {
   ArcElement,
 } from "chart.js";
 import { Bar, Doughnut } from "react-chartjs-2";
-import { Student, MajorStatistics } from "../services/api";
+import { Student } from "../services/api";
 
 ChartJS.register(
   CategoryScale,
@@ -74,7 +74,7 @@ export default function SchoolDashboard() {
   // Calculate class summary when students data changes
   useEffect(() => {
     if (students.length > 0) {
-      const classSummaryData = students.reduce((acc: any[], student) => {
+      const classSummaryData = students.reduce((acc: Array<{class_name: string, total_students: number, completed_tests: number, total_score: number, average_score: number}>, student) => {
         const existingClass = acc.find(cls => cls.class_name === (student.kelas || student.class));
         if (existingClass) {
           existingClass.total_students++;

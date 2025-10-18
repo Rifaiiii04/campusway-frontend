@@ -90,7 +90,7 @@ class ApiService {
   }
 
   // Handle different types of errors
-  handleError(error, url) {
+  handleError(error) {
     const errorMessage = error.message.toLowerCase();
 
     if (errorMessage.includes('err_blocked_by_client')) {

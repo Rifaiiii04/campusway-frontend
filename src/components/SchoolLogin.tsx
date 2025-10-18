@@ -732,7 +732,7 @@ export default function SchoolLogin({
           // Trigger retry by calling handleLogin with current form data
           const form = document.querySelector('form');
           if (form) {
-            handleLogin(new Event('submit') as any, 0);
+            handleLogin(new Event('submit') as unknown as React.FormEvent<HTMLFormElement>, 0);
           }
         }}
       />
