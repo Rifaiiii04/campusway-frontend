@@ -152,26 +152,26 @@ export default function ReportsContent({
             <div class="stat-card completion-card">
               <div class="stat-label">Tingkat Penyelesaian</div>
               <div class="stat-value">${
-                dashboardData?.statistics.completion_percentage?.toFixed(1) ||
+                dashboardData?.statistics?.completion_percentage?.toFixed(1) ||
                 "0"
               }%</div>
             </div>
             <div class="stat-card total-card">
               <div class="stat-label">Total Siswa</div>
               <div class="stat-value">${
-                dashboardData?.statistics.total_students || "0"
+                dashboardData?.statistics?.total_students || "0"
               }</div>
             </div>
             <div class="stat-card choice-card">
               <div class="stat-label">Siswa Memilih Jurusan</div>
               <div class="stat-value">${
-                dashboardData?.statistics.students_with_choice || "0"
+                dashboardData?.statistics?.students_with_choice || "0"
               }</div>
             </div>
             <div class="stat-card popular-card">
               <div class="stat-label">Jurusan Populer</div>
               <div class="stat-value">${
-                dashboardData?.top_majors[0]?.major_name || "N/A"
+                dashboardData?.top_majors?.[0]?.major_name || "N/A"
               }</div>
             </div>
           </div>
@@ -181,7 +181,7 @@ export default function ReportsContent({
               <h3 class="chart-title">Distribusi Kelas</h3>
               <div class="chart-content">
                 ${
-                  dashboardData?.students_by_class
+                  dashboardData?.students_by_class || []
                     .map(
                       (cls, index) =>
                         `<div class="chart-item chart-item-${index % 5}">${
@@ -258,12 +258,12 @@ export default function ReportsContent({
     }
   };
   const classChartData = {
-    labels: dashboardData?.students_by_class.map((cls) => cls.kelas) || [],
+    labels: dashboardData?.students_by_class?.map((cls) => cls.kelas) || [],
     datasets: [
       {
         label: "Jumlah Siswa",
         data:
-          dashboardData?.students_by_class.map((cls) => cls.student_count) ||
+          dashboardData?.students_by_class?.map((cls) => cls.student_count) ||
           [],
         backgroundColor: [
           "rgba(128, 0, 0, 0.8)",
@@ -358,7 +358,7 @@ export default function ReportsContent({
                 Tingkat Penyelesaian
               </p>
               <p className="text-2xl font-semibold">
-                {dashboardData?.statistics.completion_percentage?.toFixed(1)}%
+                {dashboardData?.statistics?.completion_percentage?.toFixed(1) || 0}%
               </p>
             </div>
           </div>
@@ -377,7 +377,7 @@ export default function ReportsContent({
             <div className="ml-2">
               <p className="text-sm font-medium text-green-100">Total Siswa</p>
               <p className="text-2xl font-semibold">
-                {dashboardData?.statistics.total_students}
+                {dashboardData?.statistics?.total_students || 0}
               </p>
             </div>
           </div>
@@ -398,7 +398,7 @@ export default function ReportsContent({
                 Siswa Memilih Jurusan
               </p>
               <p className="text-2xl font-semibold">
-                {dashboardData?.statistics.students_with_choice}
+                {dashboardData?.statistics?.students_with_choice || 0}
               </p>
             </div>
           </div>
@@ -419,7 +419,7 @@ export default function ReportsContent({
                 Jurusan Populer
               </p>
               <p className="text-2xl font-semibold">
-                {dashboardData?.top_majors[0]?.major_name || "N/A"}
+                {dashboardData?.top_majors?.[0]?.major_name || "N/A"}
               </p>
             </div>
           </div>
@@ -738,7 +738,7 @@ export default function ReportsContent({
           </div>
           <div className="p-6">
             <div className="space-y-4">
-              {dashboardData?.students_by_class.map((classItem, index) => {
+              {dashboardData?.students_by_class?.map((classItem, index) => {
                 const studentsInClass = students.filter(
                   (student) => student.class === classItem.kelas
                 );

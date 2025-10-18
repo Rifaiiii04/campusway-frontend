@@ -151,7 +151,7 @@ export default function StudentDashboardClient() {
         const appliedMajor = {
           id: response.data.major.id,
           major_name: response.data.major.major_name,
-          rumpun_ilmu: response.data.major.category || "ILMU ALAM",
+          rumpun_ilmu: response.data.major.rumpun_ilmu || "ILMU ALAM",
           description: response.data.major.description || "",
           appliedDate: new Date(response.data.chosen_at).toLocaleDateString(
             "id-ID"

@@ -272,6 +272,10 @@ export default function SchoolLogin({
       // Enhanced error logging with request tracking
       console.error(`💥 [${requestId || 'unknown'}] Error during ${userType} login:`, {
         error: err,
+        errorType: typeof err,
+        errorConstructor: err?.constructor?.name,
+        errorMessage: err instanceof Error ? err.message : String(err),
+        errorStack: err instanceof Error ? err.stack : undefined,
         retryCount,
         npsn: npsn.substring(0, 3) + "***",
         timestamp: new Date().toISOString(),
@@ -311,6 +315,7 @@ export default function SchoolLogin({
 
       let errorMessage = "Terjadi kesalahan saat login";
 
+      // Handle different error types
       if (err instanceof Error) {
         const message = err.message.toLowerCase();
 
@@ -370,6 +375,16 @@ export default function SchoolLogin({
           // Use the original error message if it's user-friendly
           errorMessage = err.message;
         }
+      } else if (typeof err === 'string') {
+        // Handle string errors
+        errorMessage = err;
+      } else if (err && typeof err === 'object' && 'message' in err) {
+        // Handle object errors with message property
+        errorMessage = String(err.message);
+      } else {
+        // Handle other error types
+        console.warn('Unknown error type:', err);
+        errorMessage = `Terjadi kesalahan tidak terduga: ${String(err)}`;
       }
 
       // Show modal for critical errors, inline for minor ones

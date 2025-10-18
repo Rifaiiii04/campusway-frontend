@@ -36,12 +36,12 @@ export default function DashboardContent({
     upcomingSchedules?.length || 0
   );
   const classChartData = {
-    labels: dashboardData?.students_by_class.map((cls) => cls.kelas) || [],
+    labels: dashboardData?.students_by_class?.map((cls) => cls.kelas) || [],
     datasets: [
       {
         label: "Jumlah Siswa",
         data:
-          dashboardData?.students_by_class.map((cls) => cls.student_count) ||
+          dashboardData?.students_by_class?.map((cls) => cls.student_count) ||
           [],
         backgroundColor: [
           "rgba(128, 0, 0, 0.8)",
@@ -66,12 +66,12 @@ export default function DashboardContent({
 
   // Chart untuk jurusan yang diminati
   const majorChartData = {
-    labels: dashboardData?.top_majors.map((major) => major.major_name) || [],
+    labels: dashboardData?.top_majors?.map((major) => major.major_name) || [],
     datasets: [
       {
         label: "Jumlah Siswa",
         data:
-          dashboardData?.top_majors.map((major) => major.student_count) || [],
+          dashboardData?.top_majors?.map((major) => major.student_count) || [],
         backgroundColor: [
           "rgba(75, 192, 192, 0.8)",
           "rgba(128, 0, 0, 0.8)",
@@ -279,7 +279,7 @@ export default function DashboardContent({
                   darkMode ? "text-gray-100" : "text-gray-900"
                 }`}
               >
-                {dashboardData?.statistics.total_students}
+                {dashboardData?.statistics?.total_students || 0}
               </p>
             </div>
           </div>
@@ -319,7 +319,7 @@ export default function DashboardContent({
                   darkMode ? "text-gray-100" : "text-gray-900"
                 }`}
               >
-                {dashboardData?.students_by_class.length}
+                {dashboardData?.students_by_class?.length || 0}
               </p>
             </div>
           </div>
@@ -359,7 +359,7 @@ export default function DashboardContent({
                   darkMode ? "text-gray-100" : "text-gray-900"
                 }`}
               >
-                {dashboardData?.statistics.students_with_choice}
+                {dashboardData?.statistics?.students_with_choice || 0}
               </p>
             </div>
           </div>
@@ -399,7 +399,7 @@ export default function DashboardContent({
                   darkMode ? "text-gray-100" : "text-gray-900"
                 }`}
               >
-                {dashboardData?.statistics.completion_percentage?.toFixed(1)}%
+                {dashboardData?.statistics?.completion_percentage?.toFixed(1) || 0}%
               </p>
             </div>
           </div>
@@ -559,7 +559,7 @@ export default function DashboardContent({
                   : "bg-white divide-gray-200"
               } divide-y`}
             >
-              {dashboardData?.students_by_class.map((classItem, index) => {
+              {dashboardData?.students_by_class?.map((classItem, index) => {
                 const studentsInClass = students.filter(
                   (student) => student.class === classItem.kelas
                 );

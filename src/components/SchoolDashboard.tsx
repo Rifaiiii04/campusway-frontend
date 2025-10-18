@@ -12,6 +12,7 @@ import {
   ArcElement,
 } from "chart.js";
 import { Bar, Doughnut } from "react-chartjs-2";
+import { Student, MajorStatistics } from "../services/api";
 
 ChartJS.register(
   CategoryScale,
@@ -31,22 +32,7 @@ interface DashboardOverview {
   completion_rate: number;
 }
 
-interface Student {
-  id: number;
-  nis: string;
-  name: string;
-  gender: string;
-  school_class: {
-    name: string;
-    grade: string;
-  };
-  latest_test_result?: {
-    total_score: number;
-    recommended_major: string;
-    major_confidence: number;
-    test_date: string;
-  };
-}
+// Using Student interface from api.ts
 
 interface MajorStatistic {
   major: string;
@@ -89,7 +75,7 @@ export default function SchoolDashboard() {
   useEffect(() => {
     if (students.length > 0) {
       const classSummaryData = students.reduce((acc: any[], student) => {
-        const existingClass = acc.find(cls => cls.class_name === student.school_class?.name);
+        const existingClass = acc.find(cls => cls.class_name === (student.kelas || student.class));
         if (existingClass) {
           existingClass.total_students++;
           if (student.latest_test_result) {
@@ -98,9 +84,9 @@ export default function SchoolDashboard() {
           }
         } else {
           acc.push({
-            class_id: student.school_class?.id || 0,
-            class_name: student.school_class?.name || "Unknown",
-            grade: student.school_class?.name || "Unknown",
+            class_id: student.id || 0,
+            class_name: student.kelas || student.class || "Unknown",
+            grade: student.kelas || student.class || "Unknown",
             total_students: 1,
             total_tests: 1,
             completed_tests: student.latest_test_result ? 1 : 0,
@@ -137,7 +123,7 @@ export default function SchoolDashboard() {
       const { apiService } = await import("@/services/api");
 
       let dashboardData = null;
-      let studentsData = [];
+      let studentsData: Student[] = [];
       let majorStatsData = [];
 
       try {
@@ -216,7 +202,7 @@ export default function SchoolDashboard() {
         const completionRate = totalStudents > 0 ? Math.round((studentsWithChoice / totalStudents) * 100) : 0;
         
         // Get unique classes
-        const uniqueClasses = [...new Set(studentsData.map(s => s.school_class?.name).filter(Boolean))];
+        const uniqueClasses = [...new Set(studentsData.map(s => s.kelas || s.class).filter(Boolean))];
         
         setOverview({
           total_students: totalStudents,
@@ -684,13 +670,13 @@ export default function SchoolDashboard() {
                   {students.map((student) => (
                     <tr key={student.id}>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {student.nis}
+                        {student.nisn}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {student.name}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {student.school_class.name}
+                        {student.kelas || student.class}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {student.latest_test_result

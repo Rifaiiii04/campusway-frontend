@@ -209,11 +209,16 @@ export interface Student {
   nisn: string;
   name: string;
   class: string;
+  kelas?: string; // API returns 'kelas' field
   email?: string;
   phone?: string;
   parent_phone?: string;
   password?: string;
   has_choice: boolean;
+  school_id?: number;
+  status?: string;
+  created_at?: string;
+  updated_at?: string;
   chosen_major?: {
     id: number;
     name: string;
@@ -474,6 +479,16 @@ export const apiService = {
       return data;
     } catch (error: unknown) {
       clearTimeout(timeoutId);
+      console.error("💥 API Service login error:", {
+        error,
+        errorType: typeof error,
+        errorConstructor: error?.constructor?.name,
+        errorMessage: error instanceof Error ? error.message : String(error),
+        errorStack: error instanceof Error ? error.stack : undefined,
+        url: `${API_BASE_URL}/login`,
+        npsn: npsn.substring(0, 3) + "***"
+      });
+      
       if (error instanceof Error && error.name === "AbortError") {
         throw new Error("Timeout: Server tidak merespons dalam 8 detik");
       }
