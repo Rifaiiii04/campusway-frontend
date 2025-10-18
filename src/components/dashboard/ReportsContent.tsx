@@ -181,9 +181,9 @@ export default function ReportsContent({
               <h3 class="chart-title">Distribusi Kelas</h3>
               <div class="chart-content">
                 ${
-                  dashboardData?.students_by_class || []
+                  (dashboardData?.students_by_class || [])
                     .map(
-                      (cls, index) =>
+                      (cls: {kelas: string, student_count: number}, index: number) =>
                         `<div class="chart-item chart-item-${index % 5}">${
                           cls.kelas
                         }: ${cls.student_count} siswa</div>`
