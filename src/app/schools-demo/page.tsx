@@ -1,3 +1,4 @@
+"use client";
 import SchoolSelector from "@/components/SchoolSelector";
 
 export default function SchoolsDemoPage() {
