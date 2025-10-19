@@ -3,23 +3,23 @@ import { apiPerformance } from "@/utils/performanceMonitor";
 
 // Dynamic API base URL based on current hostname
 const getApiBaseUrl = () => {
-  // Force use of localhost:8000 for all cases since server runs there
-  const url = "http://127.0.0.1:8000";
-  
+  // Use production server on port 8080
+  const url = "http://103.23.198.101:8080";
+
   if (typeof window !== "undefined") {
     const hostname = window.location.hostname;
     console.log("🔧 getApiBaseUrl hostname:", hostname);
     console.log("🔧 window.location:", window.location.href);
-    console.log("🔧 Using fixed backend URL:", url);
+    console.log("🔧 Using production backend URL:", url);
   }
-  
+
   return url;
 };
 
 // Fallback API base URL for when main server is down
 const getFallbackApiBaseUrl = () => {
-  // Always use localhost:8000 as fallback
-  return "http://127.0.0.1:8000";
+  // Use production server as fallback
+  return "http://103.23.198.101:8080";
 };
 
 // Get API base URL with proper network detection
@@ -28,7 +28,7 @@ const getApiBaseUrlWithNetworkDetection = () => {
   return {
     school: `${baseUrl}/api/school`,
     web: `${baseUrl}/api/web`,
-    superadmin: `${baseUrl}/api`
+    superadmin: `${baseUrl}/api`,
   };
 };
 
@@ -45,7 +45,7 @@ if (
   typeof window !== "undefined" &&
   window.location.hostname === "10.112.234.213"
 ) {
-  const STUDENT_API_BASE_URL_OVERRIDE = "http://10.112.234.213:8000/api/web";
+  const STUDENT_API_BASE_URL_OVERRIDE = "http://103.23.198.101:8080/api/web";
   console.log(
     "🔧 Overriding STUDENT_API_BASE_URL to:",
     STUDENT_API_BASE_URL_OVERRIDE
@@ -62,9 +62,18 @@ console.log("🔧 API_BASE_URL:", API_BASE_URL);
 console.log("🔧 STUDENT_API_BASE_URL:", STUDENT_API_BASE_URL);
 console.log("🔧 SUPERADMIN_API_BASE_URL:", SUPERADMIN_API_BASE_URL);
 console.log("🔧 Environment variables:");
-console.log("  - NEXT_PUBLIC_API_BASE_URL:", process.env.NEXT_PUBLIC_API_BASE_URL);
-console.log("  - NEXT_PUBLIC_STUDENT_API_BASE_URL:", process.env.NEXT_PUBLIC_STUDENT_API_BASE_URL);
-console.log("  - NEXT_PUBLIC_SUPERADMIN_API_URL:", process.env.NEXT_PUBLIC_SUPERADMIN_API_URL);
+console.log(
+  "  - NEXT_PUBLIC_API_BASE_URL:",
+  process.env.NEXT_PUBLIC_API_BASE_URL
+);
+console.log(
+  "  - NEXT_PUBLIC_STUDENT_API_BASE_URL:",
+  process.env.NEXT_PUBLIC_STUDENT_API_BASE_URL
+);
+console.log(
+  "  - NEXT_PUBLIC_SUPERADMIN_API_URL:",
+  process.env.NEXT_PUBLIC_SUPERADMIN_API_URL
+);
 
 // Enhanced fetch with caching and performance monitoring
 async function fetchWithCache<T>(
@@ -121,23 +130,36 @@ async function fetchWithCache<T>(
     if (!response.ok) {
       // Retry for 500 errors up to 2 times
       if (response.status === 500 && retryCount < 2) {
-        console.warn(`Server error 500, retrying... (attempt ${retryCount + 1}/2)`);
-        await new Promise(resolve => setTimeout(resolve, 1000 * (retryCount + 1))); // Exponential backoff
+        console.warn(
+          `Server error 500, retrying... (attempt ${retryCount + 1}/2)`
+        );
+        await new Promise((resolve) =>
+          setTimeout(resolve, 1000 * (retryCount + 1))
+        ); // Exponential backoff
         return fetchWithCache(url, options, cacheKey, cacheTTL, retryCount + 1);
       }
-      
+
       // Try fallback URL for 500 errors on first attempt
       if (response.status === 500 && retryCount === 0) {
         console.warn(`Server error 500, trying fallback URL...`);
-        const fallbackUrl = url.replace(getApiBaseUrl(), getFallbackApiBaseUrl());
+        const fallbackUrl = url.replace(
+          getApiBaseUrl(),
+          getFallbackApiBaseUrl()
+        );
         console.log(`Trying fallback URL: ${fallbackUrl}`);
         try {
-          return await fetchWithCache(fallbackUrl, options, cacheKey, cacheTTL, retryCount + 1);
+          return await fetchWithCache(
+            fallbackUrl,
+            options,
+            cacheKey,
+            cacheTTL,
+            retryCount + 1
+          );
         } catch (fallbackError) {
           console.warn(`Fallback URL also failed:`, fallbackError);
         }
       }
-      
+
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
 
@@ -171,22 +193,28 @@ async function fetchWithCache<T>(
           );
         }
         // Check if it's a network connectivity issue
-        if (error.message.includes("ERR_NETWORK_CHANGED") || 
-            error.message.includes("ERR_INTERNET_DISCONNECTED")) {
+        if (
+          error.message.includes("ERR_NETWORK_CHANGED") ||
+          error.message.includes("ERR_INTERNET_DISCONNECTED")
+        ) {
           throw new Error(
             `Koneksi internet terputus. Periksa koneksi internet Anda dan coba lagi.`
           );
         }
         // Check if it's a CORS issue
-        if (error.message.includes("ERR_CERT_AUTHORITY_INVALID") ||
-            error.message.includes("ERR_SSL_PROTOCOL_ERROR")) {
+        if (
+          error.message.includes("ERR_CERT_AUTHORITY_INVALID") ||
+          error.message.includes("ERR_SSL_PROTOCOL_ERROR")
+        ) {
           throw new Error(
             `Masalah keamanan koneksi. Silakan coba akses dengan HTTP atau periksa sertifikat SSL.`
           );
         }
         // Generic network error
         throw new Error(
-          `Koneksi gagal: Pastikan server backend berjalan di ${getApiBaseUrl()}. Error: ${error.message}`
+          `Koneksi gagal: Pastikan server backend berjalan di ${getApiBaseUrl()}. Error: ${
+            error.message
+          }`
         );
       }
     }
@@ -449,7 +477,7 @@ export const apiService = {
     try {
       console.log("🔍 School login attempt to:", `${API_BASE_URL}/login`);
       console.log("🔍 School login data:", { npsn, password: "***" });
-      
+
       const response = await fetch(`${API_BASE_URL}/login`, {
         method: "POST",
         headers: {
@@ -462,7 +490,7 @@ export const apiService = {
       clearTimeout(timeoutId);
       console.log("🔍 School login response status:", response.status);
       console.log("🔍 School login response ok:", response.ok);
-      
+
       const data = await response.json();
 
       if (!response.ok) {
@@ -492,9 +520,9 @@ export const apiService = {
         errorMessage: error instanceof Error ? error.message : String(error),
         errorStack: error instanceof Error ? error.stack : undefined,
         url: `${API_BASE_URL}/login`,
-        npsn: npsn.substring(0, 3) + "***"
+        npsn: npsn.substring(0, 3) + "***",
       });
-      
+
       if (error instanceof Error && error.name === "AbortError") {
         throw new Error("Timeout: Server tidak merespons dalam 15 detik");
       }
@@ -872,7 +900,10 @@ export const apiService = {
   },
 
   // Get Classes List
-  async getClasses(): Promise<{ success: boolean; data: { classes: Array<{ name: string; value: string }> } }> {
+  async getClasses(): Promise<{
+    success: boolean;
+    data: { classes: Array<{ name: string; value: string }> };
+  }> {
     const token = getToken();
     if (!token) {
       throw new Error("Token tidak ditemukan");
@@ -1047,9 +1078,12 @@ export const studentApiService = {
     const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
 
     try {
-      console.log("🔍 Student login attempt to:", `${STUDENT_API_BASE_URL}/login`);
+      console.log(
+        "🔍 Student login attempt to:",
+        `${STUDENT_API_BASE_URL}/login`
+      );
       console.log("🔍 Student login data:", { nisn, password: "***" });
-      
+
       const response = await fetch(`${STUDENT_API_BASE_URL}/login`, {
         method: "POST",
         headers: {
@@ -1086,7 +1120,7 @@ export const studentApiService = {
     } catch (error: unknown) {
       clearTimeout(timeoutId);
       console.error("💥 Student login error:", error);
-      
+
       if (error instanceof Error) {
         if (error.name === "AbortError") {
           throw new Error("Timeout: Server tidak merespons dalam 15 detik");
@@ -1099,15 +1133,19 @@ export const studentApiService = {
             );
           }
           // Check if it's a network connectivity issue
-          if (error.message.includes("ERR_NETWORK_CHANGED") || 
-              error.message.includes("ERR_INTERNET_DISCONNECTED")) {
+          if (
+            error.message.includes("ERR_NETWORK_CHANGED") ||
+            error.message.includes("ERR_INTERNET_DISCONNECTED")
+          ) {
             throw new Error(
               `Koneksi internet terputus. Periksa koneksi internet Anda dan coba lagi.`
             );
           }
           // Check if it's a CORS issue
-          if (error.message.includes("ERR_CERT_AUTHORITY_INVALID") ||
-              error.message.includes("ERR_SSL_PROTOCOL_ERROR")) {
+          if (
+            error.message.includes("ERR_CERT_AUTHORITY_INVALID") ||
+            error.message.includes("ERR_SSL_PROTOCOL_ERROR")
+          ) {
             throw new Error(
               `Masalah keamanan koneksi. Silakan coba akses dengan HTTP atau periksa sertifikat SSL.`
             );
@@ -1173,7 +1211,7 @@ export const studentApiService = {
         typeof window !== "undefined" &&
         window.location.hostname === "10.112.234.213"
       ) {
-        baseUrl = "http://10.112.234.213:8000/api/web";
+        baseUrl = "http://103.23.198.101:8080/api/web";
         console.log("🔧 Using network URL override for getMajors:", baseUrl);
       }
 
@@ -1272,7 +1310,7 @@ export const studentApiService = {
         typeof window !== "undefined" &&
         window.location.hostname === "10.112.234.213"
       ) {
-        baseUrl = "http://10.112.234.213:8000/api/web";
+        baseUrl = "http://103.23.198.101:8080/api/web";
         console.log("🔧 Using network URL override:", baseUrl);
       }
 
