@@ -31,7 +31,8 @@ export default function SchoolsDemoPage() {
                 <p>
                   1. Import:{" "}
                   <code className="bg-gray-100 px-1 rounded">
-                    import SchoolSelector from '@/components/SchoolSelector'
+                    import SchoolSelector from
+                    &apos;@/components/SchoolSelector&apos;
                   </code>
                 </p>
                 <p>
