@@ -492,8 +492,15 @@ export const apiService = {
       console.log("🔍 School login response ok:", response.ok);
 
       const data = await response.json();
+      console.log("🔍 School login response data:", data);
 
       if (!response.ok) {
+        console.error("❌ School login failed:", {
+          status: response.status,
+          statusText: response.statusText,
+          data: data,
+        });
+
         // Provide more specific error messages based on status code
         if (response.status === 401) {
           throw new Error("NPSN atau password salah");
@@ -503,7 +510,10 @@ export const apiService = {
           throw new Error(data.message || "Data tidak valid");
         } else if (response.status >= 500) {
           throw new Error(
-            "Server sedang mengalami masalah. Silakan coba lagi nanti"
+            `Server error (${response.status}): ${
+              data.message ||
+              "Server sedang mengalami masalah. Silakan coba lagi nanti"
+            }`
           );
         } else {
           throw new Error(data.message || "Login gagal");
@@ -1098,8 +1108,15 @@ export const studentApiService = {
       console.log("🔍 Student login response ok:", response.ok);
 
       const data = await response.json();
+      console.log("🔍 Student login response data:", data);
 
       if (!response.ok) {
+        console.error("❌ Student login failed:", {
+          status: response.status,
+          statusText: response.statusText,
+          data: data,
+        });
+
         // Provide more specific error messages based on status code
         if (response.status === 401) {
           throw new Error("NISN atau password salah");
@@ -1109,7 +1126,10 @@ export const studentApiService = {
           throw new Error(data.message || "Data tidak valid");
         } else if (response.status >= 500) {
           throw new Error(
-            "Server sedang mengalami masalah. Silakan coba lagi nanti"
+            `Server error (${response.status}): ${
+              data.message ||
+              "Server sedang mengalami masalah. Silakan coba lagi nanti"
+            }`
           );
         } else {
           throw new Error(data.message || "Login gagal");
