@@ -14,7 +14,7 @@ export default function LandingPage() {
   return (
     <>
       <PageTitle
-        title="FITME - Temukan Jurusan yang Tepat untuk Masa Depanmu"
+        title="ArahPotensi - Temukan Jurusan yang Tepat untuk Masa Depanmu"
         description="Platform pemilihan jurusan untuk membantu siswa/i menentukan jurusan perkuliahan yang cocok berdasarkan minat dan bakat"
       />
 
