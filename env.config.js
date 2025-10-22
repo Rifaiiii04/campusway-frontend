@@ -1,10 +1,10 @@
 // Environment Configuration for Campusway Frontend
 const config = {
   development: {
-    API_BASE_URL: 'http://103.23.198.101/super-admin/api/school',
-    STUDENT_API_BASE_URL: 'http://103.23.198.101/super-admin/api/web',
-    SUPERADMIN_API_URL: 'http://103.23.198.101/super-admin/api',
-    BACKEND_URL: 'http://103.23.198.101/super-admin',
+    API_BASE_URL: 'http://127.0.0.1:8000/api/school',
+    STUDENT_API_BASE_URL: 'http://127.0.0.1:8000/api/web',
+    SUPERADMIN_API_URL: 'http://127.0.0.1:8000/api',
+    BACKEND_URL: 'http://127.0.0.1:8000',
     CORS_ORIGIN: 'http://localhost:3000'
   },
   production: {
