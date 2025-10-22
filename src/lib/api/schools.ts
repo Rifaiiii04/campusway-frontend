@@ -18,7 +18,7 @@ export interface SchoolsApiResponse {
  */
 export async function fetchSchools(): Promise<School[]> {
   try {
-    const response = await fetch("http://103.23.198.101:8080/api/web/schools", {
+    const response = await fetch("http://127.0.0.1:8000/api/web/schools", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",

@@ -23,7 +23,7 @@ export default function ApiHealthCheck() {
     try {
       const startTime = Date.now();
       const response = await fetch(
-        "http://103.23.198.101/super-admin/api/optimized/health"
+        "http://127.0.0.1:8000/api/optimized/health"
       );
       const endTime = Date.now();
 

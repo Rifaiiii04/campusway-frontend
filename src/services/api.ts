@@ -1253,7 +1253,7 @@ export const studentApiService = {
         typeof window !== "undefined" &&
         window.location.hostname === "10.112.234.213"
       ) {
-        baseUrl = "http://103.23.198.101:8080/api/web";
+        baseUrl = "http://127.0.0.1:8000/api/web";
         console.log("🔧 Using network URL override for getMajors:", baseUrl);
       }
 
@@ -1352,7 +1352,7 @@ export const studentApiService = {
         typeof window !== "undefined" &&
         window.location.hostname === "10.112.234.213"
       ) {
-        baseUrl = "http://103.23.198.101:8080/api/web";
+        baseUrl = "http://127.0.0.1:8000/api/web";
         console.log("🔧 Using network URL override:", baseUrl);
       }
 
