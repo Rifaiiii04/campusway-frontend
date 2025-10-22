@@ -210,6 +210,11 @@ export default function TeacherDashboard() {
     try {
       setLoading(true);
       setError("");
+      
+      // Check if token exists
+      const token = localStorage.getItem("school_token");
+      console.log("🔍 TeacherDashboard - Token check:", token ? `${token.substring(0, 10)}...` : "NO TOKEN FOUND");
+      console.log("🔍 TeacherDashboard - School data:", localStorage.getItem("school_data"));
 
       // Load dashboard data
       const dashboardResponse = await apiService.getDashboard();

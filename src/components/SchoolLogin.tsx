@@ -88,7 +88,7 @@ export default function SchoolLogin({
           if (isBlockedRetry) {
             console.log("🔄 Using fallback URL for student login due to blocking");
             // Override the API service temporarily
-            const fallbackUrl = "http://103.23.198.101:8080/api/web";
+            const fallbackUrl = "http://127.0.0.1:8000/api/web";
             const response = await fetch(`${fallbackUrl}/login`, {
               method: "POST",
               headers: {
@@ -205,8 +205,8 @@ export default function SchoolLogin({
         }
       }
 
-      // Validasi normal untuk guru - use consistent API URL
-      const apiBaseUrl = "http://103.23.198.101:8080/api/school";
+      // Validasi normal untuk guru - use local development API URL
+      const apiBaseUrl = "http://127.0.0.1:8000/api/school";
       
       console.log("🌐 Using consistent API Base URL:", apiBaseUrl);
       console.log("🌐 Current hostname:", typeof window !== "undefined" ? window.location.hostname : "server-side");

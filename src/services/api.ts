@@ -3,14 +3,14 @@ import { apiPerformance } from "@/utils/performanceMonitor";
 
 // Dynamic API base URL based on current hostname
 const getApiBaseUrl = () => {
-  // Use production server on port 8080
-  const url = "http://103.23.198.101:8080";
+  // Use local development server
+  const url = "http://127.0.0.1:8000";
 
   if (typeof window !== "undefined") {
     const hostname = window.location.hostname;
     console.log("🔧 getApiBaseUrl hostname:", hostname);
     console.log("🔧 window.location:", window.location.href);
-    console.log("🔧 Using production backend URL:", url);
+    console.log("🔧 Using local backend URL:", url);
   }
 
   return url;
@@ -18,8 +18,8 @@ const getApiBaseUrl = () => {
 
 // Fallback API base URL for when main server is down
 const getFallbackApiBaseUrl = () => {
-  // Use production server as fallback
-  return "http://103.23.198.101:8080";
+  // Use local development server as fallback
+  return "http://127.0.0.1:8000";
 };
 
 // Get API base URL with proper network detection
@@ -45,7 +45,7 @@ if (
   typeof window !== "undefined" &&
   window.location.hostname === "10.112.234.213"
 ) {
-  const STUDENT_API_BASE_URL_OVERRIDE = "http://103.23.198.101:8080/api/web";
+  const STUDENT_API_BASE_URL_OVERRIDE = "http://127.0.0.1:8000/api/web";
   console.log(
     "🔧 Overriding STUDENT_API_BASE_URL to:",
     STUDENT_API_BASE_URL_OVERRIDE
@@ -107,13 +107,17 @@ async function fetchWithCache<T>(
       controller.abort();
     }, 15000); // 15 seconds timeout
 
+    const finalHeaders = {
+      "Content-Type": "application/json",
+      ...options.headers,
+    };
+    
+    console.log("🌐 fetchWithCache final headers:", finalHeaders);
+    
     const response = await fetch(url, {
       ...options,
       signal: controller.signal,
-      headers: {
-        "Content-Type": "application/json",
-        ...options.headers,
-      },
+      headers: finalHeaders,
     });
 
     console.log("🌐 fetchWithCache response status:", response.status);
@@ -435,8 +439,11 @@ export interface TkaSchedule {
 // Helper function untuk mendapatkan token
 const getToken = (): string | undefined => {
   if (typeof window !== "undefined") {
-    return localStorage.getItem("school_token") || undefined;
+    const token = localStorage.getItem("school_token") || undefined;
+    console.log("🔑 getToken - Retrieved from localStorage:", token ? `${token.substring(0, 10)}...` : "NO TOKEN");
+    return token;
   }
+  console.log("🔑 getToken - Window undefined, returning undefined");
   return undefined;
 };
 
@@ -451,10 +458,13 @@ const getToken = (): string | undefined => {
 // Helper function untuk membuat headers dengan authorization
 const getAuthHeaders = () => {
   const token = getToken();
-  return {
+  console.log("🔑 getAuthHeaders - Token:", token ? `${token.substring(0, 10)}...` : "NO TOKEN");
+  const headers = {
     "Content-Type": "application/json",
     ...(token && { Authorization: `Bearer ${token}` }),
   };
+  console.log("🔑 getAuthHeaders - Headers:", headers);
+  return headers;
 };
 
 // Helper function untuk membuat headers dengan student authorization (currently unused but kept for future use)
@@ -620,10 +630,22 @@ export const apiService = {
       return data;
     }
 
+    const authHeaders = getAuthHeaders();
+    console.log("🔍 getStudents - Auth headers:", authHeaders);
+    console.log("🔍 getStudents - Token from localStorage:", localStorage.getItem("school_token"));
+    console.log("🔍 getStudents - School data from localStorage:", localStorage.getItem("school_data"));
+    console.log("🔍 getStudents - All localStorage keys:", Object.keys(localStorage));
+    console.log("🔍 getStudents - API_BASE_URL:", API_BASE_URL);
+    console.log("🔍 getStudents - Full URL:", `${API_BASE_URL}/students`);
+    console.log("🔍 getStudents - Token exists:", !!localStorage.getItem("school_token"));
+    console.log("🔍 getStudents - Token length:", localStorage.getItem("school_token")?.length || 0);
+    console.log("🔍 getStudents - Current URL:", window.location.href);
+    console.log("🔍 getStudents - User agent:", navigator.userAgent);
+    
     return fetchWithCache(
       `${API_BASE_URL}/students`,
       {
-        headers: getAuthHeaders(),
+        headers: authHeaders,
       },
       cacheKeys.students(schoolId),
       3 * 60 * 1000 // 3 minutes cache
