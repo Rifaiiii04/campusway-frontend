@@ -691,7 +691,7 @@ export default function TeacherDashboard() {
       id: "tka-schedules",
       label: "Jadwal ArahPotensi",
       icon: "🗓️",
-      path: "/teacher",
+      path: "/teacher/tka-schedule",
     },
     { id: "tests", label: "Tes & Hasil", icon: "📝", path: "/teacher" },
     { id: "reports", label: "Laporan", icon: "📋", path: "/teacher" },
@@ -702,6 +702,7 @@ export default function TeacherDashboard() {
     handleMenuChange(menuId);
     const menuItem = menuItems.find((item) => item.id === menuId);
     if (menuItem) {
+      console.log("🔍 TeacherDashboard: Navigating to:", menuItem.path);
       router.push(menuItem.path);
     }
   };
@@ -732,114 +733,9 @@ export default function TeacherDashboard() {
           />
         );
       case "tka-schedules":
-        return (
-          <div className="space-y-6">
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <div className="flex items-center justify-between mb-6">
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                    <span className="text-red-600">📅</span>
-                    Jadwal ArahPotensi
-                  </h2>
-                  <p className="text-gray-600">
-                    Jadwal pelaksanaan Tes Kemampuan Akademik
-                  </p>
-                </div>
-                <div className="flex items-center gap-4">
-                  <button
-                    onClick={refreshTkaSchedules}
-                    disabled={loadingSchedules}
-                    className="px-3 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                  >
-                    <span className={loadingSchedules ? "animate-spin" : ""}>
-                      🔄
-                    </span>
-                    Refresh
-                  </button>
-                  <div className="text-sm text-gray-500">
-                    Total: {tkaSchedules.length} jadwal
-                  </div>
-                  <div className="text-sm text-red-600 font-medium">
-                    Mendatang: {upcomingSchedules.length} jadwal
-                  </div>
-                  <div className="text-sm text-green-600 font-medium">
-                    Loaded: {schedulesLoaded ? "Yes" : "No"}
-                  </div>
-                </div>
-              </div>
-
-              {loadingSchedules ? (
-                <div className="flex items-center justify-center py-12">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600"></div>
-                  <span className="ml-2 text-gray-600">
-                    Memuat jadwal ArahPotensi...
-                  </span>
-                </div>
-              ) : (
-                <div className="grid gap-6">
-                  {/* Jadwal Mendatang */}
-                  {upcomingSchedules.length > 0 && (
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                        <span className="text-red-600">📅</span>
-                        Jadwal Mendatang
-                      </h3>
-                      <div className="grid gap-4">
-                        {upcomingSchedules.map((schedule) => (
-                          <TkaScheduleCard
-                            key={schedule.id}
-                            schedule={schedule}
-                            showActions={false}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Semua Jadwal */}
-                  {tkaSchedules.length > 0 && (
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                        <span className="text-gray-600">📋</span>
-                        {upcomingSchedules.length > 0
-                          ? "Semua Jadwal"
-                          : "Jadwal ArahPotensi"}
-                      </h3>
-                      <div className="grid gap-4">
-                        {tkaSchedules
-                          .filter(
-                            (s) => !upcomingSchedules.some((u) => u.id === s.id)
-                          )
-                          .map((schedule) => (
-                            <TkaScheduleCard
-                              key={schedule.id}
-                              schedule={schedule}
-                              showActions={false}
-                            />
-                          ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Empty State - hanya muncul jika benar-benar tidak ada jadwal sama sekali */}
-                  {tkaSchedules.length === 0 &&
-                    upcomingSchedules.length === 0 && (
-                      <div className="text-center py-12">
-                        <div className="text-6xl mb-4">📅</div>
-                        <h3 className="text-lg font-medium text-gray-900 mb-2">
-                          Belum ada jadwal ArahPotensi
-                        </h3>
-                        <p className="text-gray-500">
-                          Jadwal ArahPotensi akan muncul di sini setelah dibuat
-                          oleh Super Admin
-                        </p>
-                      </div>
-                    )}
-                </div>
-              )}
-            </div>
-          </div>
-        );
+        // Redirect to dedicated TKA Schedule page
+        router.push("/teacher/tka-schedule");
+        return null;
       case "tests":
         return <TestsContent darkMode={darkMode} />;
       case "reports":

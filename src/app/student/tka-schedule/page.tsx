@@ -19,6 +19,10 @@ export default function TkaSchedulePage() {
     "all"
   );
 
+  // Debug logging
+  console.log("🔍 TkaSchedulePage component loaded");
+  console.log("🔍 Router:", router);
+
   const loadTkaSchedules = useCallback(async () => {
     try {
       setLoading(true);

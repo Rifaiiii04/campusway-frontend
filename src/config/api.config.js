@@ -1,10 +1,10 @@
 // API Configuration for Campusway Frontend
 const API_CONFIG = {
   // Base URLs
-  BASE_URL: process.env.NEXT_PUBLIC_BACKEND_URL || 'http://127.0.0.1:8000',
-  API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://127.0.0.1:8000/api/school',
-  STUDENT_API_BASE_URL: process.env.NEXT_PUBLIC_STUDENT_API_BASE_URL || 'http://127.0.0.1:8000/api/web',
-  SUPERADMIN_API_URL: process.env.NEXT_PUBLIC_SUPERADMIN_API_URL || 'http://127.0.0.1:8000/api',
+  BASE_URL: process.env.NEXT_PUBLIC_BACKEND_URL || 'http://127.0.0.1:8001',
+  API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://127.0.0.1:8001/api/school',
+  STUDENT_API_BASE_URL: process.env.NEXT_PUBLIC_STUDENT_API_BASE_URL || 'http://127.0.0.1:8001/api/web',
+  SUPERADMIN_API_URL: process.env.NEXT_PUBLIC_SUPERADMIN_API_URL || 'http://127.0.0.1:8001/api',
 
   // Timeout settings
   TIMEOUT: 15000, // 15 seconds

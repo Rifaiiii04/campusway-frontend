@@ -89,7 +89,7 @@ export default function SettingsContent({
       // Call API to change password using the same pattern as other API calls
       const API_BASE_URL =
         process.env.NEXT_PUBLIC_API_BASE_URL ||
-        "http://127.0.0.1:8000/api/school";
+        "http://127.0.0.1:8001/api/school";
       const response = await fetch(`${API_BASE_URL}/change-password`, {
         method: "POST",
         headers: {

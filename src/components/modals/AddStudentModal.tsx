@@ -132,7 +132,7 @@ export default function AddStudentModal({
       const response = await fetch(
         `${
           process.env.NEXT_PUBLIC_API_BASE_URL ||
-          "http://127.0.0.1:8000/api/school"
+          "http://127.0.0.1:8001/api/school"
         }/students`,
         {
           method: "POST",

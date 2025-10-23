@@ -4,7 +4,7 @@ import { apiPerformance } from "@/utils/performanceMonitor";
 // Dynamic API base URL based on current hostname
 const getApiBaseUrl = () => {
   // Use local development server
-  const url = "http://127.0.0.1:8000";
+  const url = "http://127.0.0.1:8001";
 
   if (typeof window !== "undefined") {
     const hostname = window.location.hostname;
@@ -19,7 +19,7 @@ const getApiBaseUrl = () => {
 // Fallback API base URL for when main server is down
 const getFallbackApiBaseUrl = () => {
   // Use local development server as fallback
-  return "http://127.0.0.1:8000";
+  return "http://127.0.0.1:8001";
 };
 
 // Get API base URL with proper network detection
@@ -45,7 +45,7 @@ if (
   typeof window !== "undefined" &&
   window.location.hostname === "10.112.234.213"
 ) {
-  const STUDENT_API_BASE_URL_OVERRIDE = "http://127.0.0.1:8000/api/web";
+  const STUDENT_API_BASE_URL_OVERRIDE = "http://127.0.0.1:8001/api/web";
   console.log(
     "🔧 Overriding STUDENT_API_BASE_URL to:",
     STUDENT_API_BASE_URL_OVERRIDE
@@ -962,10 +962,9 @@ export const apiService = {
     schoolId?: number
   ): Promise<{ success: boolean; data: TkaSchedule[] }> {
     try {
-      const baseUrl = API_BASE_URL.replace("/school", "");
       const url = schoolId
-        ? `${baseUrl}/tka-schedules?school_id=${schoolId}`
-        : `${baseUrl}/tka-schedules`;
+        ? `${API_BASE_URL}/tka-schedules?school_id=${schoolId}`
+        : `${API_BASE_URL}/tka-schedules`;
 
       console.log("🌐 ArahPotensi Schedules API URL:", url);
 
@@ -994,10 +993,9 @@ export const apiService = {
     schoolId?: number
   ): Promise<{ success: boolean; data: TkaSchedule[] }> {
     try {
-      const baseUrl = API_BASE_URL.replace("/school", "");
       const url = schoolId
-        ? `${baseUrl}/tka-schedules/upcoming?school_id=${schoolId}`
-        : `${baseUrl}/tka-schedules/upcoming`;
+        ? `${API_BASE_URL}/tka-schedules/upcoming?school_id=${schoolId}`
+        : `${API_BASE_URL}/tka-schedules/upcoming`;
 
       console.log("🌐 Upcoming ArahPotensi Schedules API URL:", url);
 
@@ -1032,7 +1030,7 @@ export const apiService = {
     target_schools?: number[];
   }) {
     const response = await fetch(
-      `${API_BASE_URL.replace("/school", "")}/tka-schedules`,
+      `${API_BASE_URL}/tka-schedules`,
       {
         method: "POST",
         headers: getAuthHeaders(),
@@ -1065,7 +1063,7 @@ export const apiService = {
     }
   ) {
     const response = await fetch(
-      `${API_BASE_URL.replace("/school", "")}/tka-schedules/${scheduleId}`,
+      `${API_BASE_URL}/tka-schedules/${scheduleId}`,
       {
         method: "PUT",
         headers: getAuthHeaders(),
@@ -1085,7 +1083,7 @@ export const apiService = {
   // Delete ArahPotensi Schedule
   async deleteTkaSchedule(scheduleId: number) {
     const response = await fetch(
-      `${API_BASE_URL.replace("/school", "")}/tka-schedules/${scheduleId}`,
+      `${API_BASE_URL}/tka-schedules/${scheduleId}`,
       {
         method: "DELETE",
         headers: getAuthHeaders(),
@@ -1253,7 +1251,7 @@ export const studentApiService = {
         typeof window !== "undefined" &&
         window.location.hostname === "10.112.234.213"
       ) {
-        baseUrl = "http://127.0.0.1:8000/api/web";
+        baseUrl = "http://127.0.0.1:8001/api/web";
         console.log("🔧 Using network URL override for getMajors:", baseUrl);
       }
 
@@ -1352,7 +1350,7 @@ export const studentApiService = {
         typeof window !== "undefined" &&
         window.location.hostname === "10.112.234.213"
       ) {
-        baseUrl = "http://127.0.0.1:8000/api/web";
+        baseUrl = "http://127.0.0.1:8001/api/web";
         console.log("🔧 Using network URL override:", baseUrl);
       }
 
@@ -1426,16 +1424,27 @@ export const studentApiService = {
         : `${STUDENT_API_BASE_URL}/tka-schedules`;
 
       console.log("🌐 Student ArahPotensi Schedules API URL:", url);
+      console.log("🌐 STUDENT_API_BASE_URL:", STUDENT_API_BASE_URL);
+      console.log("🌐 Full URL being called:", url);
 
       const response = await fetch(url, {
+        method: 'GET',
         headers: {
           "Content-Type": "application/json",
+          "Accept": "application/json",
         },
+        mode: 'cors',
+        credentials: 'omit',
       });
 
+      console.log("🌐 Response status:", response.status);
+      console.log("🌐 Response headers:", Object.fromEntries(response.headers.entries()));
+
       if (!response.ok) {
-        console.warn(`⚠️ ArahPotensi Schedules API error: ${response.status}`);
-        return { success: true, data: [] };
+        console.error(`❌ ArahPotensi Schedules API error: ${response.status} ${response.statusText}`);
+        const errorText = await response.text();
+        console.error("❌ Error response body:", errorText);
+        return { success: false, data: [], error: `HTTP ${response.status}: ${response.statusText}` };
       }
 
       const data = await response.json();
@@ -1444,8 +1453,9 @@ export const studentApiService = {
       return data;
     } catch (error: unknown) {
       console.error("❌ ArahPotensi Schedules API error:", error);
+      console.error("❌ Error details:", error instanceof Error ? error.message : String(error));
       // Return empty data instead of throwing error to prevent UI crashes
-      return { success: true, data: [] };
+      return { success: false, data: [], error: error instanceof Error ? error.message : String(error) };
     }
   },
 
@@ -1458,18 +1468,27 @@ export const studentApiService = {
         : `${STUDENT_API_BASE_URL}/tka-schedules/upcoming`;
 
       console.log("🌐 Student Upcoming ArahPotensi Schedules API URL:", url);
+      console.log("🌐 STUDENT_API_BASE_URL:", STUDENT_API_BASE_URL);
+      console.log("🌐 Full URL being called:", url);
 
       const response = await fetch(url, {
+        method: 'GET',
         headers: {
           "Content-Type": "application/json",
+          "Accept": "application/json",
         },
+        mode: 'cors',
+        credentials: 'omit',
       });
 
+      console.log("🌐 Response status:", response.status);
+      console.log("🌐 Response headers:", Object.fromEntries(response.headers.entries()));
+
       if (!response.ok) {
-        console.warn(
-          `⚠️ Upcoming ArahPotensi Schedules API error: ${response.status}`
-        );
-        return { success: true, data: [] };
+        console.error(`❌ Upcoming ArahPotensi Schedules API error: ${response.status} ${response.statusText}`);
+        const errorText = await response.text();
+        console.error("❌ Error response body:", errorText);
+        return { success: false, data: [], error: `HTTP ${response.status}: ${response.statusText}` };
       }
 
       const data = await response.json();
@@ -1478,8 +1497,9 @@ export const studentApiService = {
       return data;
     } catch (error: unknown) {
       console.error("❌ Upcoming ArahPotensi Schedules API error:", error);
+      console.error("❌ Error details:", error instanceof Error ? error.message : String(error));
       // Return empty data instead of throwing error to prevent UI crashes
-      return { success: true, data: [] };
+      return { success: false, data: [], error: error instanceof Error ? error.message : String(error) };
     }
   },
 
@@ -1613,6 +1633,56 @@ export const superAdminApiService = {
       throw error;
     }
   },
+
+  // Get TKA Schedules from SuperAdmin
+  async getTkaSchedules(): Promise<{ success: boolean; data: TkaSchedule[] }> {
+    try {
+      const url = `${SUPERADMIN_API_BASE_URL}/admin/tka-schedules`;
+      console.log("🌐 SuperAdmin TKA Schedules API URL:", url);
+
+      const response = await fetch(url, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Gagal memuat jadwal TKA");
+      }
+
+      return data;
+    } catch (error) {
+      console.error("❌ Error in getTkaSchedules:", error);
+      throw error;
+    }
+  },
+
+  // Get Upcoming TKA Schedules from SuperAdmin
+  async getUpcomingTkaSchedules(): Promise<{ success: boolean; data: TkaSchedule[] }> {
+    try {
+      const url = `${SUPERADMIN_API_BASE_URL}/admin/tka-schedules/upcoming`;
+      console.log("🌐 SuperAdmin Upcoming TKA Schedules API URL:", url);
+
+      const response = await fetch(url, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Gagal memuat jadwal TKA yang akan datang");
+      }
+
+      return data;
+    } catch (error) {
+      console.error("❌ Error in getUpcomingTkaSchedules:", error);
+      throw error;
+    }
+  },
 };
 
 // School Level API Service
@@ -1702,10 +1772,9 @@ export const schoolLevelApiService = {
     schoolId?: number
   ): Promise<{ success: boolean; data: TkaSchedule[] }> {
     try {
-      const baseUrl = API_BASE_URL.replace("/school", "");
       const url = schoolId
-        ? `${baseUrl}/tka-schedules/upcoming?school_id=${schoolId}`
-        : `${baseUrl}/tka-schedules/upcoming`;
+        ? `${STUDENT_API_BASE_URL}/tka-schedules/upcoming?school_id=${schoolId}`
+        : `${STUDENT_API_BASE_URL}/tka-schedules/upcoming`;
 
       console.log(
         "🌐 School Level Upcoming ArahPotensi Schedules API URL:",
