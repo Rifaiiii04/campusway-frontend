@@ -21,7 +21,7 @@ export default function TeacherTkaSchedulePage() {
               Halaman Jadwal TKA
             </h2>
             <p className="text-gray-600 mb-6">
-              Halaman ini berfungsi dengan baik! Menu "Jadwal TKA" sekarang mengarah ke halaman yang benar.
+              Halaman ini berfungsi dengan baik! Menu &quot;Jadwal TKA&quot; sekarang mengarah ke halaman yang benar.
             </p>
             <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
               ✅ Navigasi berhasil diperbaiki!

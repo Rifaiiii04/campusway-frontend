@@ -30,7 +30,7 @@ import {
   MajorStatistics,
   TkaSchedule,
 } from "../services/api";
-import TkaScheduleCard from "./TkaScheduleCard";
+// import TkaScheduleCard from "./TkaScheduleCard";
 
 // Interface untuk export data
 interface ExportStudentData {
@@ -92,7 +92,7 @@ export default function TeacherDashboard() {
   const [tkaSchedules, setTkaSchedules] = useState<TkaSchedule[]>([]);
   const [upcomingSchedules, setUpcomingSchedules] = useState<TkaSchedule[]>([]);
   const [loadingSchedules, setLoadingSchedules] = useState(false);
-  const [schedulesLoaded, setSchedulesLoaded] = useState(false);
+  // const [schedulesLoaded, setSchedulesLoaded] = useState(false);
 
   // Dark mode detection and management
   useEffect(() => {
@@ -175,7 +175,7 @@ export default function TeacherDashboard() {
       if (schedulesResponse && schedulesResponse.success) {
         const schedules = schedulesResponse.data || [];
         setTkaSchedules(schedules);
-        setSchedulesLoaded(true);
+        // setSchedulesLoaded(true);
         console.log(
           "✅ ArahPotensi schedules loaded:",
           schedules.length,
@@ -184,7 +184,7 @@ export default function TeacherDashboard() {
       } else {
         console.warn("⚠️ ArahPotensi schedules failed:", schedulesResponse);
         setTkaSchedules([]);
-        setSchedulesLoaded(false);
+        // setSchedulesLoaded(false);
       }
 
       // Process upcoming response
@@ -200,7 +200,7 @@ export default function TeacherDashboard() {
       console.error("❌ Error loading ArahPotensi schedules:", scheduleErr);
       setTkaSchedules([]);
       setUpcomingSchedules([]);
-      setSchedulesLoaded(false);
+      // setSchedulesLoaded(false);
     } finally {
       setLoadingSchedules(false);
     }

@@ -1444,7 +1444,7 @@ export const studentApiService = {
         console.error(`❌ ArahPotensi Schedules API error: ${response.status} ${response.statusText}`);
         const errorText = await response.text();
         console.error("❌ Error response body:", errorText);
-        return { success: false, data: [], error: `HTTP ${response.status}: ${response.statusText}` };
+        return { success: false, data: [] };
       }
 
       const data = await response.json();
@@ -1455,7 +1455,7 @@ export const studentApiService = {
       console.error("❌ ArahPotensi Schedules API error:", error);
       console.error("❌ Error details:", error instanceof Error ? error.message : String(error));
       // Return empty data instead of throwing error to prevent UI crashes
-      return { success: false, data: [], error: error instanceof Error ? error.message : String(error) };
+      return { success: false, data: [] };
     }
   },
 
@@ -1488,7 +1488,7 @@ export const studentApiService = {
         console.error(`❌ Upcoming ArahPotensi Schedules API error: ${response.status} ${response.statusText}`);
         const errorText = await response.text();
         console.error("❌ Error response body:", errorText);
-        return { success: false, data: [], error: `HTTP ${response.status}: ${response.statusText}` };
+        return { success: false, data: [] };
       }
 
       const data = await response.json();
@@ -1499,7 +1499,7 @@ export const studentApiService = {
       console.error("❌ Upcoming ArahPotensi Schedules API error:", error);
       console.error("❌ Error details:", error instanceof Error ? error.message : String(error));
       // Return empty data instead of throwing error to prevent UI crashes
-      return { success: false, data: [], error: error instanceof Error ? error.message : String(error) };
+      return { success: false, data: [] };
     }
   },
 
