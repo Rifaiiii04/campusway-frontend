@@ -45,12 +45,12 @@ interface ExportStudentData {
   nama_jurusan: string;
   rumpun_ilmu: string;
   prospek_karir: string;
-  mata_pelajaran_wajib: string;
-  mata_pelajaran_diutamakan: string;
-  mata_pelajaran_kurikulum_merdeka: string;
-  mata_pelajaran_kurikulum_2013_ipa: string;
-  mata_pelajaran_kurikulum_2013_ips: string;
-  mata_pelajaran_kurikulum_2013_bahasa: string;
+  mata_pelajaran_wajib: string | string[];
+  mata_pelajaran_diutamakan: string | string[];
+  mata_pelajaran_kurikulum_merdeka: string | string[];
+  mata_pelajaran_kurikulum_2013_ipa: string | string[];
+  mata_pelajaran_kurikulum_2013_ips: string | string[];
+  mata_pelajaran_kurikulum_2013_bahasa: string | string[];
 }
 
 interface SchoolInfo {
@@ -210,11 +210,17 @@ export default function TeacherDashboard() {
     try {
       setLoading(true);
       setError("");
-      
+
       // Check if token exists
       const token = localStorage.getItem("school_token");
-      console.log("🔍 TeacherDashboard - Token check:", token ? `${token.substring(0, 10)}...` : "NO TOKEN FOUND");
-      console.log("🔍 TeacherDashboard - School data:", localStorage.getItem("school_data"));
+      console.log(
+        "🔍 TeacherDashboard - Token check:",
+        token ? `${token.substring(0, 10)}...` : "NO TOKEN FOUND"
+      );
+      console.log(
+        "🔍 TeacherDashboard - School data:",
+        localStorage.getItem("school_data")
+      );
 
       // Load dashboard data
       const dashboardResponse = await apiService.getDashboard();
