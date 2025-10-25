@@ -601,7 +601,32 @@ export const apiService = {
 
   // Get Dashboard Data
   async getDashboard(): Promise<{ success: boolean; data: DashboardData }> {
-    // Use test endpoint for now to avoid authentication issues
+    const token = getToken();
+
+    // Try authenticated endpoint first
+    if (token) {
+      try {
+        return await fetchWithCache(
+          `${API_BASE_URL}/dashboard`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          },
+          "dashboard",
+          5 * 60 * 1000 // 5 minutes cache
+        );
+      } catch (error) {
+        console.warn(
+          "Authenticated dashboard failed, trying test endpoint:",
+          error
+        );
+      }
+    }
+
+    // Fallback to test endpoint for development/testing
+    console.log("Using test dashboard endpoint");
     return fetchWithCache(
       `${API_BASE_URL}/test-dashboard-data`,
       {
@@ -616,6 +641,38 @@ export const apiService = {
 
   // Get All Students
   async getStudents(
+    forceRefresh: boolean = false
+  ): Promise<{ success: boolean; data: StudentsResponse }> {
+    const token = getToken();
+
+    // Try authenticated endpoint first
+    if (token) {
+      try {
+        return await this.getStudentsAuthenticated(forceRefresh);
+      } catch (error) {
+        console.warn(
+          "Authenticated students failed, trying test endpoint:",
+          error
+        );
+      }
+    }
+
+    // Fallback to test endpoint
+    console.log("Using test students endpoint");
+    return fetchWithCache(
+      `${API_BASE_URL}/test-students`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      },
+      "test-students",
+      5 * 60 * 1000 // 5 minutes cache
+    );
+  },
+
+  // Authenticated students method
+  async getStudentsAuthenticated(
     forceRefresh: boolean = false
   ): Promise<{ success: boolean; data: StudentsResponse }> {
     const token = getToken();
@@ -705,17 +762,42 @@ export const apiService = {
     success: boolean;
     data: MajorStatisticsResponse;
   }> {
-    const response = await fetch(`${API_BASE_URL}/major-statistics`, {
-      headers: getAuthHeaders(),
-    });
+    const token = getToken();
 
-    const data = await response.json();
+    // Try authenticated endpoint first
+    if (token) {
+      try {
+        const response = await fetch(`${API_BASE_URL}/major-statistics`, {
+          headers: getAuthHeaders(),
+        });
 
-    if (!response.ok) {
-      throw new Error(data.message || "Gagal mengambil statistik jurusan");
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || "Gagal mengambil statistik jurusan");
+        }
+
+        return data;
+      } catch (error) {
+        console.warn(
+          "Authenticated major statistics failed, trying test endpoint:",
+          error
+        );
+      }
     }
 
-    return data;
+    // Fallback to test endpoint
+    console.log("Using test major statistics endpoint");
+    return fetchWithCache(
+      `${API_BASE_URL}/test-major-statistics`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      },
+      "test-major-statistics",
+      5 * 60 * 1000 // 5 minutes cache
+    );
   },
 
   // Export Students Data - Fixed function
