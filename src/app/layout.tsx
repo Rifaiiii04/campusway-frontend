@@ -57,13 +57,13 @@ export default function RootLayout({
           href="https://fonts.gstatic.com"
           crossOrigin="anonymous"
         />
-        <link rel="dns-prefetch" href="//127.0.0.1:8001" />
+        <link rel="dns-prefetch" href="//103.23.198.101" />
       </head>
       <body className={`antialiased bg-white dark:bg-gray-900`}>
         <ErrorBoundary>
           <PerformanceProvider>
             {children}
-            <PerformanceDashboard />
+            {process.env.NODE_ENV === "development" && <PerformanceDashboard />}
           </PerformanceProvider>
         </ErrorBoundary>
       </body>

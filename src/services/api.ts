@@ -6,10 +6,10 @@ const getApiBaseUrl = () => {
   // Use production server with /super-admin path
   const url = "http://103.23.198.101/super-admin";
 
-  if (typeof window !== "undefined") {
+  // Only log in development
+  if (typeof window !== "undefined" && process.env.NODE_ENV === "development") {
     const hostname = window.location.hostname;
     console.log("🔧 getApiBaseUrl hostname:", hostname);
-    console.log("🔧 window.location:", window.location.href);
     console.log("🔧 Using production backend URL:", url);
   }
 
@@ -47,34 +47,27 @@ if (
 ) {
   const STUDENT_API_BASE_URL_OVERRIDE =
     "http://103.23.198.101/super-admin/api/web";
-  console.log(
-    "🔧 Overriding STUDENT_API_BASE_URL to:",
-    STUDENT_API_BASE_URL_OVERRIDE
-  );
+
+  // Only log in development
+  if (process.env.NODE_ENV === "development") {
+    console.log(
+      "🔧 Overriding STUDENT_API_BASE_URL to:",
+      STUDENT_API_BASE_URL_OVERRIDE
+    );
+  }
 }
 
 const SCHOOL_LEVEL_API_BASE_URL =
   process.env.NEXT_PUBLIC_SCHOOL_LEVEL_API_BASE_URL ||
   `${getApiBaseUrl()}/api/school-level`;
 
-// Debug logging
-console.log("🔧 getApiBaseUrl():", getApiBaseUrl());
-console.log("🔧 API_BASE_URL:", API_BASE_URL);
-console.log("🔧 STUDENT_API_BASE_URL:", STUDENT_API_BASE_URL);
-console.log("🔧 SUPERADMIN_API_BASE_URL:", SUPERADMIN_API_BASE_URL);
-console.log("🔧 Environment variables:");
-console.log(
-  "  - NEXT_PUBLIC_API_BASE_URL:",
-  process.env.NEXT_PUBLIC_API_BASE_URL
-);
-console.log(
-  "  - NEXT_PUBLIC_STUDENT_API_BASE_URL:",
-  process.env.NEXT_PUBLIC_STUDENT_API_BASE_URL
-);
-console.log(
-  "  - NEXT_PUBLIC_SUPERADMIN_API_URL:",
-  process.env.NEXT_PUBLIC_SUPERADMIN_API_URL
-);
+// Debug logging - only in development
+if (process.env.NODE_ENV === "development") {
+  console.log("🔧 getApiBaseUrl():", getApiBaseUrl());
+  console.log("🔧 API_BASE_URL:", API_BASE_URL);
+  console.log("🔧 STUDENT_API_BASE_URL:", STUDENT_API_BASE_URL);
+  console.log("🔧 SUPERADMIN_API_BASE_URL:", SUPERADMIN_API_BASE_URL);
+}
 
 // Enhanced fetch with caching and performance monitoring
 async function fetchWithCache<T>(
@@ -88,7 +81,9 @@ async function fetchWithCache<T>(
   if (cacheKey && clientCache.has(cacheKey)) {
     const cachedData = clientCache.get<T>(cacheKey);
     if (cachedData) {
-      console.log(`Cache hit for ${cacheKey}`);
+      if (process.env.NODE_ENV === "development") {
+        console.log(`Cache hit for ${cacheKey}`);
+      }
       return cachedData;
     }
   }
@@ -99,12 +94,16 @@ async function fetchWithCache<T>(
   let timeoutId: NodeJS.Timeout | undefined = undefined;
 
   try {
-    console.log("🌐 fetchWithCache making request to:", url);
-    console.log("🌐 fetchWithCache options:", options);
+    if (process.env.NODE_ENV === "development") {
+      console.log("🌐 fetchWithCache making request to:", url);
+      console.log("🌐 fetchWithCache options:", options);
+    }
 
     const controller = new AbortController();
     timeoutId = setTimeout(() => {
-      console.warn(`Request timeout for ${url}`);
+      if (process.env.NODE_ENV === "development") {
+        console.warn(`Request timeout for ${url}`);
+      }
       controller.abort();
     }, 15000); // 15 seconds timeout
 
@@ -113,7 +112,9 @@ async function fetchWithCache<T>(
       ...options.headers,
     };
 
-    console.log("🌐 fetchWithCache final headers:", finalHeaders);
+    if (process.env.NODE_ENV === "development") {
+      console.log("🌐 fetchWithCache final headers:", finalHeaders);
+    }
 
     const response = await fetch(url, {
       ...options,
@@ -121,8 +122,10 @@ async function fetchWithCache<T>(
       headers: finalHeaders,
     });
 
-    console.log("🌐 fetchWithCache response status:", response.status);
-    console.log("🌐 fetchWithCache response ok:", response.ok);
+    if (process.env.NODE_ENV === "development") {
+      console.log("🌐 fetchWithCache response status:", response.status);
+      console.log("🌐 fetchWithCache response ok:", response.ok);
+    }
 
     // Clear timeout on successful response
     if (timeoutId) {
@@ -441,13 +444,17 @@ export interface TkaSchedule {
 const getToken = (): string | undefined => {
   if (typeof window !== "undefined") {
     const token = localStorage.getItem("school_token") || undefined;
-    console.log(
-      "🔑 getToken - Retrieved from localStorage:",
-      token ? `${token.substring(0, 10)}...` : "NO TOKEN"
-    );
+    if (process.env.NODE_ENV === "development") {
+      console.log(
+        "🔑 getToken - Retrieved from localStorage:",
+        token ? `${token.substring(0, 10)}...` : "NO TOKEN"
+      );
+    }
     return token;
   }
-  console.log("🔑 getToken - Window undefined, returning undefined");
+  if (process.env.NODE_ENV === "development") {
+    console.log("🔑 getToken - Window undefined, returning undefined");
+  }
   return undefined;
 };
 
@@ -462,15 +469,19 @@ const getToken = (): string | undefined => {
 // Helper function untuk membuat headers dengan authorization
 const getAuthHeaders = () => {
   const token = getToken();
-  console.log(
-    "🔑 getAuthHeaders - Token:",
-    token ? `${token.substring(0, 10)}...` : "NO TOKEN"
-  );
+  if (process.env.NODE_ENV === "development") {
+    console.log(
+      "🔑 getAuthHeaders - Token:",
+      token ? `${token.substring(0, 10)}...` : "NO TOKEN"
+    );
+  }
   const headers = {
     "Content-Type": "application/json",
     ...(token && { Authorization: `Bearer ${token}` }),
   };
-  console.log("🔑 getAuthHeaders - Headers:", headers);
+  if (process.env.NODE_ENV === "development") {
+    console.log("🔑 getAuthHeaders - Headers:", headers);
+  }
   return headers;
 };
 
