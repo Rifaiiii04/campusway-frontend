@@ -18,14 +18,17 @@ export interface SchoolsApiResponse {
  */
 export async function fetchSchools(): Promise<School[]> {
   try {
-    const response = await fetch("http://103.23.198.101:8080/api/web/schools", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      // Add cache control for better performance
-      next: { revalidate: 3600 }, // Revalidate every hour
-    });
+    const response = await fetch(
+      "http://103.23.198.101/super-admin/api/web/schools",
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        // Add cache control for better performance
+        next: { revalidate: 3600 }, // Revalidate every hour
+      }
+    );
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);

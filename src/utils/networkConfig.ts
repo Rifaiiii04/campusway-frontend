@@ -1,8 +1,8 @@
 // Network configuration utility
 export const getNetworkConfig = () => {
   const isLocalhost = typeof window !== 'undefined' && 
-    (window.location.hostname === 'localhost' || 
-     window.location.hostname === '127.0.0.1');
+    (window.location.hostname === '10.112.234.213' || 
+     window.location.hostname === '192.168.1.40');
   
   const isNetwork = typeof window !== 'undefined' && 
     window.location.hostname.startsWith('192.168');

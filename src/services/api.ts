@@ -3,8 +3,8 @@ import { apiPerformance } from "@/utils/performanceMonitor";
 
 // Dynamic API base URL based on current hostname
 const getApiBaseUrl = () => {
-  // Use production server on port 8080
-  const url = "http://103.23.198.101:8080";
+  // Use production server with /super-admin path
+  const url = "http://103.23.198.101/super-admin";
 
   if (typeof window !== "undefined") {
     const hostname = window.location.hostname;
@@ -19,7 +19,7 @@ const getApiBaseUrl = () => {
 // Fallback API base URL for when main server is down
 const getFallbackApiBaseUrl = () => {
   // Use production server as fallback
-  return "http://103.23.198.101:8080";
+  return "http://103.23.198.101/super-admin";
 };
 
 // Get API base URL with proper network detection
@@ -45,7 +45,8 @@ if (
   typeof window !== "undefined" &&
   window.location.hostname === "10.112.234.213"
 ) {
-  const STUDENT_API_BASE_URL_OVERRIDE = "http://103.23.198.101:8080/api/web";
+  const STUDENT_API_BASE_URL_OVERRIDE =
+    "http://103.23.198.101/super-admin/api/web";
   console.log(
     "🔧 Overriding STUDENT_API_BASE_URL to:",
     STUDENT_API_BASE_URL_OVERRIDE
@@ -1231,7 +1232,7 @@ export const studentApiService = {
         typeof window !== "undefined" &&
         window.location.hostname === "10.112.234.213"
       ) {
-        baseUrl = "http://103.23.198.101:8080/api/web";
+        baseUrl = "http://103.23.198.101/super-admin/api/web";
         console.log("🔧 Using network URL override for getMajors:", baseUrl);
       }
 
@@ -1330,7 +1331,7 @@ export const studentApiService = {
         typeof window !== "undefined" &&
         window.location.hostname === "10.112.234.213"
       ) {
-        baseUrl = "http://103.23.198.101:8080/api/web";
+        baseUrl = "http://103.23.198.101/super-admin/api/web";
         console.log("🔧 Using network URL override:", baseUrl);
       }
 

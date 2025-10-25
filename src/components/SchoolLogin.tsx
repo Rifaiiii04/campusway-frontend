@@ -40,12 +40,12 @@ export default function SchoolLogin({
       }
     };
 
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
 
     return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
     };
   }, [error, loading]);
 
@@ -57,22 +57,24 @@ export default function SchoolLogin({
 
     // Check network connectivity
     if (!navigator.onLine) {
-      setError("Tidak ada koneksi internet. Periksa koneksi Anda dan coba lagi.");
+      setError(
+        "Tidak ada koneksi internet. Periksa koneksi Anda dan coba lagi."
+      );
       setLoading(false);
       return;
     }
 
     // Generate request ID for tracking
     const requestId = Math.random().toString(36).substr(2, 9);
-    
+
     try {
-      console.log(`🔍 [${requestId}] Attempting ${userType} login with:`, { 
-        npsn: npsn.substring(0, 3) + "***", 
+      console.log(`🔍 [${requestId}] Attempting ${userType} login with:`, {
+        npsn: npsn.substring(0, 3) + "***",
         hasPassword: !!password,
         retryCount,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
-      
+
       // Check if this is a retry due to ERR_BLOCKED_BY_CLIENT
       const isBlockedRetry = retryCount > 0 && retryCount < 3;
 
@@ -86,9 +88,11 @@ export default function SchoolLogin({
         try {
           // Try fallback URL if this is a retry due to blocking
           if (isBlockedRetry) {
-            console.log("🔄 Using fallback URL for student login due to blocking");
+            console.log(
+              "🔄 Using fallback URL for student login due to blocking"
+            );
             // Override the API service temporarily
-            const fallbackUrl = "http://103.23.198.101:8080/api/web";
+            const fallbackUrl = "http://103.23.198.101/super-admin/api/web";
             const response = await fetch(`${fallbackUrl}/login`, {
               method: "POST",
               headers: {
@@ -96,16 +100,21 @@ export default function SchoolLogin({
               },
               body: JSON.stringify({ nisn: npsn, password: password }),
             });
-            
+
             if (!response.ok) {
-              throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+              throw new Error(
+                `HTTP ${response.status}: ${response.statusText}`
+              );
             }
-            
+
             const data = await response.json();
             if (data.success) {
               console.log("✅ Student login successful with fallback URL!");
               localStorage.setItem("student_token", "student_session_token");
-              localStorage.setItem("student_data", JSON.stringify(data.data.student));
+              localStorage.setItem(
+                "student_data",
+                JSON.stringify(data.data.student)
+              );
               onLoginSuccess("student_session_token");
               return;
             } else {
@@ -122,53 +131,71 @@ export default function SchoolLogin({
             npsn: npsn.substring(0, 3) + "***",
             timestamp: new Date().toISOString(),
             userAgent: navigator.userAgent,
-            online: navigator.onLine
+            online: navigator.onLine,
           });
 
-        // Retry for 500 errors, timeout, and network errors up to 2 times
-        if (retryCount < 2 && error instanceof Error && 
-            (error.message.includes("500") || 
-             error.message.includes("Timeout") ||
-             error.message.includes("Failed to fetch") ||
-             error.message.includes("ERR_BLOCKED_BY_CLIENT") ||
-             error.message.includes("err_blocked_by_client"))) {
-          console.warn(`🔄 [${requestId}] Server/network error, retrying student login... (attempt ${retryCount + 1}/2)`);
-          setLoadingMessage(`Mencoba lagi... (${retryCount + 1}/2)`);
-          await new Promise(resolve => setTimeout(resolve, 1000 * (retryCount + 1))); // Exponential backoff
-          return handleLogin(e, retryCount + 1);
-        }
-
-        // Special handling for ERR_BLOCKED_BY_CLIENT in student login
-        if (error instanceof Error && error.message.includes("ERR_BLOCKED_BY_CLIENT")) {
-          console.error("🚫 Student request blocked by client (ad blocker/extension)");
-          
-          // Try fallback URL if this is the first attempt
-          if (retryCount === 0) {
-            console.log("🔄 Trying fallback URL for student login due to blocking...");
-            setLoadingMessage("Mencoba URL alternatif...");
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            return handleLogin(e, 1);
+          // Retry for 500 errors, timeout, and network errors up to 2 times
+          if (
+            retryCount < 2 &&
+            error instanceof Error &&
+            (error.message.includes("500") ||
+              error.message.includes("Timeout") ||
+              error.message.includes("Failed to fetch") ||
+              error.message.includes("ERR_BLOCKED_BY_CLIENT") ||
+              error.message.includes("err_blocked_by_client"))
+          ) {
+            console.warn(
+              `🔄 [${requestId}] Server/network error, retrying student login... (attempt ${
+                retryCount + 1
+              }/2)`
+            );
+            setLoadingMessage(`Mencoba lagi... (${retryCount + 1}/2)`);
+            await new Promise((resolve) =>
+              setTimeout(resolve, 1000 * (retryCount + 1))
+            ); // Exponential backoff
+            return handleLogin(e, retryCount + 1);
           }
-          
-          setErrorTitle("Request Diblokir");
-          setError("Request diblokir oleh browser atau extension. Silakan:\n1. Nonaktifkan ad blocker (uBlock Origin, AdBlock Plus, dll)\n2. Nonaktifkan privacy extensions (Privacy Badger, Ghostery, dll)\n3. Coba gunakan mode Incognito/Private\n4. Atau coba browser lain");
-          setShowErrorModal(true);
-          return;
-        }
+
+          // Special handling for ERR_BLOCKED_BY_CLIENT in student login
+          if (
+            error instanceof Error &&
+            error.message.includes("ERR_BLOCKED_BY_CLIENT")
+          ) {
+            console.error(
+              "🚫 Student request blocked by client (ad blocker/extension)"
+            );
+
+            // Try fallback URL if this is the first attempt
+            if (retryCount === 0) {
+              console.log(
+                "🔄 Trying fallback URL for student login due to blocking..."
+              );
+              setLoadingMessage("Mencoba URL alternatif...");
+              await new Promise((resolve) => setTimeout(resolve, 1000));
+              return handleLogin(e, 1);
+            }
+
+            setErrorTitle("Request Diblokir");
+            setError(
+              "Request diblokir oleh browser atau extension. Silakan:\n1. Nonaktifkan ad blocker (uBlock Origin, AdBlock Plus, dll)\n2. Nonaktifkan privacy extensions (Privacy Badger, Ghostery, dll)\n3. Coba gunakan mode Incognito/Private\n4. Atau coba browser lain"
+            );
+            setShowErrorModal(true);
+            return;
+          }
           throw error;
         }
-        
-      const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(
-          () => reject(new Error("Timeout: Server tidak merespons")),
-          15000 // Increased timeout to 15 seconds
-        )
-      );
 
-      const response = (await Promise.race([
-        loginPromise,
-        timeoutPromise,
-      ])) as {
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(
+            () => reject(new Error("Timeout: Server tidak merespons")),
+            15000 // Increased timeout to 15 seconds
+          )
+        );
+
+        const response = (await Promise.race([
+          loginPromise,
+          timeoutPromise,
+        ])) as {
           success: boolean;
           data: {
             student: {
@@ -206,10 +233,13 @@ export default function SchoolLogin({
       }
 
       // Validasi normal untuk guru - use consistent API URL
-      const apiBaseUrl = "http://103.23.198.101:8080/api/school";
-      
+      const apiBaseUrl = "http://103.23.198.101/super-admin/api/school";
+
       console.log("🌐 Using consistent API Base URL:", apiBaseUrl);
-      console.log("🌐 Current hostname:", typeof window !== "undefined" ? window.location.hostname : "server-side");
+      console.log(
+        "🌐 Current hostname:",
+        typeof window !== "undefined" ? window.location.hostname : "server-side"
+      );
       setLoadingMessage("Memverifikasi data sekolah...");
 
       // Tambahkan timeout untuk mencegah loading terlalu lama
@@ -239,12 +269,16 @@ export default function SchoolLogin({
       if (!response.ok) {
         // Retry for 500 errors up to 2 times
         if (response.status === 500 && retryCount < 2) {
-          console.warn(`Server error 500, retrying login... (attempt ${retryCount + 1}/2)`);
+          console.warn(
+            `Server error 500, retrying login... (attempt ${retryCount + 1}/2)`
+          );
           setLoadingMessage(`Mencoba lagi... (${retryCount + 1}/2)`);
-          await new Promise(resolve => setTimeout(resolve, 1000 * (retryCount + 1))); // Exponential backoff
+          await new Promise((resolve) =>
+            setTimeout(resolve, 1000 * (retryCount + 1))
+          ); // Exponential backoff
           return handleLogin(e, retryCount + 1);
         }
-        
+
         // Handle non-JSON responses (like 404 HTML pages)
         if (
           response.headers.get("content-type")?.includes("application/json")
@@ -270,45 +304,62 @@ export default function SchoolLogin({
       }
     } catch (err: unknown) {
       // Enhanced error logging with request tracking
-      console.error(`💥 [${requestId || 'unknown'}] Error during ${userType} login:`, {
-        error: err,
-        errorType: typeof err,
-        errorConstructor: err?.constructor?.name,
-        errorMessage: err instanceof Error ? err.message : String(err),
-        errorStack: err instanceof Error ? err.stack : undefined,
-        retryCount,
-        npsn: npsn.substring(0, 3) + "***",
-        timestamp: new Date().toISOString(),
-        userAgent: navigator.userAgent,
-        online: navigator.onLine
-      });
+      console.error(
+        `💥 [${requestId || "unknown"}] Error during ${userType} login:`,
+        {
+          error: err,
+          errorType: typeof err,
+          errorConstructor: err?.constructor?.name,
+          errorMessage: err instanceof Error ? err.message : String(err),
+          errorStack: err instanceof Error ? err.stack : undefined,
+          retryCount,
+          npsn: npsn.substring(0, 3) + "***",
+          timestamp: new Date().toISOString(),
+          userAgent: navigator.userAgent,
+          online: navigator.onLine,
+        }
+      );
 
       // Retry for timeout and network errors up to 2 times
-      if (retryCount < 2 && err instanceof Error && 
-          (err.message.includes("Timeout") || 
-           err.message.includes("Failed to fetch") || 
-           err.message.includes("ERR_BLOCKED_BY_CLIENT") ||
-           err.message.includes("err_blocked_by_client"))) {
-        console.warn(`🔄 [${requestId}] Network/timeout error, retrying login... (attempt ${retryCount + 1}/2)`);
+      if (
+        retryCount < 2 &&
+        err instanceof Error &&
+        (err.message.includes("Timeout") ||
+          err.message.includes("Failed to fetch") ||
+          err.message.includes("ERR_BLOCKED_BY_CLIENT") ||
+          err.message.includes("err_blocked_by_client"))
+      ) {
+        console.warn(
+          `🔄 [${requestId}] Network/timeout error, retrying login... (attempt ${
+            retryCount + 1
+          }/2)`
+        );
         setLoadingMessage(`Mencoba lagi... (${retryCount + 1}/2)`);
-        await new Promise(resolve => setTimeout(resolve, 1000 * (retryCount + 1))); // Exponential backoff
+        await new Promise((resolve) =>
+          setTimeout(resolve, 1000 * (retryCount + 1))
+        ); // Exponential backoff
         return handleLogin(e, retryCount + 1);
       }
 
       // Special handling for ERR_BLOCKED_BY_CLIENT
-      if (err instanceof Error && err.message.includes("ERR_BLOCKED_BY_CLIENT")) {
+      if (
+        err instanceof Error &&
+        err.message.includes("ERR_BLOCKED_BY_CLIENT")
+      ) {
         console.error("🚫 Request blocked by client (ad blocker/extension)");
-        
+
         // Try fallback URL if this is the first attempt
         if (retryCount === 0) {
           console.log("🔄 Trying fallback URL due to blocking...");
           setLoadingMessage("Mencoba URL alternatif...");
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          await new Promise((resolve) => setTimeout(resolve, 1000));
           return handleLogin(e, 1);
         }
-        
+
         setErrorTitle("Request Diblokir");
-        setError("Request diblokir oleh browser atau extension. Silakan:\n1. Nonaktifkan ad blocker (uBlock Origin, AdBlock Plus, dll)\n2. Nonaktifkan privacy extensions (Privacy Badger, Ghostery, dll)\n3. Coba gunakan mode Incognito/Private\n4. Atau coba browser lain");
+        setError(
+          "Request diblokir oleh browser atau extension. Silakan:\n1. Nonaktifkan ad blocker (uBlock Origin, AdBlock Plus, dll)\n2. Nonaktifkan privacy extensions (Privacy Badger, Ghostery, dll)\n3. Coba gunakan mode Incognito/Private\n4. Atau coba browser lain"
+        );
         setShowErrorModal(true);
         return;
       }
@@ -342,17 +393,32 @@ export default function SchoolLogin({
         ) {
           errorMessage =
             "Server tidak merespons. Silakan coba lagi dalam beberapa saat.";
-        } else if (message.includes("network") || message.includes("fetch") || message.includes("err_blocked_by_client")) {
-          if (message.includes("diblokir oleh browser") || message.includes("err_blocked_by_client")) {
-            errorMessage = "Request diblokir oleh browser atau extension. Silakan nonaktifkan ad blocker atau extension yang memblokir request.";
-          } else if (message.includes("cors") || message.includes("cross-origin")) {
-            errorMessage = "Masalah CORS: Server tidak mengizinkan request dari domain ini. Hubungi administrator untuk mengatur CORS policy.";
+        } else if (
+          message.includes("network") ||
+          message.includes("fetch") ||
+          message.includes("err_blocked_by_client")
+        ) {
+          if (
+            message.includes("diblokir oleh browser") ||
+            message.includes("err_blocked_by_client")
+          ) {
+            errorMessage =
+              "Request diblokir oleh browser atau extension. Silakan nonaktifkan ad blocker atau extension yang memblokir request.";
+          } else if (
+            message.includes("cors") ||
+            message.includes("cross-origin")
+          ) {
+            errorMessage =
+              "Masalah CORS: Server tidak mengizinkan request dari domain ini. Hubungi administrator untuk mengatur CORS policy.";
           } else if (message.includes("koneksi internet terputus")) {
-            errorMessage = "Koneksi internet terputus. Periksa koneksi internet Anda dan coba lagi.";
+            errorMessage =
+              "Koneksi internet terputus. Periksa koneksi internet Anda dan coba lagi.";
           } else if (message.includes("masalah keamanan koneksi")) {
-            errorMessage = "Masalah keamanan koneksi. Silakan coba akses dengan HTTP atau periksa sertifikat SSL.";
+            errorMessage =
+              "Masalah keamanan koneksi. Silakan coba akses dengan HTTP atau periksa sertifikat SSL.";
           } else {
-            errorMessage = "Tidak dapat terhubung ke server. Periksa koneksi internet Anda.";
+            errorMessage =
+              "Tidak dapat terhubung ke server. Periksa koneksi internet Anda.";
           }
         } else if (
           message.includes("unauthorized") ||
@@ -367,23 +433,28 @@ export default function SchoolLogin({
             userType === "guru"
               ? "NPSN tidak ditemukan dalam sistem."
               : "NISN tidak ditemukan dalam sistem.";
-        } else if (message.includes("500") || message.includes("internal server error")) {
-          errorMessage = "Server sedang mengalami masalah. Silakan coba lagi nanti atau hubungi administrator.";
+        } else if (
+          message.includes("500") ||
+          message.includes("internal server error")
+        ) {
+          errorMessage =
+            "Server sedang mengalami masalah. Silakan coba lagi nanti atau hubungi administrator.";
         } else if (message.includes("timeout")) {
-          errorMessage = "Server tidak merespons dalam waktu yang ditentukan. Silakan coba lagi.";
+          errorMessage =
+            "Server tidak merespons dalam waktu yang ditentukan. Silakan coba lagi.";
         } else {
           // Use the original error message if it's user-friendly
           errorMessage = err.message;
         }
-      } else if (typeof err === 'string') {
+      } else if (typeof err === "string") {
         // Handle string errors
         errorMessage = err;
-      } else if (err && typeof err === 'object' && 'message' in err) {
+      } else if (err && typeof err === "object" && "message" in err) {
         // Handle object errors with message property
         errorMessage = String(err.message);
       } else {
         // Handle other error types
-        console.warn('Unknown error type:', err);
+        console.warn("Unknown error type:", err);
         errorMessage = `Terjadi kesalahan tidak terduga: ${String(err)}`;
       }
 
@@ -400,7 +471,8 @@ export default function SchoolLogin({
             ? "Password Salah"
             : errorMessage.includes("NPSN") || errorMessage.includes("NISN")
             ? "Kredensial Tidak Ditemukan"
-            : errorMessage.includes("diblokir oleh browser") || errorMessage.includes("ERR_BLOCKED_BY_CLIENT")
+            : errorMessage.includes("diblokir oleh browser") ||
+              errorMessage.includes("ERR_BLOCKED_BY_CLIENT")
             ? "Request Diblokir"
             : "Login Gagal"
         );
@@ -725,14 +797,24 @@ export default function SchoolLogin({
         title={errorTitle}
         message={error}
         type="error"
-        showRetry={error.includes("500") || error.includes("Server sedang mengalami masalah") || error.includes("timeout") || error.includes("tidak merespons")}
+        showRetry={
+          error.includes("500") ||
+          error.includes("Server sedang mengalami masalah") ||
+          error.includes("timeout") ||
+          error.includes("tidak merespons")
+        }
         onRetry={() => {
           setShowErrorModal(false);
           setError("");
           // Trigger retry by calling handleLogin with current form data
-          const form = document.querySelector('form');
+          const form = document.querySelector("form");
           if (form) {
-            handleLogin(new Event('submit') as unknown as React.FormEvent<HTMLFormElement>, 0);
+            handleLogin(
+              new Event(
+                "submit"
+              ) as unknown as React.FormEvent<HTMLFormElement>,
+              0
+            );
           }
         }}
       />
