@@ -1,98 +1,38 @@
 /**
- * Optimized API hooks for better performance
+ * Performance hooks for the application
  */
-import { useState, useEffect, useCallback, useRef } from "react";
-import { debounce, throttle } from "@/utils/bundle-optimizer";
+import { useState, useEffect, useCallback } from "react";
+import { debounce, throttle } from "@/utils/performance-utils";
 
-// Generic API hook with caching and error handling
-export const useOptimizedAPI = <T>(
-  apiCall: () => Promise<T>,
-  options: {
-    enabled?: boolean;
-    cacheTime?: number;
-    staleTime?: number;
-    retryCount?: number;
-  } = {}
-) => {
-  const {
-    enabled = true,
-    cacheTime = 5 * 60 * 1000, // 5 minutes
-    staleTime = 1 * 60 * 1000, // 1 minute
-    retryCount = 3,
-  } = options;
-
-  const [data, setData] = useState<T | null>(null);
+// Simple API hook with caching
+export const useAPI = (apiCall: () => Promise<unknown>) => {
+  const [data, setData] = useState<unknown>(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
-  const [isStale, setIsStale] = useState(false);
-
-  const cacheRef = useRef<{ data: T; timestamp: number } | null>(null);
-  const retryCountRef = useRef(0);
+  const [error, setError] = useState<unknown>(null);
 
   const fetchData = useCallback(async () => {
-    if (!enabled) return;
-
-    // Check cache first
-    if (cacheRef.current) {
-      const now = Date.now();
-      const cacheAge = now - cacheRef.current.timestamp;
-
-      if (cacheAge < cacheTime) {
-        setData(cacheRef.current.data);
-        setIsStale(cacheAge > staleTime);
-        return;
-      }
-    }
-
     setLoading(true);
     setError(null);
 
     try {
       const result = await apiCall();
       setData(result);
-      setIsStale(false);
-
-      // Update cache
-      cacheRef.current = {
-        data: result,
-        timestamp: Date.now(),
-      };
-
-      retryCountRef.current = 0;
     } catch (err) {
-      const error = err instanceof Error ? err : new Error("Unknown error");
-      setError(error);
-
-      // Retry logic
-      if (retryCountRef.current < retryCount) {
-        retryCountRef.current++;
-        setTimeout(() => fetchData(), 1000 * retryCountRef.current);
-      }
+      setError(err);
     } finally {
       setLoading(false);
     }
-  }, [apiCall, enabled, cacheTime, staleTime, retryCount]);
+  }, [apiCall]);
 
   useEffect(() => {
     fetchData();
   }, [fetchData]);
 
-  const refetch = useCallback(() => {
-    cacheRef.current = null;
-    fetchData();
-  }, [fetchData]);
-
-  return {
-    data,
-    loading,
-    error,
-    isStale,
-    refetch,
-  };
+  return { data, loading, error, refetch: fetchData };
 };
 
 // Debounced search hook
-export const useDebouncedSearch = (
+export const useSearch = (
   searchFunction: (query: string) => Promise<unknown>,
   delay: number = 300
 ) => {
@@ -101,7 +41,8 @@ export const useDebouncedSearch = (
   const [loading, setLoading] = useState(false);
 
   const debouncedSearch = useCallback(() => {
-    return debounce(async (searchQuery: string) => {
+    return debounce(async (...args: unknown[]) => {
+      const searchQuery = args[0] as string;
       if (!searchQuery.trim()) {
         setResults([]);
         return;
@@ -129,21 +70,19 @@ export const useDebouncedSearch = (
     debouncedFn(query);
   }, [query, debouncedSearch]);
 
-  return {
-    query,
-    setQuery,
-    results,
-    loading,
-  };
+  return { query, setQuery, results, loading };
 };
 
 // Throttled scroll hook
-export const useThrottledScroll = (
+export const useScroll = (
   callback: (scrollY: number) => void,
   delay: number = 100
 ) => {
   const throttledCallback = useCallback(() => {
-    return throttle(callback, delay);
+    return throttle((...args: unknown[]) => {
+      const scrollY = args[0] as number;
+      callback(scrollY);
+    }, delay);
   }, [callback, delay]);
 
   useEffect(() => {
@@ -157,28 +96,27 @@ export const useThrottledScroll = (
   }, [throttledCallback]);
 };
 
-// Optimized form hook with validation
-export const useOptimizedForm = <T extends Record<string, unknown>>(
-  initialValues: T,
-  validationSchema?: (values: T) => Record<string, string>
+// Simple form hook
+export const useForm = (
+  initialValues: Record<string, unknown>,
+  validationSchema?: (values: Record<string, unknown>) => Record<string, string>
 ) => {
-  const [values, setValues] = useState<T>(initialValues);
+  const [values, setValues] = useState(initialValues);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
 
   const setValue = useCallback(
-    (field: keyof T, value: unknown) => {
+    (field: string, value: unknown) => {
       setValues((prev) => ({ ...prev, [field]: value }));
 
-      // Clear error when user starts typing
-      if (errors[field as string]) {
-        setErrors((prev) => ({ ...prev, [field as string]: "" }));
+      if (errors[field]) {
+        setErrors((prev) => ({ ...prev, [field]: "" }));
       }
     },
     [errors]
   );
 
-  const setFieldTouched = useCallback((field: keyof T) => {
+  const setFieldTouched = useCallback((field: string) => {
     setTouched((prev) => ({ ...prev, [field]: true }));
   }, []);
 
