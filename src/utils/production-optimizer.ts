@@ -7,19 +7,19 @@
 export const isProduction = process.env.NODE_ENV === "production";
 
 // Conditional logging - only logs in development
-export const devLog = (...args: any[]) => {
+export const devLog = (...args: unknown[]) => {
   if (!isProduction) {
     console.log(...args);
   }
 };
 
-export const devWarn = (...args: any[]) => {
+export const devWarn = (...args: unknown[]) => {
   if (!isProduction) {
     console.warn(...args);
   }
 };
 
-export const devError = (...args: any[]) => {
+export const devError = (...args: unknown[]) => {
   if (!isProduction) {
     console.error(...args);
   }

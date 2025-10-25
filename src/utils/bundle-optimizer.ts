@@ -76,13 +76,13 @@ export const optimizeImageUrl = (
 };
 
 // Code splitting utilities
-export const createAsyncComponent = <T extends React.ComponentType<any>>(
+export const createAsyncComponent = <T extends React.ComponentType<unknown>>(
   importFunc: () => Promise<{ default: T }>,
   fallback?: React.ComponentType
 ) => {
   const LazyComponent = React.lazy(importFunc);
 
-  return (props: any) => (
+  return (props: unknown) => (
     <React.Suspense fallback={fallback ? <fallback /> : <div>Loading...</div>}>
       <LazyComponent {...props} />
     </React.Suspense>

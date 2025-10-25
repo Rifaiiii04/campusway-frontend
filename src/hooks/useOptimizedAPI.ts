@@ -7,7 +7,7 @@ import { debounce, throttle } from "@/utils/bundle-optimizer";
 // Generic API hook with caching and error handling
 export const useOptimizedAPI = <T>(
   apiCall: () => Promise<T>,
-  dependencies: any[] = [],
+  dependencies: unknown[] = [],
   options: {
     enabled?: boolean;
     cacheTime?: number;
@@ -76,7 +76,7 @@ export const useOptimizedAPI = <T>(
 
   useEffect(() => {
     fetchData();
-  }, dependencies);
+  }, [fetchData, ...dependencies]);
 
   const refetch = useCallback(() => {
     cacheRef.current = null;
@@ -94,11 +94,11 @@ export const useOptimizedAPI = <T>(
 
 // Debounced search hook
 export const useDebouncedSearch = (
-  searchFunction: (query: string) => Promise<any>,
+  searchFunction: (query: string) => Promise<unknown>,
   delay: number = 300
 ) => {
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<any[]>([]);
+  const [results, setResults] = useState<unknown[]>([]);
   const [loading, setLoading] = useState(false);
 
   const debouncedSearch = useCallback(
@@ -111,7 +111,11 @@ export const useDebouncedSearch = (
       setLoading(true);
       try {
         const data = await searchFunction(searchQuery);
-        setResults(Array.isArray(data) ? data : data.results || []);
+        setResults(
+          Array.isArray(data)
+            ? data
+            : (data as { results?: unknown[] }).results || []
+        );
       } catch (error) {
         console.error("Search error:", error);
         setResults([]);
@@ -155,7 +159,7 @@ export const useThrottledScroll = (
 };
 
 // Optimized form hook with validation
-export const useOptimizedForm = <T extends Record<string, any>>(
+export const useOptimizedForm = <T extends Record<string, unknown>>(
   initialValues: T,
   validationSchema?: (values: T) => Record<string, string>
 ) => {
@@ -164,7 +168,7 @@ export const useOptimizedForm = <T extends Record<string, any>>(
   const [touched, setTouched] = useState<Record<string, boolean>>({});
 
   const setValue = useCallback(
-    (field: keyof T, value: any) => {
+    (field: keyof T, value: unknown) => {
       setValues((prev) => ({ ...prev, [field]: value }));
 
       // Clear error when user starts typing
