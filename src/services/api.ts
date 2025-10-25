@@ -635,7 +635,7 @@ export const apiService = {
         },
       },
       "test-dashboard",
-      5 * 60 * 1000 // 5 minutes cache
+      0 // No cache to ensure fresh data
     );
   },
 
