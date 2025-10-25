@@ -3,19 +3,14 @@ import { apiPerformance } from "@/utils/performanceMonitor";
 
 // Dynamic API base URL based on current hostname
 const getApiBaseUrl = () => {
-<<<<<<< HEAD
   // Use production server with /super-admin path
   const url = "http://103.23.198.101/super-admin";
-=======
-  // Use local development server
-  const url = "http://127.0.0.1:8001";
->>>>>>> 0900f3aa092b7358bff80f131b32a86b306ca50f
 
   if (typeof window !== "undefined") {
     const hostname = window.location.hostname;
     console.log("🔧 getApiBaseUrl hostname:", hostname);
     console.log("🔧 window.location:", window.location.href);
-    console.log("🔧 Using local backend URL:", url);
+    console.log("🔧 Using production backend URL:", url);
   }
 
   return url;
@@ -23,13 +18,8 @@ const getApiBaseUrl = () => {
 
 // Fallback API base URL for when main server is down
 const getFallbackApiBaseUrl = () => {
-<<<<<<< HEAD
   // Use production server as fallback
   return "http://103.23.198.101/super-admin";
-=======
-  // Use local development server as fallback
-  return "http://127.0.0.1:8001";
->>>>>>> 0900f3aa092b7358bff80f131b32a86b306ca50f
 };
 
 // Get API base URL with proper network detection
@@ -55,12 +45,8 @@ if (
   typeof window !== "undefined" &&
   window.location.hostname === "10.112.234.213"
 ) {
-<<<<<<< HEAD
   const STUDENT_API_BASE_URL_OVERRIDE =
     "http://103.23.198.101/super-admin/api/web";
-=======
-  const STUDENT_API_BASE_URL_OVERRIDE = "http://127.0.0.1:8001/api/web";
->>>>>>> 0900f3aa092b7358bff80f131b32a86b306ca50f
   console.log(
     "🔧 Overriding STUDENT_API_BASE_URL to:",
     STUDENT_API_BASE_URL_OVERRIDE
@@ -126,9 +112,9 @@ async function fetchWithCache<T>(
       "Content-Type": "application/json",
       ...options.headers,
     };
-    
+
     console.log("🌐 fetchWithCache final headers:", finalHeaders);
-    
+
     const response = await fetch(url, {
       ...options,
       signal: controller.signal,
@@ -455,7 +441,10 @@ export interface TkaSchedule {
 const getToken = (): string | undefined => {
   if (typeof window !== "undefined") {
     const token = localStorage.getItem("school_token") || undefined;
-    console.log("🔑 getToken - Retrieved from localStorage:", token ? `${token.substring(0, 10)}...` : "NO TOKEN");
+    console.log(
+      "🔑 getToken - Retrieved from localStorage:",
+      token ? `${token.substring(0, 10)}...` : "NO TOKEN"
+    );
     return token;
   }
   console.log("🔑 getToken - Window undefined, returning undefined");
@@ -473,7 +462,10 @@ const getToken = (): string | undefined => {
 // Helper function untuk membuat headers dengan authorization
 const getAuthHeaders = () => {
   const token = getToken();
-  console.log("🔑 getAuthHeaders - Token:", token ? `${token.substring(0, 10)}...` : "NO TOKEN");
+  console.log(
+    "🔑 getAuthHeaders - Token:",
+    token ? `${token.substring(0, 10)}...` : "NO TOKEN"
+  );
   const headers = {
     "Content-Type": "application/json",
     ...(token && { Authorization: `Bearer ${token}` }),
@@ -647,16 +639,31 @@ export const apiService = {
 
     const authHeaders = getAuthHeaders();
     console.log("🔍 getStudents - Auth headers:", authHeaders);
-    console.log("🔍 getStudents - Token from localStorage:", localStorage.getItem("school_token"));
-    console.log("🔍 getStudents - School data from localStorage:", localStorage.getItem("school_data"));
-    console.log("🔍 getStudents - All localStorage keys:", Object.keys(localStorage));
+    console.log(
+      "🔍 getStudents - Token from localStorage:",
+      localStorage.getItem("school_token")
+    );
+    console.log(
+      "🔍 getStudents - School data from localStorage:",
+      localStorage.getItem("school_data")
+    );
+    console.log(
+      "🔍 getStudents - All localStorage keys:",
+      Object.keys(localStorage)
+    );
     console.log("🔍 getStudents - API_BASE_URL:", API_BASE_URL);
     console.log("🔍 getStudents - Full URL:", `${API_BASE_URL}/students`);
-    console.log("🔍 getStudents - Token exists:", !!localStorage.getItem("school_token"));
-    console.log("🔍 getStudents - Token length:", localStorage.getItem("school_token")?.length || 0);
+    console.log(
+      "🔍 getStudents - Token exists:",
+      !!localStorage.getItem("school_token")
+    );
+    console.log(
+      "🔍 getStudents - Token length:",
+      localStorage.getItem("school_token")?.length || 0
+    );
     console.log("🔍 getStudents - Current URL:", window.location.href);
     console.log("🔍 getStudents - User agent:", navigator.userAgent);
-    
+
     return fetchWithCache(
       `${API_BASE_URL}/students`,
       {
@@ -1044,14 +1051,11 @@ export const apiService = {
     instructions?: string;
     target_schools?: number[];
   }) {
-    const response = await fetch(
-      `${API_BASE_URL}/tka-schedules`,
-      {
-        method: "POST",
-        headers: getAuthHeaders(),
-        body: JSON.stringify(scheduleData),
-      }
-    );
+    const response = await fetch(`${API_BASE_URL}/tka-schedules`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(scheduleData),
+    });
 
     const data = await response.json();
 
@@ -1266,11 +1270,7 @@ export const studentApiService = {
         typeof window !== "undefined" &&
         window.location.hostname === "10.112.234.213"
       ) {
-<<<<<<< HEAD
         baseUrl = "http://103.23.198.101/super-admin/api/web";
-=======
-        baseUrl = "http://127.0.0.1:8001/api/web";
->>>>>>> 0900f3aa092b7358bff80f131b32a86b306ca50f
         console.log("🔧 Using network URL override for getMajors:", baseUrl);
       }
 
@@ -1369,11 +1369,7 @@ export const studentApiService = {
         typeof window !== "undefined" &&
         window.location.hostname === "10.112.234.213"
       ) {
-<<<<<<< HEAD
         baseUrl = "http://103.23.198.101/super-admin/api/web";
-=======
-        baseUrl = "http://127.0.0.1:8001/api/web";
->>>>>>> 0900f3aa092b7358bff80f131b32a86b306ca50f
         console.log("🔧 Using network URL override:", baseUrl);
       }
 
@@ -1451,20 +1447,25 @@ export const studentApiService = {
       console.log("🌐 Full URL being called:", url);
 
       const response = await fetch(url, {
-        method: 'GET',
+        method: "GET",
         headers: {
           "Content-Type": "application/json",
-          "Accept": "application/json",
+          Accept: "application/json",
         },
-        mode: 'cors',
-        credentials: 'omit',
+        mode: "cors",
+        credentials: "omit",
       });
 
       console.log("🌐 Response status:", response.status);
-      console.log("🌐 Response headers:", Object.fromEntries(response.headers.entries()));
+      console.log(
+        "🌐 Response headers:",
+        Object.fromEntries(response.headers.entries())
+      );
 
       if (!response.ok) {
-        console.error(`❌ ArahPotensi Schedules API error: ${response.status} ${response.statusText}`);
+        console.error(
+          `❌ ArahPotensi Schedules API error: ${response.status} ${response.statusText}`
+        );
         const errorText = await response.text();
         console.error("❌ Error response body:", errorText);
         return { success: false, data: [] };
@@ -1476,7 +1477,10 @@ export const studentApiService = {
       return data;
     } catch (error: unknown) {
       console.error("❌ ArahPotensi Schedules API error:", error);
-      console.error("❌ Error details:", error instanceof Error ? error.message : String(error));
+      console.error(
+        "❌ Error details:",
+        error instanceof Error ? error.message : String(error)
+      );
       // Return empty data instead of throwing error to prevent UI crashes
       return { success: false, data: [] };
     }
@@ -1495,20 +1499,25 @@ export const studentApiService = {
       console.log("🌐 Full URL being called:", url);
 
       const response = await fetch(url, {
-        method: 'GET',
+        method: "GET",
         headers: {
           "Content-Type": "application/json",
-          "Accept": "application/json",
+          Accept: "application/json",
         },
-        mode: 'cors',
-        credentials: 'omit',
+        mode: "cors",
+        credentials: "omit",
       });
 
       console.log("🌐 Response status:", response.status);
-      console.log("🌐 Response headers:", Object.fromEntries(response.headers.entries()));
+      console.log(
+        "🌐 Response headers:",
+        Object.fromEntries(response.headers.entries())
+      );
 
       if (!response.ok) {
-        console.error(`❌ Upcoming ArahPotensi Schedules API error: ${response.status} ${response.statusText}`);
+        console.error(
+          `❌ Upcoming ArahPotensi Schedules API error: ${response.status} ${response.statusText}`
+        );
         const errorText = await response.text();
         console.error("❌ Error response body:", errorText);
         return { success: false, data: [] };
@@ -1520,7 +1529,10 @@ export const studentApiService = {
       return data;
     } catch (error: unknown) {
       console.error("❌ Upcoming ArahPotensi Schedules API error:", error);
-      console.error("❌ Error details:", error instanceof Error ? error.message : String(error));
+      console.error(
+        "❌ Error details:",
+        error instanceof Error ? error.message : String(error)
+      );
       // Return empty data instead of throwing error to prevent UI crashes
       return { success: false, data: [] };
     }
@@ -1683,7 +1695,10 @@ export const superAdminApiService = {
   },
 
   // Get Upcoming TKA Schedules from SuperAdmin
-  async getUpcomingTkaSchedules(): Promise<{ success: boolean; data: TkaSchedule[] }> {
+  async getUpcomingTkaSchedules(): Promise<{
+    success: boolean;
+    data: TkaSchedule[];
+  }> {
     try {
       const url = `${SUPERADMIN_API_BASE_URL}/admin/tka-schedules/upcoming`;
       console.log("🌐 SuperAdmin Upcoming TKA Schedules API URL:", url);
@@ -1697,7 +1712,9 @@ export const superAdminApiService = {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Gagal memuat jadwal TKA yang akan datang");
+        throw new Error(
+          data.message || "Gagal memuat jadwal TKA yang akan datang"
+        );
       }
 
       return data;
