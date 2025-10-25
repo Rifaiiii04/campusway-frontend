@@ -344,7 +344,8 @@ export interface Major {
   major_name: string;
   description?: string;
   career_prospects?: string;
-  rumpun_ilmu?: string; // Changed from category to rumpun_ilmu
+  category?: string;
+  rumpun_ilmu?: string;
   subjects?: {
     required?: string[];
     preferred?: string[];
