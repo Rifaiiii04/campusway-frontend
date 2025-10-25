@@ -2,6 +2,7 @@
  * Bundle optimization utilities
  * This file contains utilities to optimize bundle size and performance
  */
+import React from "react";
 
 // Lazy loading utilities
 export const lazyLoadComponent = <T extends React.ComponentType<any>>(

@@ -76,7 +76,7 @@ export const useOptimizedAPI = <T>(
 
   useEffect(() => {
     fetchData();
-  }, [fetchData, ...dependencies]);
+  }, [fetchData]);
 
   const refetch = useCallback(() => {
     cacheRef.current = null;
@@ -101,8 +101,8 @@ export const useDebouncedSearch = (
   const [results, setResults] = useState<unknown[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const debouncedSearch = useCallback(
-    debounce(async (searchQuery: string) => {
+  const debouncedSearch = useCallback(() => {
+    return debounce(async (searchQuery: string) => {
       if (!searchQuery.trim()) {
         setResults([]);
         return;
@@ -122,12 +122,12 @@ export const useDebouncedSearch = (
       } finally {
         setLoading(false);
       }
-    }, delay),
-    [searchFunction, delay]
-  );
+    }, delay);
+  }, [searchFunction, delay]);
 
   useEffect(() => {
-    debouncedSearch(query);
+    const debouncedFn = debouncedSearch();
+    debouncedFn(query);
   }, [query, debouncedSearch]);
 
   return {
@@ -143,14 +143,14 @@ export const useThrottledScroll = (
   callback: (scrollY: number) => void,
   delay: number = 100
 ) => {
-  const throttledCallback = useCallback(throttle(callback, delay), [
-    callback,
-    delay,
-  ]);
+  const throttledCallback = useCallback(() => {
+    return throttle(callback, delay);
+  }, [callback, delay]);
 
   useEffect(() => {
+    const throttledFn = throttledCallback();
     const handleScroll = () => {
-      throttledCallback(window.scrollY);
+      throttledFn(window.scrollY);
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
