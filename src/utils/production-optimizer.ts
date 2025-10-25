@@ -49,7 +49,7 @@ export const devPerformance = {
 export const getOptimizedHeaders = (
   additionalHeaders: Record<string, string> = {}
 ) => {
-  const baseHeaders = {
+  const baseHeaders: Record<string, string> = {
     "Content-Type": "application/json",
     Accept: "application/json",
   };
