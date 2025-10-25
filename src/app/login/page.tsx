@@ -7,7 +7,8 @@ import PageTitle from "../../components/PageTitle";
 export default function LoginPage() {
   const router = useRouter();
 
-  const handleLoginSuccess = () => {
+  const handleLoginSuccess = (token: string) => {
+    console.log("🎉 Login success, redirecting to teacher dashboard with token:", token ? `${token.substring(0, 10)}...` : "NO TOKEN");
     // Redirect ke dashboard guru setelah login berhasil
     router.push("/teacher");
   };

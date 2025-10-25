@@ -563,7 +563,11 @@ export default function StudentDashboardClient() {
             </div>
             <div className="flex items-center space-x-2 sm:space-x-3">
               <button
-                onClick={() => router.push("/student/tka-schedule")}
+                onClick={() => {
+                  console.log("🔍 Button clicked: Navigating to TKA schedule");
+                  console.log("🔍 Router:", router);
+                  router.push("/student/tka-schedule");
+                }}
                 className="flex items-center px-3 sm:px-4 py-2 text-red-600 hover:text-red-900 hover:bg-red-50 rounded-lg sm:rounded-xl transition-all duration-200 hover:scale-105"
               >
                 <svg
