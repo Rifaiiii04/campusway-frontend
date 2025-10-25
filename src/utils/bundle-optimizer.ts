@@ -83,11 +83,14 @@ export const createAsyncComponent = <T extends React.ComponentType<unknown>>(
 ) => {
   const LazyComponent = React.lazy(importFunc);
 
-  return (props: unknown) => (
-    <React.Suspense fallback={fallback ? <fallback /> : <div>Loading...</div>}>
-      <LazyComponent {...props} />
-    </React.Suspense>
-  );
+  return (props: unknown) => {
+    const FallbackComponent = fallback || (() => <div>Loading...</div>);
+    return (
+      <React.Suspense fallback={<FallbackComponent />}>
+        <LazyComponent {...props} />
+      </React.Suspense>
+    );
+  };
 };
 
 // Bundle analyzer helper

@@ -7,7 +7,7 @@ import { debounce, throttle } from "@/utils/bundle-optimizer";
 // Generic API hook with caching and error handling
 export const useOptimizedAPI = <T>(
   apiCall: () => Promise<T>,
-  dependencies: unknown[] = [],
+  _dependencies: unknown[] = [],
   options: {
     enabled?: boolean;
     cacheTime?: number;
