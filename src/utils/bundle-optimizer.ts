@@ -76,21 +76,17 @@ export const optimizeImageUrl = (
   return url;
 };
 
-// Code splitting utilities
+// Code splitting utilities - simplified version
 export const createAsyncComponent = <T extends React.ComponentType<unknown>>(
-  importFunc: () => Promise<{ default: T }>,
-  fallback?: React.ComponentType
+  importFunc: () => Promise<{ default: T }>
 ) => {
   const LazyComponent = React.lazy(importFunc);
 
-  return (props: unknown) => {
-    const FallbackComponent = fallback || (() => <div>Loading...</div>);
-    return (
-      <React.Suspense fallback={<FallbackComponent />}>
-        <LazyComponent {...props} />
-      </React.Suspense>
-    );
-  };
+  return (props: unknown) => (
+    <React.Suspense fallback={<div>Loading...</div>}>
+      <LazyComponent {...props} />
+    </React.Suspense>
+  );
 };
 
 // Bundle analyzer helper
