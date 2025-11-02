@@ -356,6 +356,7 @@ export interface Major {
   };
   required_subjects?: string[];
   preferred_subjects?: string[];
+  optional_subjects?: string[] | string;
   kurikulum_merdeka_subjects?: string[];
   kurikulum_2013_ipa_subjects?: string[];
   kurikulum_2013_ips_subjects?: string[];
