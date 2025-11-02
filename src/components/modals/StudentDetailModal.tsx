@@ -42,7 +42,7 @@ export default function StudentDetailModal({
       try {
         const parsed = JSON.parse(subjects);
         if (Array.isArray(parsed)) {
-          const filtered = parsed.filter((s: any) => s && String(s).trim().length > 0);
+          const filtered = parsed.filter((s: string | number | boolean | null) => s !== null && s !== undefined && String(s).trim().length > 0);
           return filtered.length > 0 ? filtered.join(", ") : "";
         }
         // If parsed but not array, convert to string
