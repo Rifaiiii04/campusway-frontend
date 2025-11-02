@@ -29,22 +29,29 @@ export default function StudentDetailModal({
     if (!subjects) return "";
 
     if (Array.isArray(subjects)) {
-      return subjects.join(", ");
+      // Filter out empty strings and null values
+      const filtered = subjects.filter(s => s && s.trim().length > 0);
+      return filtered.length > 0 ? filtered.join(", ") : "";
     }
 
     if (typeof subjects === "string") {
+      // If empty string, return empty
+      if (subjects.trim().length === 0) return "";
+      
       // If it's a JSON string, try to parse it
       try {
         const parsed = JSON.parse(subjects);
         if (Array.isArray(parsed)) {
-          return parsed.join(", ");
+          const filtered = parsed.filter((s: any) => s && String(s).trim().length > 0);
+          return filtered.length > 0 ? filtered.join(", ") : "";
         }
+        // If parsed but not array, convert to string
+        return String(parsed).trim();
       } catch {
-        // If parsing fails, return as is
-        return subjects;
+        // If parsing fails, return as is (might be comma-separated string)
+        const parts = subjects.split(',').map(s => s.trim()).filter(s => s.length > 0);
+        return parts.length > 0 ? parts.join(", ") : subjects;
       }
-
-      return subjects;
     }
 
     return "";
@@ -480,7 +487,11 @@ export default function StudentDetailModal({
                     </div>
                   )}
 
-                  {student.chosen_major.required_subjects && (
+                  {((student.chosen_major.required_subjects && 
+                     (Array.isArray(student.chosen_major.required_subjects) 
+                       ? student.chosen_major.required_subjects.length > 0
+                       : student.chosen_major.required_subjects)) ||
+                    (student.chosen_major.required_subjects && typeof student.chosen_major.required_subjects === 'string' && student.chosen_major.required_subjects.trim().length > 0)) && (
                     <div className="border border-gray-200 rounded-lg p-4 bg-gradient-to-r from-red-50 to-pink-50">
                       <p
                         className={`text-lg font-bold ${
@@ -499,7 +510,11 @@ export default function StudentDetailModal({
                     </div>
                   )}
 
-                  {student.chosen_major.preferred_subjects && (
+                  {((student.chosen_major.preferred_subjects && 
+                     (Array.isArray(student.chosen_major.preferred_subjects) 
+                       ? student.chosen_major.preferred_subjects.length > 0
+                       : student.chosen_major.preferred_subjects)) ||
+                    (student.chosen_major.preferred_subjects && typeof student.chosen_major.preferred_subjects === 'string' && student.chosen_major.preferred_subjects.trim().length > 0)) && (
                     <div className="border border-gray-200 rounded-lg p-4 bg-gradient-to-r from-red-50 to-cyan-50">
                       <p
                         className={`text-lg font-bold ${
@@ -520,7 +535,11 @@ export default function StudentDetailModal({
                     </div>
                   )}
 
-                  {student.chosen_major.kurikulum_merdeka_subjects && (
+                  {((student.chosen_major.kurikulum_merdeka_subjects && 
+                     (Array.isArray(student.chosen_major.kurikulum_merdeka_subjects) 
+                       ? student.chosen_major.kurikulum_merdeka_subjects.length > 0
+                       : student.chosen_major.kurikulum_merdeka_subjects)) ||
+                    (student.chosen_major.kurikulum_merdeka_subjects && typeof student.chosen_major.kurikulum_merdeka_subjects === 'string' && student.chosen_major.kurikulum_merdeka_subjects.trim().length > 0)) && (
                     <div className="border border-gray-200 rounded-lg p-4 bg-gradient-to-r from-purple-50 to-indigo-50">
                       <button
                         onClick={() => toggleCurriculum("merdeka")}
@@ -569,7 +588,11 @@ export default function StudentDetailModal({
                     </div>
                   )}
 
-                  {student.chosen_major.kurikulum_2013_ipa_subjects && (
+                  {((student.chosen_major.kurikulum_2013_ipa_subjects && 
+                     (Array.isArray(student.chosen_major.kurikulum_2013_ipa_subjects) 
+                       ? student.chosen_major.kurikulum_2013_ipa_subjects.length > 0
+                       : student.chosen_major.kurikulum_2013_ipa_subjects)) ||
+                    (student.chosen_major.kurikulum_2013_ipa_subjects && typeof student.chosen_major.kurikulum_2013_ipa_subjects === 'string' && student.chosen_major.kurikulum_2013_ipa_subjects.trim().length > 0)) && (
                     <div className="border border-gray-200 rounded-lg p-4 bg-gradient-to-r from-orange-50 to-red-50">
                       <button
                         onClick={() => toggleCurriculum("kurikulum_2013_ipa")}
@@ -618,7 +641,11 @@ export default function StudentDetailModal({
                     </div>
                   )}
 
-                  {student.chosen_major.kurikulum_2013_ips_subjects && (
+                  {((student.chosen_major.kurikulum_2013_ips_subjects && 
+                     (Array.isArray(student.chosen_major.kurikulum_2013_ips_subjects) 
+                       ? student.chosen_major.kurikulum_2013_ips_subjects.length > 0
+                       : student.chosen_major.kurikulum_2013_ips_subjects)) ||
+                    (student.chosen_major.kurikulum_2013_ips_subjects && typeof student.chosen_major.kurikulum_2013_ips_subjects === 'string' && student.chosen_major.kurikulum_2013_ips_subjects.trim().length > 0)) && (
                     <div className="border border-gray-200 rounded-lg p-4 bg-gradient-to-r from-teal-50 to-cyan-50">
                       <button
                         onClick={() => toggleCurriculum("kurikulum_2013_ips")}
@@ -667,7 +694,11 @@ export default function StudentDetailModal({
                     </div>
                   )}
 
-                  {student.chosen_major.kurikulum_2013_bahasa_subjects && (
+                  {((student.chosen_major.kurikulum_2013_bahasa_subjects && 
+                     (Array.isArray(student.chosen_major.kurikulum_2013_bahasa_subjects) 
+                       ? student.chosen_major.kurikulum_2013_bahasa_subjects.length > 0
+                       : student.chosen_major.kurikulum_2013_bahasa_subjects)) ||
+                    (student.chosen_major.kurikulum_2013_bahasa_subjects && typeof student.chosen_major.kurikulum_2013_bahasa_subjects === 'string' && student.chosen_major.kurikulum_2013_bahasa_subjects.trim().length > 0)) && (
                     <div className="border border-gray-200 rounded-lg p-4 bg-gradient-to-r from-indigo-50 to-red-50">
                       <button
                         onClick={() =>

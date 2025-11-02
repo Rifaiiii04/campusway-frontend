@@ -33,6 +33,7 @@ export default function StudentsContent({
   const [showImportModal, setShowImportModal] = useState(false);
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [viewingStudent, setViewingStudent] = useState<Student | null>(null);
+  const [loadingStudentDetail, setLoadingStudentDetail] = useState(false);
   const [classes, setClasses] = useState<{ name: string; value: string }[]>([]);
   const [loadingClasses, setLoadingClasses] = useState(false);
 
@@ -188,9 +189,27 @@ export default function StudentsContent({
     }
   };
 
-  const handleDetailClick = (student: Student) => {
-    setViewingStudent(student);
-    setShowDetailModal(true);
+  const handleDetailClick = async (student: Student) => {
+    setLoadingStudentDetail(true);
+    try {
+      // Fetch detailed student information from API to get complete subject data
+      const response = await apiService.getStudentDetail(student.id);
+      if (response.success && response.data.student) {
+        setViewingStudent(response.data.student);
+        setShowDetailModal(true);
+      } else {
+        // Fallback to using existing student data if API fails
+        setViewingStudent(student);
+        setShowDetailModal(true);
+      }
+    } catch (error) {
+      console.error("Error loading student detail:", error);
+      // Fallback to using existing student data if API fails
+      setViewingStudent(student);
+      setShowDetailModal(true);
+    } finally {
+      setLoadingStudentDetail(false);
+    }
   };
 
   const handleDetailClose = () => {
@@ -531,7 +550,8 @@ export default function StudentsContent({
                       </button>
                       <button
                         onClick={() => handleDetailClick(student)}
-                        className="text-green-600 hover:text-green-900 p-1 rounded transition-colors"
+                        disabled={loadingStudentDetail}
+                        className="text-green-600 hover:text-green-900 p-1 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         title="Detail"
                       >
                         <svg
