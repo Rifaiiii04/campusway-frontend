@@ -488,7 +488,7 @@ export default function StudentDetailModal({
                   )}
 
                   {(() => {
-                    const requiredSubjects = student.chosen_major.required_subjects;
+                    const requiredSubjects: string[] | string | null | undefined = student.chosen_major.required_subjects;
                     if (!requiredSubjects) return false;
                     if (Array.isArray(requiredSubjects)) {
                       return requiredSubjects.length > 0 && requiredSubjects.some(s => s && String(s).trim().length > 0);
@@ -517,7 +517,7 @@ export default function StudentDetailModal({
                   )}
 
                   {(() => {
-                    const preferredSubjects = student.chosen_major.preferred_subjects;
+                    const preferredSubjects: string[] | string | null | undefined = student.chosen_major.preferred_subjects;
                     if (!preferredSubjects) return false;
                     if (Array.isArray(preferredSubjects)) {
                       return preferredSubjects.length > 0 && preferredSubjects.some(s => s && String(s).trim().length > 0);
@@ -548,7 +548,7 @@ export default function StudentDetailModal({
                   )}
 
                   {(() => {
-                    const subjects = student.chosen_major.kurikulum_merdeka_subjects;
+                    const subjects: string[] | string | null | undefined = student.chosen_major.kurikulum_merdeka_subjects;
                     if (!subjects) return false;
                     if (Array.isArray(subjects)) {
                       return subjects.length > 0 && subjects.some(s => s && String(s).trim().length > 0);
@@ -607,7 +607,7 @@ export default function StudentDetailModal({
                   )}
 
                   {(() => {
-                    const subjects = student.chosen_major.kurikulum_2013_ipa_subjects;
+                    const subjects: string[] | string | null | undefined = student.chosen_major.kurikulum_2013_ipa_subjects;
                     if (!subjects) return false;
                     if (Array.isArray(subjects)) {
                       return subjects.length > 0 && subjects.some(s => s && String(s).trim().length > 0);
@@ -666,7 +666,7 @@ export default function StudentDetailModal({
                   )}
 
                   {(() => {
-                    const subjects = student.chosen_major.kurikulum_2013_ips_subjects;
+                    const subjects: string[] | string | null | undefined = student.chosen_major.kurikulum_2013_ips_subjects;
                     if (!subjects) return false;
                     if (Array.isArray(subjects)) {
                       return subjects.length > 0 && subjects.some(s => s && String(s).trim().length > 0);
@@ -725,7 +725,7 @@ export default function StudentDetailModal({
                   )}
 
                   {(() => {
-                    const subjects = student.chosen_major.kurikulum_2013_bahasa_subjects;
+                    const subjects: string[] | string | null | undefined = student.chosen_major.kurikulum_2013_bahasa_subjects;
                     if (!subjects) return false;
                     if (Array.isArray(subjects)) {
                       return subjects.length > 0 && subjects.some(s => s && String(s).trim().length > 0);

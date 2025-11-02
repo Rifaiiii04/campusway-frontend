@@ -262,12 +262,12 @@ export interface Student {
     career_prospects?: string;
     rumpun_ilmu?: string;
     choice_date?: string;
-    required_subjects?: string[];
-    preferred_subjects?: string[];
-    kurikulum_merdeka_subjects?: string[];
-    kurikulum_2013_ipa_subjects?: string[];
-    kurikulum_2013_ips_subjects?: string[];
-    kurikulum_2013_bahasa_subjects?: string[];
+    required_subjects?: string[] | string;
+    preferred_subjects?: string[] | string;
+    kurikulum_merdeka_subjects?: string[] | string;
+    kurikulum_2013_ipa_subjects?: string[] | string;
+    kurikulum_2013_ips_subjects?: string[] | string;
+    kurikulum_2013_bahasa_subjects?: string[] | string;
   };
   choice_date?: string;
   school_class?: {
