@@ -195,15 +195,24 @@ export default function StudentsContent({
       // Fetch detailed student information from API to get complete subject data
       const response = await apiService.getStudentDetail(student.id);
       if (response.success && response.data.student) {
+        // Debug: Log the response to see what data we're getting
+        console.log("📚 Student detail response:", response.data.student);
+        console.log("📚 Chosen major:", response.data.student.chosen_major);
+        if (response.data.student.chosen_major) {
+          console.log("📚 Required subjects:", response.data.student.chosen_major.required_subjects);
+          console.log("📚 Preferred subjects:", response.data.student.chosen_major.preferred_subjects);
+          console.log("📚 Kurikulum Merdeka:", response.data.student.chosen_major.kurikulum_merdeka_subjects);
+        }
         setViewingStudent(response.data.student);
         setShowDetailModal(true);
       } else {
+        console.warn("⚠️ API response not successful:", response);
         // Fallback to using existing student data if API fails
         setViewingStudent(student);
         setShowDetailModal(true);
       }
     } catch (error) {
-      console.error("Error loading student detail:", error);
+      console.error("❌ Error loading student detail:", error);
       // Fallback to using existing student data if API fails
       setViewingStudent(student);
       setShowDetailModal(true);

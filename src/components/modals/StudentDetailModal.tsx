@@ -487,11 +487,17 @@ export default function StudentDetailModal({
                     </div>
                   )}
 
-                  {((student.chosen_major.required_subjects && 
-                     (Array.isArray(student.chosen_major.required_subjects) 
-                       ? student.chosen_major.required_subjects.length > 0
-                       : student.chosen_major.required_subjects)) ||
-                    (student.chosen_major.required_subjects && typeof student.chosen_major.required_subjects === 'string' && student.chosen_major.required_subjects.trim().length > 0)) && (
+                  {(() => {
+                    const requiredSubjects = student.chosen_major.required_subjects;
+                    if (!requiredSubjects) return false;
+                    if (Array.isArray(requiredSubjects)) {
+                      return requiredSubjects.length > 0 && requiredSubjects.some(s => s && String(s).trim().length > 0);
+                    }
+                    if (typeof requiredSubjects === 'string') {
+                      return requiredSubjects.trim().length > 0;
+                    }
+                    return false;
+                  })() && (
                     <div className="border border-gray-200 rounded-lg p-4 bg-gradient-to-r from-red-50 to-pink-50">
                       <p
                         className={`text-lg font-bold ${
@@ -510,11 +516,17 @@ export default function StudentDetailModal({
                     </div>
                   )}
 
-                  {((student.chosen_major.preferred_subjects && 
-                     (Array.isArray(student.chosen_major.preferred_subjects) 
-                       ? student.chosen_major.preferred_subjects.length > 0
-                       : student.chosen_major.preferred_subjects)) ||
-                    (student.chosen_major.preferred_subjects && typeof student.chosen_major.preferred_subjects === 'string' && student.chosen_major.preferred_subjects.trim().length > 0)) && (
+                  {(() => {
+                    const preferredSubjects = student.chosen_major.preferred_subjects;
+                    if (!preferredSubjects) return false;
+                    if (Array.isArray(preferredSubjects)) {
+                      return preferredSubjects.length > 0 && preferredSubjects.some(s => s && String(s).trim().length > 0);
+                    }
+                    if (typeof preferredSubjects === 'string') {
+                      return preferredSubjects.trim().length > 0;
+                    }
+                    return false;
+                  })() && (
                     <div className="border border-gray-200 rounded-lg p-4 bg-gradient-to-r from-red-50 to-cyan-50">
                       <p
                         className={`text-lg font-bold ${
@@ -535,11 +547,17 @@ export default function StudentDetailModal({
                     </div>
                   )}
 
-                  {((student.chosen_major.kurikulum_merdeka_subjects && 
-                     (Array.isArray(student.chosen_major.kurikulum_merdeka_subjects) 
-                       ? student.chosen_major.kurikulum_merdeka_subjects.length > 0
-                       : student.chosen_major.kurikulum_merdeka_subjects)) ||
-                    (student.chosen_major.kurikulum_merdeka_subjects && typeof student.chosen_major.kurikulum_merdeka_subjects === 'string' && student.chosen_major.kurikulum_merdeka_subjects.trim().length > 0)) && (
+                  {(() => {
+                    const subjects = student.chosen_major.kurikulum_merdeka_subjects;
+                    if (!subjects) return false;
+                    if (Array.isArray(subjects)) {
+                      return subjects.length > 0 && subjects.some(s => s && String(s).trim().length > 0);
+                    }
+                    if (typeof subjects === 'string') {
+                      return subjects.trim().length > 0;
+                    }
+                    return false;
+                  })() && (
                     <div className="border border-gray-200 rounded-lg p-4 bg-gradient-to-r from-purple-50 to-indigo-50">
                       <button
                         onClick={() => toggleCurriculum("merdeka")}
@@ -588,11 +606,17 @@ export default function StudentDetailModal({
                     </div>
                   )}
 
-                  {((student.chosen_major.kurikulum_2013_ipa_subjects && 
-                     (Array.isArray(student.chosen_major.kurikulum_2013_ipa_subjects) 
-                       ? student.chosen_major.kurikulum_2013_ipa_subjects.length > 0
-                       : student.chosen_major.kurikulum_2013_ipa_subjects)) ||
-                    (student.chosen_major.kurikulum_2013_ipa_subjects && typeof student.chosen_major.kurikulum_2013_ipa_subjects === 'string' && student.chosen_major.kurikulum_2013_ipa_subjects.trim().length > 0)) && (
+                  {(() => {
+                    const subjects = student.chosen_major.kurikulum_2013_ipa_subjects;
+                    if (!subjects) return false;
+                    if (Array.isArray(subjects)) {
+                      return subjects.length > 0 && subjects.some(s => s && String(s).trim().length > 0);
+                    }
+                    if (typeof subjects === 'string') {
+                      return subjects.trim().length > 0;
+                    }
+                    return false;
+                  })() && (
                     <div className="border border-gray-200 rounded-lg p-4 bg-gradient-to-r from-orange-50 to-red-50">
                       <button
                         onClick={() => toggleCurriculum("kurikulum_2013_ipa")}
@@ -641,11 +665,17 @@ export default function StudentDetailModal({
                     </div>
                   )}
 
-                  {((student.chosen_major.kurikulum_2013_ips_subjects && 
-                     (Array.isArray(student.chosen_major.kurikulum_2013_ips_subjects) 
-                       ? student.chosen_major.kurikulum_2013_ips_subjects.length > 0
-                       : student.chosen_major.kurikulum_2013_ips_subjects)) ||
-                    (student.chosen_major.kurikulum_2013_ips_subjects && typeof student.chosen_major.kurikulum_2013_ips_subjects === 'string' && student.chosen_major.kurikulum_2013_ips_subjects.trim().length > 0)) && (
+                  {(() => {
+                    const subjects = student.chosen_major.kurikulum_2013_ips_subjects;
+                    if (!subjects) return false;
+                    if (Array.isArray(subjects)) {
+                      return subjects.length > 0 && subjects.some(s => s && String(s).trim().length > 0);
+                    }
+                    if (typeof subjects === 'string') {
+                      return subjects.trim().length > 0;
+                    }
+                    return false;
+                  })() && (
                     <div className="border border-gray-200 rounded-lg p-4 bg-gradient-to-r from-teal-50 to-cyan-50">
                       <button
                         onClick={() => toggleCurriculum("kurikulum_2013_ips")}
@@ -694,11 +724,17 @@ export default function StudentDetailModal({
                     </div>
                   )}
 
-                  {((student.chosen_major.kurikulum_2013_bahasa_subjects && 
-                     (Array.isArray(student.chosen_major.kurikulum_2013_bahasa_subjects) 
-                       ? student.chosen_major.kurikulum_2013_bahasa_subjects.length > 0
-                       : student.chosen_major.kurikulum_2013_bahasa_subjects)) ||
-                    (student.chosen_major.kurikulum_2013_bahasa_subjects && typeof student.chosen_major.kurikulum_2013_bahasa_subjects === 'string' && student.chosen_major.kurikulum_2013_bahasa_subjects.trim().length > 0)) && (
+                  {(() => {
+                    const subjects = student.chosen_major.kurikulum_2013_bahasa_subjects;
+                    if (!subjects) return false;
+                    if (Array.isArray(subjects)) {
+                      return subjects.length > 0 && subjects.some(s => s && String(s).trim().length > 0);
+                    }
+                    if (typeof subjects === 'string') {
+                      return subjects.trim().length > 0;
+                    }
+                    return false;
+                  })() && (
                     <div className="border border-gray-200 rounded-lg p-4 bg-gradient-to-r from-indigo-50 to-red-50">
                       <button
                         onClick={() =>
