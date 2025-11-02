@@ -747,9 +747,27 @@ export const apiService = {
 
   // Get Student Detail
   async getStudentDetail(studentId: number) {
+    const headers = {
+      ...getAuthHeaders(),
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    };
+
     const response = await fetch(`${API_BASE_URL}/students/${studentId}`, {
-      headers: getAuthHeaders(),
+      method: "GET",
+      headers: headers,
+      credentials: "same-origin",
     });
+
+    // Check if response is HTML (redirect or error page)
+    const contentType = response.headers.get("content-type") || "";
+    if (!contentType.includes("application/json")) {
+      const text = await response.clone().text();
+      console.error("❌ Received non-JSON response:", text.substring(0, 200));
+      throw new Error(
+        "Server mengembalikan format yang tidak valid. Pastikan sudah login dan token valid."
+      );
+    }
 
     const data = await response.json();
 
