@@ -216,7 +216,35 @@ export default function OptimizedStudentDashboardPage() {
       // Load detailed major information including subjects
       const response = await studentApiService.getMajorDetails(major.id);
       if (response.success) {
-        setSelectedMajor(response.data);
+        // Normalize all subject fields: convert string to array if needed
+        const normalizeSubjects = (subjects: string | string[] | null | undefined): string[] | undefined => {
+          if (!subjects) return undefined;
+          if (Array.isArray(subjects)) return subjects;
+          if (typeof subjects === 'string' && subjects.trim().length > 0) {
+            // Try parsing as JSON first, then fallback to comma-separated
+            try {
+              const parsed = JSON.parse(subjects);
+              return Array.isArray(parsed) ? parsed : [subjects];
+            } catch {
+              // If not JSON, treat as comma-separated string
+              const parts = subjects.split(',').map(s => s.trim()).filter(s => s.length > 0);
+              return parts.length > 0 ? parts : [subjects];
+            }
+          }
+          return undefined;
+        };
+
+        const normalizedData = {
+          ...response.data,
+          required_subjects: normalizeSubjects(response.data.required_subjects),
+          preferred_subjects: normalizeSubjects(response.data.preferred_subjects),
+          optional_subjects: normalizeSubjects(response.data.optional_subjects),
+          kurikulum_merdeka_subjects: normalizeSubjects(response.data.kurikulum_merdeka_subjects),
+          kurikulum_2013_ipa_subjects: normalizeSubjects(response.data.kurikulum_2013_ipa_subjects),
+          kurikulum_2013_ips_subjects: normalizeSubjects(response.data.kurikulum_2013_ips_subjects),
+          kurikulum_2013_bahasa_subjects: normalizeSubjects(response.data.kurikulum_2013_bahasa_subjects),
+        };
+        setSelectedMajor(normalizedData);
         setShowMajorDetail(true);
       } else {
         setError("Gagal memuat detail jurusan");
