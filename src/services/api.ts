@@ -264,6 +264,7 @@ export interface Student {
     choice_date?: string;
     required_subjects?: string[] | string;
     preferred_subjects?: string[] | string;
+    optional_subjects?: string[] | string;
     kurikulum_merdeka_subjects?: string[] | string;
     kurikulum_2013_ipa_subjects?: string[] | string;
     kurikulum_2013_ips_subjects?: string[] | string;

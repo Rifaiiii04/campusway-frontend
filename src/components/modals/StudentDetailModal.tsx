@@ -66,6 +66,14 @@ export default function StudentDetailModal({
   };
   if (!isOpen || !student) return null;
 
+  // Debug: Log student data to see what we're receiving
+  if (student?.chosen_major) {
+    console.log("📚 StudentDetailModal - chosen_major:", student.chosen_major);
+    console.log("📚 Required subjects:", student.chosen_major.required_subjects);
+    console.log("📚 Preferred subjects:", student.chosen_major.preferred_subjects);
+    console.log("📚 Optional subjects:", student.chosen_major.optional_subjects);
+  }
+
   return (
     <div className="fixed inset-0 bg-gradient-to-br from-gray-900/20 via-gray-800/30 to-gray-900/20 backdrop-blur-lg flex items-center justify-center z-50 p-4">
       <div
@@ -517,17 +525,32 @@ export default function StudentDetailModal({
                   )}
 
                   {(() => {
+                    // Check both preferred_subjects and optional_subjects
                     const preferredSubjects: string[] | string | null | undefined = student.chosen_major.preferred_subjects;
-                    if (!preferredSubjects) return false;
-                    if (Array.isArray(preferredSubjects)) {
-                      return preferredSubjects.length > 0 && preferredSubjects.some(s => s && String(s).trim().length > 0);
+                    const optionalSubjects: string[] | string | null | undefined = student.chosen_major.optional_subjects;
+                    
+                    let hasPreferred = false;
+                    let hasOptional = false;
+                    
+                    if (preferredSubjects) {
+                      if (Array.isArray(preferredSubjects)) {
+                        hasPreferred = preferredSubjects.length > 0 && preferredSubjects.some(s => s && String(s).trim().length > 0);
+                      } else if (typeof preferredSubjects === 'string') {
+                        hasPreferred = preferredSubjects.trim().length > 0;
+                      }
                     }
-                    if (typeof preferredSubjects === 'string') {
-                      return preferredSubjects.trim().length > 0;
+                    
+                    if (optionalSubjects) {
+                      if (Array.isArray(optionalSubjects)) {
+                        hasOptional = optionalSubjects.length > 0 && optionalSubjects.some(s => s && String(s).trim().length > 0);
+                      } else if (typeof optionalSubjects === 'string') {
+                        hasOptional = optionalSubjects.trim().length > 0;
+                      }
                     }
-                    return false;
+                    
+                    return hasPreferred || hasOptional;
                   })() && (
-                    <div className="border border-gray-200 rounded-lg p-4 bg-gradient-to-r from-red-50 to-cyan-50">
+                    <div className="border border-gray-200 rounded-lg p-4 bg-gradient-to-r from-green-50 to-cyan-50">
                       <p
                         className={`text-lg font-bold ${
                           darkMode ? "text-gray-400" : "text-gray-600"
@@ -540,9 +563,19 @@ export default function StudentDetailModal({
                           darkMode ? "text-gray-300" : "text-gray-700"
                         }`}
                       >
-                        {formatSubjects(
-                          student.chosen_major.preferred_subjects
-                        )}
+                        {(() => {
+                          const preferredText = formatSubjects(student.chosen_major.preferred_subjects);
+                          const optionalText = formatSubjects(student.chosen_major.optional_subjects);
+                          
+                          if (preferredText && optionalText) {
+                            return `${preferredText}, ${optionalText}`;
+                          } else if (preferredText) {
+                            return preferredText;
+                          } else if (optionalText) {
+                            return optionalText;
+                          }
+                          return '';
+                        })()}
                       </p>
                     </div>
                   )}
