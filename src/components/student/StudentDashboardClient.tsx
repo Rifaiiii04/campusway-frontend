@@ -1451,7 +1451,9 @@ export default function StudentDashboardClient() {
                 )}
 
                 {/* Subjects */}
-                {selectedMajor.subjects && (
+                {(selectedMajor.subjects || selectedMajor.required_subjects || selectedMajor.preferred_subjects || 
+                  selectedMajor.kurikulum_merdeka_subjects || selectedMajor.kurikulum_2013_ipa_subjects ||
+                  selectedMajor.kurikulum_2013_ips_subjects || selectedMajor.kurikulum_2013_bahasa_subjects) && (
                   <div>
                     <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                       <svg
@@ -1472,8 +1474,8 @@ export default function StudentDashboardClient() {
 
                     {/* Required and Preferred Subjects */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                      {selectedMajor.subjects.required &&
-                        selectedMajor.subjects.required.length > 0 && (
+                      {((selectedMajor.subjects?.required && selectedMajor.subjects.required.length > 0) ||
+                        (selectedMajor.required_subjects && Array.isArray(selectedMajor.required_subjects) && selectedMajor.required_subjects.length > 0)) && (
                           <div className="bg-red-50 rounded-lg p-4 border border-red-200">
                             <h5 className="font-semibold text-red-900 mb-3 flex items-center">
                               <svg
@@ -1495,7 +1497,7 @@ export default function StudentDashboardClient() {
                               </span>
                             </h5>
                             <ul className="space-y-2">
-                              {selectedMajor.subjects.required.map(
+                              {(selectedMajor.subjects?.required || selectedMajor.required_subjects || []).map(
                                 (subject, index) => (
                                   <li
                                     key={index}
@@ -1510,8 +1512,9 @@ export default function StudentDashboardClient() {
                           </div>
                         )}
 
-                      {selectedMajor.subjects.preferred &&
-                        selectedMajor.subjects.preferred.length > 0 && (
+                      {((selectedMajor.subjects?.preferred && selectedMajor.subjects.preferred.length > 0) ||
+                        (selectedMajor.preferred_subjects && Array.isArray(selectedMajor.preferred_subjects) && selectedMajor.preferred_subjects.length > 0) ||
+                        (selectedMajor.optional_subjects && Array.isArray(selectedMajor.optional_subjects) && selectedMajor.optional_subjects.length > 0)) && (
                           <div className="bg-green-50 rounded-lg p-4 border border-green-200">
                             <h5 className="font-semibold text-green-900 mb-3 flex items-center">
                               <svg
@@ -1530,7 +1533,7 @@ export default function StudentDashboardClient() {
                               Mata Pelajaran Pilihan
                             </h5>
                             <ul className="space-y-2">
-                              {selectedMajor.subjects.preferred.map(
+                              {(selectedMajor.subjects?.preferred || selectedMajor.preferred_subjects || selectedMajor.optional_subjects || []).map(
                                 (subject, index) => (
                                   <li
                                     key={index}
@@ -1547,35 +1550,38 @@ export default function StudentDashboardClient() {
                     </div>
 
                     {/* Curriculum-based Subjects */}
-                    <div className="space-y-4">
-                      <h5 className="text-md font-semibold text-gray-800 mb-3 flex items-center">
-                        <svg
-                          className="w-4 h-4 mr-2 text-purple-500"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-                          />
-                        </svg>
-                        Berdasarkan Kurikulum
-                      </h5>
+                    {(selectedMajor.subjects?.kurikulum_merdeka || selectedMajor.kurikulum_merdeka_subjects ||
+                      selectedMajor.subjects?.kurikulum_2013_ipa || selectedMajor.kurikulum_2013_ipa_subjects ||
+                      selectedMajor.subjects?.kurikulum_2013_ips || selectedMajor.kurikulum_2013_ips_subjects ||
+                      selectedMajor.subjects?.kurikulum_2013_bahasa || selectedMajor.kurikulum_2013_bahasa_subjects) && (
+                      <div className="space-y-4 mt-6">
+                        <h5 className="text-md font-semibold text-gray-800 mb-3 flex items-center">
+                          <svg
+                            className="w-4 h-4 mr-2 text-purple-500"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                            />
+                          </svg>
+                          Berdasarkan Kurikulum
+                        </h5>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {/* Kurikulum Merdeka */}
-                        {selectedMajor.subjects.kurikulum_merdeka &&
-                          selectedMajor.subjects.kurikulum_merdeka.length >
-                            0 && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                          {/* Kurikulum Merdeka */}
+                          {((selectedMajor.subjects?.kurikulum_merdeka && selectedMajor.subjects.kurikulum_merdeka.length > 0) ||
+                            (selectedMajor.kurikulum_merdeka_subjects && Array.isArray(selectedMajor.kurikulum_merdeka_subjects) && selectedMajor.kurikulum_merdeka_subjects.length > 0)) && (
                             <div className="bg-purple-50 rounded-lg p-4 border border-purple-200">
                               <h6 className="font-semibold text-black mb-2 text-sm">
                                 Kurikulum Merdeka
                               </h6>
                               <ul className="space-y-1">
-                                {selectedMajor.subjects.kurikulum_merdeka.map(
+                                {(selectedMajor.subjects?.kurikulum_merdeka || selectedMajor.kurikulum_merdeka_subjects || []).map(
                                   (subject, index) => (
                                     <li
                                       key={index}
@@ -1591,15 +1597,14 @@ export default function StudentDashboardClient() {
                           )}
 
                         {/* Kurikulum 2013 IPA */}
-                        {selectedMajor.subjects.kurikulum_2013_ipa &&
-                          selectedMajor.subjects.kurikulum_2013_ipa.length >
-                            0 && (
+                        {((selectedMajor.subjects?.kurikulum_2013_ipa && selectedMajor.subjects.kurikulum_2013_ipa.length > 0) ||
+                          (selectedMajor.kurikulum_2013_ipa_subjects && Array.isArray(selectedMajor.kurikulum_2013_ipa_subjects) && selectedMajor.kurikulum_2013_ipa_subjects.length > 0)) && (
                             <div className="bg-orange-50 rounded-lg p-4 border border-orange-200">
                               <h6 className="font-semibold text-black mb-2 text-sm">
                                 Kurikulum 2013 - IPA
                               </h6>
                               <ul className="space-y-1">
-                                {selectedMajor.subjects.kurikulum_2013_ipa.map(
+                                {(selectedMajor.subjects?.kurikulum_2013_ipa || selectedMajor.kurikulum_2013_ipa_subjects || []).map(
                                   (subject, index) => (
                                     <li
                                       key={index}
@@ -1615,15 +1620,14 @@ export default function StudentDashboardClient() {
                           )}
 
                         {/* Kurikulum 2013 IPS */}
-                        {selectedMajor.subjects.kurikulum_2013_ips &&
-                          selectedMajor.subjects.kurikulum_2013_ips.length >
-                            0 && (
+                        {((selectedMajor.subjects?.kurikulum_2013_ips && selectedMajor.subjects.kurikulum_2013_ips.length > 0) ||
+                          (selectedMajor.kurikulum_2013_ips_subjects && Array.isArray(selectedMajor.kurikulum_2013_ips_subjects) && selectedMajor.kurikulum_2013_ips_subjects.length > 0)) && (
                             <div className="bg-teal-50 rounded-lg p-4 border border-teal-200">
                               <h6 className="font-semibold text-black mb-2 text-sm">
                                 Kurikulum 2013 - IPS
                               </h6>
                               <ul className="space-y-1">
-                                {selectedMajor.subjects.kurikulum_2013_ips.map(
+                                {(selectedMajor.subjects?.kurikulum_2013_ips || selectedMajor.kurikulum_2013_ips_subjects || []).map(
                                   (subject, index) => (
                                     <li
                                       key={index}
@@ -1639,15 +1643,14 @@ export default function StudentDashboardClient() {
                           )}
 
                         {/* Kurikulum 2013 Bahasa */}
-                        {selectedMajor.subjects.kurikulum_2013_bahasa &&
-                          selectedMajor.subjects.kurikulum_2013_bahasa.length >
-                            0 && (
+                        {((selectedMajor.subjects?.kurikulum_2013_bahasa && selectedMajor.subjects.kurikulum_2013_bahasa.length > 0) ||
+                          (selectedMajor.kurikulum_2013_bahasa_subjects && Array.isArray(selectedMajor.kurikulum_2013_bahasa_subjects) && selectedMajor.kurikulum_2013_bahasa_subjects.length > 0)) && (
                             <div className="bg-indigo-50 rounded-lg p-4 border border-indigo-200">
                               <h6 className="font-semibold text-black mb-2 text-sm">
                                 Kurikulum 2013 - Bahasa
                               </h6>
                               <ul className="space-y-1">
-                                {selectedMajor.subjects.kurikulum_2013_bahasa.map(
+                                {(selectedMajor.subjects?.kurikulum_2013_bahasa || selectedMajor.kurikulum_2013_bahasa_subjects || []).map(
                                   (subject, index) => (
                                     <li
                                       key={index}
@@ -1661,9 +1664,9 @@ export default function StudentDashboardClient() {
                               </ul>
                             </div>
                           )}
+                        </div>
                       </div>
-                    </div>
-                  </div>
+                    )}
                 )}
 
                 {/* Action Buttons */}

@@ -41,7 +41,24 @@ export default function OptimizedStudentDashboardPage() {
     major_name: string;
     rumpun_ilmu?: string;
     description?: string;
+    career_prospects?: string;
+    required_subjects?: string[];
+    preferred_subjects?: string[];
+    optional_subjects?: string[];
+    kurikulum_merdeka_subjects?: string[];
+    kurikulum_2013_ipa_subjects?: string[];
+    kurikulum_2013_ips_subjects?: string[];
+    kurikulum_2013_bahasa_subjects?: string[];
+    subjects?: {
+      required?: string[];
+      preferred?: string[];
+      kurikulum_merdeka?: string[];
+      kurikulum_2013_ipa?: string[];
+      kurikulum_2013_ips?: string[];
+      kurikulum_2013_bahasa?: string[];
+    };
   } | null>(null);
+  const [loadingMajorDetail, setLoadingMajorDetail] = useState(false);
   const [error, setError] = useState("");
   const [selectedRumpunIlmu, setSelectedRumpunIlmu] = useState("all");
   const [showSubjects, setShowSubjects] = useState(false);
@@ -194,8 +211,22 @@ export default function OptimizedStudentDashboardPage() {
     category?: string;
     description?: string;
   }) => {
-    setSelectedMajor(major);
-    setShowMajorDetail(true);
+    setLoadingMajorDetail(true);
+    try {
+      // Load detailed major information including subjects
+      const response = await studentApiService.getMajorDetails(major.id);
+      if (response.success) {
+        setSelectedMajor(response.data);
+        setShowMajorDetail(true);
+      } else {
+        setError("Gagal memuat detail jurusan");
+      }
+    } catch (error) {
+      console.error("Error loading major details:", error);
+      setError("Gagal memuat detail jurusan");
+    } finally {
+      setLoadingMajorDetail(false);
+    }
   };
 
   const handleLogout = () => {
@@ -370,9 +401,10 @@ export default function OptimizedStudentDashboardPage() {
                     <div className="flex space-x-2">
                       <button
                         onClick={() => handleViewMajorDetail(major)}
-                        className="text-red-600 hover:text-red-800 text-sm font-medium"
+                        disabled={loadingMajorDetail}
+                        className="text-red-600 hover:text-red-800 text-sm font-medium disabled:opacity-50"
                       >
-                        Detail
+                        {loadingMajorDetail ? "Loading..." : "Detail"}
                       </button>
                       {appliedMajors.length === 0 && (
                         <button
@@ -442,6 +474,122 @@ export default function OptimizedStudentDashboardPage() {
                     {selectedMajor.description || "Tidak tersedia"}
                   </p>
                 </div>
+
+                {selectedMajor.career_prospects && (
+                  <div>
+                    <h4 className="font-medium text-gray-900">Prospek Karir</h4>
+                    <p className="text-gray-600">
+                      {selectedMajor.career_prospects}
+                    </p>
+                  </div>
+                )}
+
+                {/* Subjects Section */}
+                {(selectedMajor.subjects || selectedMajor.required_subjects || selectedMajor.preferred_subjects || 
+                  selectedMajor.kurikulum_merdeka_subjects || selectedMajor.kurikulum_2013_ipa_subjects ||
+                  selectedMajor.kurikulum_2013_ips_subjects || selectedMajor.kurikulum_2013_bahasa_subjects) && (
+                  <div className="border-t pt-4">
+                    <h4 className="font-medium text-gray-900 mb-3">Mata Pelajaran yang Perlu Dipelajari</h4>
+                    
+                    {/* Required and Preferred Subjects */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                      {((selectedMajor.subjects?.required && selectedMajor.subjects.required.length > 0) ||
+                        (selectedMajor.required_subjects && Array.isArray(selectedMajor.required_subjects) && selectedMajor.required_subjects.length > 0)) && (
+                        <div className="bg-red-50 rounded-lg p-4 border border-red-200">
+                          <h5 className="font-semibold text-red-900 mb-2 text-sm">Mata Pelajaran Wajib</h5>
+                          <ul className="space-y-1">
+                            {(selectedMajor.subjects?.required || selectedMajor.required_subjects || []).map(
+                              (subject, index) => (
+                                <li key={index} className="text-red-800 text-xs flex items-center">
+                                  <span className="w-1.5 h-1.5 bg-red-500 rounded-full mr-2"></span>
+                                  {subject}
+                                </li>
+                              )
+                            )}
+                          </ul>
+                        </div>
+                      )}
+
+                      {((selectedMajor.subjects?.preferred && selectedMajor.subjects.preferred.length > 0) ||
+                        (selectedMajor.preferred_subjects && Array.isArray(selectedMajor.preferred_subjects) && selectedMajor.preferred_subjects.length > 0) ||
+                        (selectedMajor.optional_subjects && Array.isArray(selectedMajor.optional_subjects) && selectedMajor.optional_subjects.length > 0)) && (
+                        <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                          <h5 className="font-semibold text-green-900 mb-2 text-sm">Mata Pelajaran Pilihan</h5>
+                          <ul className="space-y-1">
+                            {(selectedMajor.subjects?.preferred || selectedMajor.preferred_subjects || selectedMajor.optional_subjects || []).map(
+                              (subject, index) => (
+                                <li key={index} className="text-green-800 text-xs flex items-center">
+                                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full mr-2"></span>
+                                  {subject}
+                                </li>
+                              )
+                            )}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Curriculum-based Subjects */}
+                    {(selectedMajor.subjects?.kurikulum_merdeka || selectedMajor.kurikulum_merdeka_subjects ||
+                      selectedMajor.subjects?.kurikulum_2013_ipa || selectedMajor.kurikulum_2013_ipa_subjects ||
+                      selectedMajor.subjects?.kurikulum_2013_ips || selectedMajor.kurikulum_2013_ips_subjects ||
+                      selectedMajor.subjects?.kurikulum_2013_bahasa || selectedMajor.kurikulum_2013_bahasa_subjects) && (
+                      <div className="mt-4">
+                        <h5 className="font-medium text-gray-800 mb-3 text-sm">Berdasarkan Kurikulum</h5>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          {(selectedMajor.subjects?.kurikulum_merdeka || selectedMajor.kurikulum_merdeka_subjects || []).length > 0 && (
+                            <div className="bg-purple-50 rounded-lg p-3 border border-purple-200">
+                              <h6 className="font-semibold text-black mb-1 text-xs">Kurikulum Merdeka</h6>
+                              <ul className="space-y-1">
+                                {(selectedMajor.subjects?.kurikulum_merdeka || selectedMajor.kurikulum_merdeka_subjects || []).map(
+                                  (subject, index) => (
+                                    <li key={index} className="text-black text-xs">{subject}</li>
+                                  )
+                                )}
+                              </ul>
+                            </div>
+                          )}
+                          {(selectedMajor.subjects?.kurikulum_2013_ipa || selectedMajor.kurikulum_2013_ipa_subjects || []).length > 0 && (
+                            <div className="bg-orange-50 rounded-lg p-3 border border-orange-200">
+                              <h6 className="font-semibold text-black mb-1 text-xs">Kurikulum 2013 - IPA</h6>
+                              <ul className="space-y-1">
+                                {(selectedMajor.subjects?.kurikulum_2013_ipa || selectedMajor.kurikulum_2013_ipa_subjects || []).map(
+                                  (subject, index) => (
+                                    <li key={index} className="text-black text-xs">{subject}</li>
+                                  )
+                                )}
+                              </ul>
+                            </div>
+                          )}
+                          {(selectedMajor.subjects?.kurikulum_2013_ips || selectedMajor.kurikulum_2013_ips_subjects || []).length > 0 && (
+                            <div className="bg-teal-50 rounded-lg p-3 border border-teal-200">
+                              <h6 className="font-semibold text-black mb-1 text-xs">Kurikulum 2013 - IPS</h6>
+                              <ul className="space-y-1">
+                                {(selectedMajor.subjects?.kurikulum_2013_ips || selectedMajor.kurikulum_2013_ips_subjects || []).map(
+                                  (subject, index) => (
+                                    <li key={index} className="text-black text-xs">{subject}</li>
+                                  )
+                                )}
+                              </ul>
+                            </div>
+                          )}
+                          {(selectedMajor.subjects?.kurikulum_2013_bahasa || selectedMajor.kurikulum_2013_bahasa_subjects || []).length > 0 && (
+                            <div className="bg-indigo-50 rounded-lg p-3 border border-indigo-200">
+                              <h6 className="font-semibold text-black mb-1 text-xs">Kurikulum 2013 - Bahasa</h6>
+                              <ul className="space-y-1">
+                                {(selectedMajor.subjects?.kurikulum_2013_bahasa || selectedMajor.kurikulum_2013_bahasa_subjects || []).map(
+                                  (subject, index) => (
+                                    <li key={index} className="text-black text-xs">{subject}</li>
+                                  )
+                                )}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div className="flex justify-end space-x-3 mt-6">
