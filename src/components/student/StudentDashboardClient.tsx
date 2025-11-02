@@ -370,7 +370,35 @@ export default function StudentDashboardClient() {
       // Load detailed major information including subjects
       const response = await studentApiService.getMajorDetails(major.id);
       if (response.success) {
-        setSelectedMajor(response.data);
+        // Normalize all subject fields: convert string to array if needed
+        const normalizeSubjects = (subjects: string | string[] | null | undefined): string[] | undefined => {
+          if (!subjects) return undefined;
+          if (Array.isArray(subjects)) return subjects;
+          if (typeof subjects === 'string' && subjects.trim().length > 0) {
+            // Try parsing as JSON first, then fallback to comma-separated
+            try {
+              const parsed = JSON.parse(subjects);
+              return Array.isArray(parsed) ? parsed : [subjects];
+            } catch {
+              // If not JSON, treat as comma-separated string
+              const parts = subjects.split(',').map(s => s.trim()).filter(s => s.length > 0);
+              return parts.length > 0 ? parts : [subjects];
+            }
+          }
+          return undefined;
+        };
+
+        const normalizedData = {
+          ...response.data,
+          required_subjects: normalizeSubjects(response.data.required_subjects),
+          preferred_subjects: normalizeSubjects(response.data.preferred_subjects),
+          optional_subjects: normalizeSubjects(response.data.optional_subjects),
+          kurikulum_merdeka_subjects: normalizeSubjects(response.data.kurikulum_merdeka_subjects),
+          kurikulum_2013_ipa_subjects: normalizeSubjects(response.data.kurikulum_2013_ipa_subjects),
+          kurikulum_2013_ips_subjects: normalizeSubjects(response.data.kurikulum_2013_ips_subjects),
+          kurikulum_2013_bahasa_subjects: normalizeSubjects(response.data.kurikulum_2013_bahasa_subjects),
+        };
+        setSelectedMajor(normalizedData);
         setShowMajorDetail(true);
       } else {
         setError("Gagal memuat detail jurusan");
@@ -1497,8 +1525,10 @@ export default function StudentDashboardClient() {
                               </span>
                             </h5>
                             <ul className="space-y-2">
-                              {(selectedMajor.subjects?.required || selectedMajor.required_subjects || []).map(
-                                (subject, index) => (
+                              {(() => {
+                                const subjects = selectedMajor.subjects?.required || selectedMajor.required_subjects;
+                                const subjectsArray = Array.isArray(subjects) ? subjects : [];
+                                return subjectsArray.map((subject, index) => (
                                   <li
                                     key={index}
                                     className="text-red-800 text-sm flex items-center"
@@ -1506,8 +1536,8 @@ export default function StudentDashboardClient() {
                                     <span className="w-2 h-2 bg-red-500 rounded-full mr-3 flex-shrink-0"></span>
                                     {subject}
                                   </li>
-                                )
-                              )}
+                                ));
+                              })()}
                             </ul>
                           </div>
                         )}
@@ -1533,8 +1563,15 @@ export default function StudentDashboardClient() {
                               Mata Pelajaran Pilihan
                             </h5>
                             <ul className="space-y-2">
-                              {(selectedMajor.subjects?.preferred || selectedMajor.preferred_subjects || selectedMajor.optional_subjects || []).map(
-                                (subject, index) => (
+                              {(() => {
+                                const subjects = selectedMajor.subjects?.preferred || selectedMajor.preferred_subjects || selectedMajor.optional_subjects;
+                                let subjectsArray: string[] = [];
+                                if (Array.isArray(subjects)) {
+                                  subjectsArray = subjects;
+                                } else if (typeof subjects === 'string') {
+                                  subjectsArray = [subjects];
+                                }
+                                return subjectsArray.map((subject, index) => (
                                   <li
                                     key={index}
                                     className="text-green-800 text-sm flex items-center"
@@ -1542,8 +1579,8 @@ export default function StudentDashboardClient() {
                                     <span className="w-2 h-2 bg-green-500 rounded-full mr-3 flex-shrink-0"></span>
                                     {subject}
                                   </li>
-                                )
-                              )}
+                                ));
+                              })()}
                             </ul>
                           </div>
                         )}
@@ -1581,8 +1618,10 @@ export default function StudentDashboardClient() {
                                 Kurikulum Merdeka
                               </h6>
                               <ul className="space-y-1">
-                                {(selectedMajor.subjects?.kurikulum_merdeka || selectedMajor.kurikulum_merdeka_subjects || []).map(
-                                  (subject, index) => (
+                                {(() => {
+                                  const subjects = selectedMajor.subjects?.kurikulum_merdeka || selectedMajor.kurikulum_merdeka_subjects;
+                                  const subjectsArray = Array.isArray(subjects) ? subjects : [];
+                                  return subjectsArray.map((subject, index) => (
                                     <li
                                       key={index}
                                       className="text-black text-xs flex items-center"
@@ -1590,8 +1629,8 @@ export default function StudentDashboardClient() {
                                       <span className="w-1.5 h-1.5 bg-purple-500 rounded-full mr-2 flex-shrink-0"></span>
                                       {subject}
                                     </li>
-                                  )
-                                )}
+                                  ));
+                                })()}
                               </ul>
                             </div>
                           )}
@@ -1604,8 +1643,10 @@ export default function StudentDashboardClient() {
                                 Kurikulum 2013 - IPA
                               </h6>
                               <ul className="space-y-1">
-                                {(selectedMajor.subjects?.kurikulum_2013_ipa || selectedMajor.kurikulum_2013_ipa_subjects || []).map(
-                                  (subject, index) => (
+                                {(() => {
+                                  const subjects = selectedMajor.subjects?.kurikulum_2013_ipa || selectedMajor.kurikulum_2013_ipa_subjects;
+                                  const subjectsArray = Array.isArray(subjects) ? subjects : [];
+                                  return subjectsArray.map((subject, index) => (
                                     <li
                                       key={index}
                                       className="text-black text-xs flex items-center"
@@ -1613,8 +1654,8 @@ export default function StudentDashboardClient() {
                                       <span className="w-1.5 h-1.5 bg-orange-500 rounded-full mr-2 flex-shrink-0"></span>
                                       {subject}
                                     </li>
-                                  )
-                                )}
+                                  ));
+                                })()}
                               </ul>
                             </div>
                           )}
@@ -1627,8 +1668,10 @@ export default function StudentDashboardClient() {
                                 Kurikulum 2013 - IPS
                               </h6>
                               <ul className="space-y-1">
-                                {(selectedMajor.subjects?.kurikulum_2013_ips || selectedMajor.kurikulum_2013_ips_subjects || []).map(
-                                  (subject, index) => (
+                                {(() => {
+                                  const subjects = selectedMajor.subjects?.kurikulum_2013_ips || selectedMajor.kurikulum_2013_ips_subjects;
+                                  const subjectsArray = Array.isArray(subjects) ? subjects : [];
+                                  return subjectsArray.map((subject, index) => (
                                     <li
                                       key={index}
                                       className="text-black text-xs flex items-center"
@@ -1636,8 +1679,8 @@ export default function StudentDashboardClient() {
                                       <span className="w-1.5 h-1.5 bg-teal-500 rounded-full mr-2 flex-shrink-0"></span>
                                       {subject}
                                     </li>
-                                  )
-                                )}
+                                  ));
+                                })()}
                               </ul>
                             </div>
                           )}
@@ -1650,8 +1693,10 @@ export default function StudentDashboardClient() {
                                 Kurikulum 2013 - Bahasa
                               </h6>
                               <ul className="space-y-1">
-                                {(selectedMajor.subjects?.kurikulum_2013_bahasa || selectedMajor.kurikulum_2013_bahasa_subjects || []).map(
-                                  (subject, index) => (
+                                {(() => {
+                                  const subjects = selectedMajor.subjects?.kurikulum_2013_bahasa || selectedMajor.kurikulum_2013_bahasa_subjects;
+                                  const subjectsArray = Array.isArray(subjects) ? subjects : [];
+                                  return subjectsArray.map((subject, index) => (
                                     <li
                                       key={index}
                                       className="text-black text-xs flex items-center"
@@ -1659,8 +1704,8 @@ export default function StudentDashboardClient() {
                                       <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full mr-2 flex-shrink-0"></span>
                                       {subject}
                                     </li>
-                                  )
-                                )}
+                                  ));
+                                })()}
                               </ul>
                             </div>
                           )}
