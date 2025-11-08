@@ -247,7 +247,16 @@ export default function StudentsContent({
       }
     } catch (error) {
       console.error("❌ Error loading student detail:", error);
-      // Fallback to using existing student data if API fails
+      
+      // Show user-friendly error message
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : "Gagal memuat detail siswa. Silakan coba lagi.";
+      
+      alert(`⚠️ ${errorMessage}`);
+      
+      // Fallback to using existing student data if API fails (but without subjects)
+      // This allows user to still see basic student info
       setViewingStudent(student);
       setShowDetailModal(true);
     } finally {

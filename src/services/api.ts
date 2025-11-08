@@ -753,29 +753,59 @@ export const apiService = {
       "Content-Type": "application/json",
     };
 
-    const response = await fetch(`${API_BASE_URL}/students/${studentId}`, {
-      method: "GET",
-      headers: headers,
-      credentials: "same-origin",
-    });
+    // Add timeout controller
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
 
-    // Check if response is HTML (redirect or error page)
-    const contentType = response.headers.get("content-type") || "";
-    if (!contentType.includes("application/json")) {
-      const text = await response.clone().text();
-      console.error("❌ Received non-JSON response:", text.substring(0, 200));
-      throw new Error(
-        "Server mengembalikan format yang tidak valid. Pastikan sudah login dan token valid."
-      );
+    try {
+      const response = await fetch(`${API_BASE_URL}/students/${studentId}`, {
+        method: "GET",
+        headers: headers,
+        credentials: "same-origin",
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      // Check if response is HTML (redirect or error page)
+      const contentType = response.headers.get("content-type") || "";
+      if (!contentType.includes("application/json")) {
+        const text = await response.clone().text();
+        console.error("❌ Received non-JSON response:", text.substring(0, 200));
+        throw new Error(
+          "Server mengembalikan format yang tidak valid. Pastikan sudah login dan token valid."
+        );
+      }
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Gagal mengambil detail siswa");
+      }
+
+      return data;
+    } catch (error) {
+      clearTimeout(timeoutId);
+      
+      // Handle specific error types
+      if (error instanceof Error) {
+        if (error.name === 'AbortError') {
+          console.error("❌ Request timeout saat mengambil detail siswa");
+          throw new Error("Request timeout. Server mungkin sedang sibuk. Silakan coba lagi.");
+        }
+        if (error.message.includes('Failed to fetch') || error.message.includes('ERR_CONNECTION_RESET')) {
+          console.error("❌ Connection error saat mengambil detail siswa:", error.message);
+          throw new Error("Koneksi terputus. Pastikan koneksi internet stabil dan coba lagi.");
+        }
+        if (error.message.includes('NetworkError') || error.message.includes('Network request failed')) {
+          console.error("❌ Network error saat mengambil detail siswa:", error.message);
+          throw new Error("Gagal terhubung ke server. Periksa koneksi internet Anda.");
+        }
+      }
+      
+      // Re-throw other errors
+      throw error;
     }
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.message || "Gagal mengambil detail siswa");
-    }
-
-    return data;
   },
 
   // Get Major Statistics
