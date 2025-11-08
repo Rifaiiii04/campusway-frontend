@@ -747,6 +747,10 @@ export const apiService = {
 
   // Get Student Detail
   async getStudentDetail(studentId: number) {
+    // Get token explicitly for debugging
+    const token = getToken();
+    console.log("🔑 getStudentDetail - Token check:", token ? `${token.substring(0, 20)}...` : "NO TOKEN FOUND");
+    
     const headers = {
       ...getAuthHeaders(),
       Accept: "application/json",
@@ -755,6 +759,10 @@ export const apiService = {
 
     const url = `${API_BASE_URL}/students/${studentId}`;
     console.log("🔍 Fetching student detail from:", url);
+    console.log("🔍 Request headers:", {
+      ...headers,
+      Authorization: headers.Authorization ? `${headers.Authorization.substring(0, 20)}...` : "NO AUTHORIZATION HEADER"
+    });
 
     // Add timeout controller
     const controller = new AbortController();
@@ -809,6 +817,16 @@ export const apiService = {
         } else if (response.status === 404) {
           throw new Error(data?.message || "Siswa tidak ditemukan");
         } else if (response.status === 401) {
+          // Clear invalid token
+          if (typeof window !== "undefined") {
+            console.warn("⚠️ 401 Unauthorized - Clearing token and redirecting to login");
+            localStorage.removeItem("school_token");
+            localStorage.removeItem("school_data");
+            // Redirect to login after a short delay
+            setTimeout(() => {
+              window.location.href = "/login";
+            }, 1000);
+          }
           throw new Error("Sesi telah berakhir. Silakan login kembali.");
         } else {
           throw new Error(data?.message || `Gagal mengambil detail siswa (${response.status})`);
