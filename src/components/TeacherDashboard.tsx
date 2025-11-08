@@ -384,12 +384,27 @@ export default function TeacherDashboard() {
     loadStudents(true);
   };
 
-  const handleLogout = () => {
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("school_token");
+  const handleLogout = useCallback(() => {
+    try {
+      if (typeof window !== "undefined") {
+        // Hapus semua data autentikasi
+        localStorage.removeItem("school_token");
+        localStorage.removeItem("school_data");
+        
+        // Clear any other related data
+        localStorage.removeItem("darkMode");
+        
+        // Force redirect to login page
+        router.replace("/login");
+      }
+    } catch (error) {
+      console.error("Error during logout:", error);
+      // Even if there's an error, try to redirect
+      if (typeof window !== "undefined") {
+        window.location.href = "/login";
+      }
     }
-    router.push("/login");
-  };
+  }, [router]);
 
   // Export data siswa ke Excel/CSV
   const handleExportData = async () => {
@@ -930,8 +945,13 @@ export default function TeacherDashboard() {
                   {loading ? "Exporting..." : "Export Data"}
                 </button>
                 <button
-                  onClick={handleLogout}
-                  className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleLogout();
+                  }}
+                  type="button"
+                  className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors cursor-pointer"
                 >
                   Logout
                 </button>
