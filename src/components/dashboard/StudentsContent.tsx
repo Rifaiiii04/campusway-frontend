@@ -203,7 +203,41 @@ export default function StudentsContent({
           console.log("📚 Preferred subjects:", response.data.student.chosen_major.preferred_subjects);
           console.log("📚 Kurikulum Merdeka:", response.data.student.chosen_major.kurikulum_merdeka_subjects);
         }
-        setViewingStudent(response.data.student);
+
+        // Normalize subjects data: convert string to array if needed (same as student dashboard)
+        const normalizeSubjects = (subjects: string | string[] | null | undefined): string[] | undefined => {
+          if (!subjects) return undefined;
+          if (Array.isArray(subjects)) return subjects;
+          if (typeof subjects === 'string' && subjects.trim().length > 0) {
+            // Try parsing as JSON first, then fallback to comma-separated
+            try {
+              const parsed = JSON.parse(subjects);
+              return Array.isArray(parsed) ? parsed : [subjects];
+            } catch {
+              // If not JSON, treat as comma-separated string
+              const parts = subjects.split(',').map(s => s.trim()).filter(s => s.length > 0);
+              return parts.length > 0 ? parts : [subjects];
+            }
+          }
+          return undefined;
+        };
+
+        // Normalize student data with subjects
+        const normalizedStudent = {
+          ...response.data.student,
+          chosen_major: response.data.student.chosen_major ? {
+            ...response.data.student.chosen_major,
+            required_subjects: normalizeSubjects(response.data.student.chosen_major.required_subjects),
+            preferred_subjects: normalizeSubjects(response.data.student.chosen_major.preferred_subjects),
+            optional_subjects: normalizeSubjects(response.data.student.chosen_major.optional_subjects),
+            kurikulum_merdeka_subjects: normalizeSubjects(response.data.student.chosen_major.kurikulum_merdeka_subjects),
+            kurikulum_2013_ipa_subjects: normalizeSubjects(response.data.student.chosen_major.kurikulum_2013_ipa_subjects),
+            kurikulum_2013_ips_subjects: normalizeSubjects(response.data.student.chosen_major.kurikulum_2013_ips_subjects),
+            kurikulum_2013_bahasa_subjects: normalizeSubjects(response.data.student.chosen_major.kurikulum_2013_bahasa_subjects),
+          } : undefined,
+        };
+
+        setViewingStudent(normalizedStudent);
         setShowDetailModal(true);
       } else {
         console.warn("⚠️ API response not successful:", response);
