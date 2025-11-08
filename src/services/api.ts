@@ -753,12 +753,15 @@ export const apiService = {
       "Content-Type": "application/json",
     };
 
+    const url = `${API_BASE_URL}/students/${studentId}`;
+    console.log("🔍 Fetching student detail from:", url);
+
     // Add timeout controller
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
 
     try {
-      const response = await fetch(`${API_BASE_URL}/students/${studentId}`, {
+      const response = await fetch(url, {
         method: "GET",
         headers: headers,
         credentials: "same-origin",
@@ -767,11 +770,13 @@ export const apiService = {
 
       clearTimeout(timeoutId);
 
+      console.log("📡 Student detail response status:", response.status);
+
       // Check if response is HTML (redirect or error page)
       const contentType = response.headers.get("content-type") || "";
       if (!contentType.includes("application/json")) {
         const text = await response.clone().text();
-        console.error("❌ Received non-JSON response:", text.substring(0, 200));
+        console.error("❌ Received non-JSON response:", text.substring(0, 500));
         throw new Error(
           "Server mengembalikan format yang tidak valid. Pastikan sudah login dan token valid."
         );
@@ -780,12 +785,16 @@ export const apiService = {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Gagal mengambil detail siswa");
+        console.error("❌ Student detail API error:", data);
+        throw new Error(data.message || `Gagal mengambil detail siswa (${response.status})`);
       }
 
+      console.log("✅ Student detail fetched successfully");
       return data;
     } catch (error) {
       clearTimeout(timeoutId);
+      
+      console.error("❌ Error in getStudentDetail:", error);
       
       // Handle specific error types
       if (error instanceof Error) {
