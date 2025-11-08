@@ -30,18 +30,27 @@ export default function TeacherDashboardClient() {
     const endTiming = startTiming("teacher_authentication_check");
 
     try {
+      // Guard untuk SSR - hanya jalankan di client
+      if (typeof window === "undefined") {
+        setLoading(false);
+        endTiming();
+        return;
+      }
+
       // Cek apakah ada token di localStorage
       const token = localStorage.getItem("school_token");
       const storedSchoolData = localStorage.getItem("school_data");
 
       console.log("🔍 Checking authentication:", {
         hasToken: !!token,
+        tokenValue: token ? `${token.substring(0, 20)}...` : "NO TOKEN",
         hasSchoolData: !!storedSchoolData,
         schoolDataValue: storedSchoolData,
       });
 
       if (
         token &&
+        token.trim() !== "" &&
         storedSchoolData &&
         storedSchoolData !== "undefined" &&
         storedSchoolData !== "null" &&

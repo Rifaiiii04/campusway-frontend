@@ -1218,13 +1218,32 @@ export const apiService = {
 
       console.log("🌐 Upcoming ArahPotensi Schedules API URL:", url);
 
+      // Add timeout controller
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
       const response = await fetch(url, {
         headers: {
           "Content-Type": "application/json",
+          ...getAuthHeaders(), // Add auth headers
         },
+        signal: controller.signal,
+        credentials: "same-origin",
       });
 
+      clearTimeout(timeoutId);
+
       if (!response.ok) {
+        // If 401, clear token and redirect
+        if (response.status === 401) {
+          if (typeof window !== "undefined") {
+            localStorage.removeItem("school_token");
+            localStorage.removeItem("school_data");
+            setTimeout(() => {
+              window.location.href = "/login";
+            }, 1000);
+          }
+        }
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
@@ -1233,8 +1252,21 @@ export const apiService = {
 
       return data;
     } catch (error: unknown) {
+      // Handle connection reset and network errors gracefully
+      if (error instanceof Error) {
+        if (
+          error.message.includes("Failed to fetch") ||
+          error.message.includes("ERR_CONNECTION_RESET") ||
+          error.message.includes("NetworkError") ||
+          error.name === "AbortError"
+        ) {
+          console.warn("⚠️ Network error loading TKA schedules, returning empty array");
+          return { success: false, data: [] };
+        }
+      }
       console.error("❌ Upcoming ArahPotensi Schedules API error:", error);
-      throw error;
+      // Return empty array instead of throwing to prevent UI crashes
+      return { success: false, data: [] };
     }
   },
 
@@ -1695,6 +1727,10 @@ export const studentApiService = {
       console.log("🌐 STUDENT_API_BASE_URL:", STUDENT_API_BASE_URL);
       console.log("🌐 Full URL being called:", url);
 
+      // Add timeout controller
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
       const response = await fetch(url, {
         method: "GET",
         headers: {
@@ -1703,7 +1739,10 @@ export const studentApiService = {
         },
         mode: "cors",
         credentials: "omit",
+        signal: controller.signal,
       });
+
+      clearTimeout(timeoutId);
 
       console.log("🌐 Response status:", response.status);
       console.log(
@@ -1725,6 +1764,18 @@ export const studentApiService = {
 
       return data;
     } catch (error: unknown) {
+      // Handle connection reset and network errors gracefully
+      if (error instanceof Error) {
+        if (
+          error.message.includes("Failed to fetch") ||
+          error.message.includes("ERR_CONNECTION_RESET") ||
+          error.message.includes("NetworkError") ||
+          error.name === "AbortError"
+        ) {
+          console.warn("⚠️ Network error loading TKA schedules (connection reset), returning empty array");
+          return { success: false, data: [] };
+        }
+      }
       console.error("❌ Upcoming ArahPotensi Schedules API error:", error);
       console.error(
         "❌ Error details:",
