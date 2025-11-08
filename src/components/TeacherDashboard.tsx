@@ -228,8 +228,20 @@ export default function TeacherDashboard() {
       setSchoolId(dashboardResponse.data.school.id);
 
       // Load students data
-      const studentsResponse = await apiService.getStudents();
-      setStudents(studentsResponse.data.students);
+      try {
+        const studentsResponse = await apiService.getStudents();
+        console.log("✅ Students loaded:", studentsResponse.data.students?.length || 0, "students");
+        if (studentsResponse.success && studentsResponse.data.students) {
+          setStudents(studentsResponse.data.students);
+        } else {
+          console.warn("⚠️ Students response not successful:", studentsResponse);
+          setStudents([]);
+        }
+      } catch (studentsError) {
+        console.error("❌ Error loading students:", studentsError);
+        setStudents([]);
+        // Don't fail entire load if students fail
+      }
 
       // Load major statistics
       const majorStatsResponse = await apiService.getMajorStatistics();
@@ -346,15 +358,25 @@ export default function TeacherDashboard() {
         forceRefresh ? "(force refresh)" : ""
       );
       const studentsResponse = await apiService.getStudents(forceRefresh);
-      console.log(
-        "✅ Students loaded:",
-        studentsResponse.data.students.length,
-        "students"
-      );
-      setStudents(studentsResponse.data.students);
+      console.log("📡 Students response:", studentsResponse);
+      
+      if (studentsResponse.success && studentsResponse.data?.students) {
+        console.log(
+          "✅ Students loaded:",
+          studentsResponse.data.students.length,
+          "students"
+        );
+        setStudents(studentsResponse.data.students);
+      } else {
+        console.warn("⚠️ Students response not successful:", studentsResponse);
+        setStudents([]);
+        setError("Gagal memuat data siswa: Response tidak valid");
+      }
     } catch (err: unknown) {
-      console.error("Error loading students:", err);
-      setError(err instanceof Error ? err.message : "Gagal memuat data siswa");
+      console.error("❌ Error loading students:", err);
+      const errorMessage = err instanceof Error ? err.message : "Gagal memuat data siswa";
+      setError(errorMessage);
+      setStudents([]); // Set empty array on error
     }
   };
 

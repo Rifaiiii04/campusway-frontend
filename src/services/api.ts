@@ -782,11 +782,37 @@ export const apiService = {
         );
       }
 
-      const data = await response.json();
+      let data;
+      try {
+        data = await response.json();
+      } catch (jsonError) {
+        console.error("❌ Failed to parse JSON response:", jsonError);
+        const text = await response.clone().text();
+        console.error("❌ Response text:", text.substring(0, 500));
+        throw new Error(`Server mengembalikan response yang tidak valid (${response.status})`);
+      }
 
       if (!response.ok) {
-        console.error("❌ Student detail API error:", data);
-        throw new Error(data.message || `Gagal mengambil detail siswa (${response.status})`);
+        console.error("❌ Student detail API error:", {
+          status: response.status,
+          statusText: response.statusText,
+          data: data
+        });
+        
+        // Provide more specific error messages
+        if (response.status === 500) {
+          throw new Error(
+            data?.message || 
+            data?.error || 
+            "Server error: Terjadi kesalahan di server. Silakan coba lagi atau hubungi administrator."
+          );
+        } else if (response.status === 404) {
+          throw new Error(data?.message || "Siswa tidak ditemukan");
+        } else if (response.status === 401) {
+          throw new Error("Sesi telah berakhir. Silakan login kembali.");
+        } else {
+          throw new Error(data?.message || `Gagal mengambil detail siswa (${response.status})`);
+        }
       }
 
       console.log("✅ Student detail fetched successfully");

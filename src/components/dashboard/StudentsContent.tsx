@@ -249,10 +249,18 @@ export default function StudentsContent({
       console.error("❌ Error loading student detail:", error);
       
       // Show user-friendly error message
-      const errorMessage = error instanceof Error 
-        ? error.message 
-        : "Gagal memuat detail siswa. Silakan coba lagi.";
+      let errorMessage = "Gagal memuat detail siswa. Silakan coba lagi.";
       
+      if (error instanceof Error) {
+        errorMessage = error.message;
+        
+        // Check if it's a server error (500)
+        if (errorMessage.includes("Server error") || errorMessage.includes("500")) {
+          errorMessage = "Server sedang mengalami masalah. Silakan coba lagi dalam beberapa saat atau hubungi administrator.";
+        }
+      }
+      
+      // Show error notification (you can replace alert with a toast/notification component)
       alert(`⚠️ ${errorMessage}`);
       
       // Fallback to using existing student data if API fails (but without subjects)
@@ -494,7 +502,43 @@ export default function StudentsContent({
                   : "bg-white divide-gray-200"
               } divide-y`}
             >
-              {filteredStudents.map((student) => (
+              {filteredStudents.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={5}
+                    className={`px-6 py-12 text-center ${
+                      darkMode ? "text-gray-400" : "text-gray-500"
+                    }`}
+                  >
+                    <div className="flex flex-col items-center">
+                      <svg
+                        className="w-16 h-16 mb-4 text-gray-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+                        />
+                      </svg>
+                      <p className="text-lg font-medium mb-2">
+                        {students.length === 0
+                          ? "Belum ada data siswa"
+                          : "Tidak ada siswa yang sesuai dengan filter"}
+                      </p>
+                      <p className="text-sm">
+                        {students.length === 0
+                          ? "Silakan tambah siswa baru atau import dari file Excel/CSV"
+                          : "Coba ubah filter atau kata kunci pencarian"}
+                      </p>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                filteredStudents.map((student) => (
                 <tr
                   key={student.id}
                   className={
@@ -648,7 +692,8 @@ export default function StudentsContent({
                     </div>
                   </td>
                 </tr>
-              ))}
+                ))
+              )}
             </tbody>
           </table>
         </div>
