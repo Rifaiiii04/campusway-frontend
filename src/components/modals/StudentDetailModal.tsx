@@ -508,7 +508,7 @@ export default function StudentDetailModal({
                         try {
                           const parsed = JSON.parse(trimmed);
                           if (Array.isArray(parsed)) {
-                            return parsed.filter((s: any) => s !== null && s !== undefined && String(s).trim().length > 0).map((s: any) => String(s).trim());
+                            return parsed.filter((s: unknown) => s !== null && s !== undefined && String(s).trim().length > 0).map((s: unknown) => String(s).trim());
                           }
                         } catch {
                           // If not JSON, treat as comma-separated
