@@ -1224,8 +1224,8 @@ export const apiService = {
 
       const response = await fetch(url, {
         headers: {
-          "Content-Type": "application/json",
-          ...getAuthHeaders(), // Add auth headers
+          ...getAuthHeaders(), // Add auth headers (includes Content-Type)
+          Accept: "application/json",
         },
         signal: controller.signal,
         credentials: "same-origin",
