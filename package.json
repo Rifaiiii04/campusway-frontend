@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev -p 3001",
     "dev:network": "next dev --turbopack --hostname 0.0.0.0 --port 3001",
+    "dev:port80": "next dev -p 80",
     "build": "next build",
     "build:prod": "NODE_ENV=production next build",
     "build:analyze": "ANALYZE=true next build",
