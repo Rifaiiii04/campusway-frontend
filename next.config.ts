@@ -5,16 +5,16 @@ const nextConfig: NextConfig = {
   env: {
     NEXT_PUBLIC_API_BASE_URL:
       process.env.NEXT_PUBLIC_API_BASE_URL ||
-      "http://103.23.198.101/api/school",
+      "http://103.23.198.101/super-admin/api/school",
     NEXT_PUBLIC_STUDENT_API_BASE_URL:
       process.env.NEXT_PUBLIC_STUDENT_API_BASE_URL ||
-      "http://103.23.198.101/api/web",
+      "http://103.23.198.101/super-admin/api/web",
     NEXT_PUBLIC_SUPERADMIN_API_URL:
       process.env.NEXT_PUBLIC_SUPERADMIN_API_URL ||
-      "http://103.23.198.101/api",
+      "http://103.23.198.101/super-admin/api",
     NEXT_PUBLIC_BACKEND_URL:
       process.env.NEXT_PUBLIC_BACKEND_URL ||
-      "http://103.23.198.101",
+      "http://103.23.198.101/super-admin",
   },
 
   // Performance optimizations
