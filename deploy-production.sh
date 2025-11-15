@@ -162,3 +162,7 @@ echo "   4. Check Apache logs if issues persist:"
 echo "      sudo tail -f /var/log/apache2/103.23.198.101_error.log"
 echo ""
 
+
+
+
+

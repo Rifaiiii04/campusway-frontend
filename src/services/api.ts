@@ -180,55 +180,85 @@ async function fetchWithCache<T>(
 
     return data;
   } catch (error) {
-    // Always clear timeout and end timing
-    if (timeoutId) {
-      clearTimeout(timeoutId);
-    }
-    endTiming();
-
-    // Handle specific error types
-    if (error instanceof Error) {
-      if (error.name === "AbortError") {
-        throw new Error(
-          `Request timeout: Server tidak merespons dalam 15 detik`
-        );
+      // Always clear timeout and end timing
+      if (timeoutId) {
+        clearTimeout(timeoutId);
       }
-      if (error.message.includes("Failed to fetch")) {
-        // Check if it's blocked by client (ad blocker, etc.)
-        if (error.message.includes("ERR_BLOCKED_BY_CLIENT")) {
-          throw new Error(
-            `Request diblokir oleh browser atau extension. Silakan nonaktifkan ad blocker atau extension yang memblokir request.`
-          );
-        }
-        // Check if it's a network connectivity issue
-        if (
-          error.message.includes("ERR_NETWORK_CHANGED") ||
-          error.message.includes("ERR_INTERNET_DISCONNECTED")
-        ) {
-          throw new Error(
-            `Koneksi internet terputus. Periksa koneksi internet Anda dan coba lagi.`
-          );
-        }
-        // Check if it's a CORS issue
-        if (
-          error.message.includes("ERR_CERT_AUTHORITY_INVALID") ||
-          error.message.includes("ERR_SSL_PROTOCOL_ERROR")
-        ) {
-          throw new Error(
-            `Masalah keamanan koneksi. Silakan coba akses dengan HTTP atau periksa sertifikat SSL.`
-          );
-        }
-        // Generic network error
-        throw new Error(
-          `Koneksi gagal: Pastikan server backend berjalan di ${getApiBaseUrl()}. Error: ${
-            error.message
-          }`
-        );
-      }
-    }
+      endTiming();
 
-    throw error;
-  }
+      // Handle specific error types
+      if (error instanceof Error) {
+        if (error.name === "AbortError") {
+          throw new Error(
+            `Request timeout: Server tidak merespons dalam 15 detik`
+          );
+        }
+        if (error.message.includes("Failed to fetch")) {
+          // Check if it's blocked by client (ad blocker, etc.)
+          // ERR_BLOCKED_BY_CLIENT can appear in different forms
+          const errorLower = error.message.toLowerCase();
+          if (
+            errorLower.includes("blocked by client") ||
+            errorLower.includes("err_blocked_by_client") ||
+            errorLower.includes("net::err_blocked_by_client")
+          ) {
+            console.error("🚫 Request blocked by browser extension:", {
+              url,
+              error: error.message,
+            });
+            throw new Error(
+              `Request diblokir oleh browser atau extension (ad blocker, privacy extension, dll).\n\n` +
+              `Solusi:\n` +
+              `1. Nonaktifkan ad blocker atau extension yang memblokir request\n` +
+              `2. Tambahkan ${new URL(url).origin} ke whitelist extension\n` +
+              `3. Coba gunakan mode incognito/private browsing\n` +
+              `4. Cek browser console untuk detail error`
+            );
+          }
+          // Check if it's a network connectivity issue
+          if (
+            error.message.includes("ERR_NETWORK_CHANGED") ||
+            error.message.includes("ERR_INTERNET_DISCONNECTED")
+          ) {
+            throw new Error(
+              `Koneksi internet terputus. Periksa koneksi internet Anda dan coba lagi.`
+            );
+          }
+          // Check if it's a CORS issue
+          if (
+            error.message.includes("ERR_CERT_AUTHORITY_INVALID") ||
+            error.message.includes("ERR_SSL_PROTOCOL_ERROR")
+          ) {
+            throw new Error(
+              `Masalah keamanan koneksi. Silakan coba akses dengan HTTP atau periksa sertifikat SSL.`
+            );
+          }
+          // Generic network error
+          throw new Error(
+            `Koneksi gagal: Pastikan server backend berjalan di ${getApiBaseUrl()}. Error: ${
+              error.message
+            }`
+          );
+        }
+      }
+
+      // Check for TypeError which can indicate blocked requests
+      if (error instanceof TypeError) {
+        const errorMessage = error.message.toLowerCase();
+        if (
+          errorMessage.includes("failed to fetch") ||
+          errorMessage.includes("networkerror")
+        ) {
+          // This might be a blocked request - provide helpful message
+          console.warn("⚠️ Possible blocked request detected:", {
+            url,
+            error: error.message,
+          });
+        }
+      }
+
+      throw error;
+    }
 }
 
 // Types berdasarkan API documentation

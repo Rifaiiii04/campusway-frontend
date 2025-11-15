@@ -227,3 +227,7 @@ echo "   3. Check Apache access logs: tail -f /var/log/apache2/103.23.198.101_ac
 echo "   4. Test from server: curl http://localhost/"
 echo ""
 
+
+
+
+
