@@ -641,217 +641,62 @@ export default function StudentDetailModal({
                     );
                   })()}
 
+                  {/* Curriculum-based Subjects - Displayed in Grid Format like Student Dashboard */}
                   {(() => {
-                    const subjects: string[] | string | null | undefined = student.chosen_major.kurikulum_merdeka_subjects;
-                    if (!subjects) return false;
-                    if (Array.isArray(subjects)) {
-                      return subjects.length > 0 && subjects.some(s => s && String(s).trim().length > 0);
-                    }
-                    if (typeof subjects === 'string') {
-                      return subjects.trim().length > 0;
-                    }
-                    return false;
-                  })() && (
-                    <div className="border border-gray-200 rounded-lg p-4 bg-gradient-to-r from-purple-50 to-indigo-50">
-                      <button
-                        onClick={() => toggleCurriculum("merdeka")}
-                        className="flex items-center justify-between w-full text-left"
-                      >
-                        <p
-                          className={`text-sm font-medium ${
-                            darkMode ? "text-gray-400" : "text-gray-600"
-                          }`}
-                        >
-                          📚 Mata Pelajaran Kurikulum Merdeka
-                        </p>
-                        <span
-                          className={`transform transition-transform duration-200 ${
-                            expandedCurriculums.merdeka
-                              ? "rotate-180"
-                              : "rotate-0"
-                          }`}
-                        >
-                          <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M19 9l-7 7-7-7"
-                            />
-                          </svg>
-                        </span>
-                      </button>
-                      {expandedCurriculums.merdeka && (
-                        <p
-                          className={`mt-3 ${
-                            darkMode ? "text-gray-300" : "text-gray-700"
-                          }`}
-                        >
-                          {formatSubjects(
-                            student.chosen_major.kurikulum_merdeka_subjects
-                          )}
-                        </p>
-                      )}
-                    </div>
-                  )}
+                    const hasCurriculumSubjects = 
+                      (student.chosen_major.kurikulum_merdeka_subjects && 
+                        (Array.isArray(student.chosen_major.kurikulum_merdeka_subjects) 
+                          ? student.chosen_major.kurikulum_merdeka_subjects.length > 0
+                          : String(student.chosen_major.kurikulum_merdeka_subjects).trim().length > 0)) ||
+                      (student.chosen_major.kurikulum_2013_ipa_subjects && 
+                        (Array.isArray(student.chosen_major.kurikulum_2013_ipa_subjects) 
+                          ? student.chosen_major.kurikulum_2013_ipa_subjects.length > 0
+                          : String(student.chosen_major.kurikulum_2013_ipa_subjects).trim().length > 0)) ||
+                      (student.chosen_major.kurikulum_2013_ips_subjects && 
+                        (Array.isArray(student.chosen_major.kurikulum_2013_ips_subjects) 
+                          ? student.chosen_major.kurikulum_2013_ips_subjects.length > 0
+                          : String(student.chosen_major.kurikulum_2013_ips_subjects).trim().length > 0)) ||
+                      (student.chosen_major.kurikulum_2013_bahasa_subjects && 
+                        (Array.isArray(student.chosen_major.kurikulum_2013_bahasa_subjects) 
+                          ? student.chosen_major.kurikulum_2013_bahasa_subjects.length > 0
+                          : String(student.chosen_major.kurikulum_2013_bahasa_subjects).trim().length > 0));
 
-                  {(() => {
-                    const subjects: string[] | string | null | undefined = student.chosen_major.kurikulum_2013_ipa_subjects;
-                    if (!subjects) return false;
-                    if (Array.isArray(subjects)) {
-                      return subjects.length > 0 && subjects.some(s => s && String(s).trim().length > 0);
-                    }
-                    if (typeof subjects === 'string') {
-                      return subjects.trim().length > 0;
-                    }
-                    return false;
-                  })() && (
-                    <div className="border border-gray-200 rounded-lg p-4 bg-gradient-to-r from-orange-50 to-red-50">
-                      <button
-                        onClick={() => toggleCurriculum("kurikulum_2013_ipa")}
-                        className="flex items-center justify-between w-full text-left"
-                      >
-                        <p
-                          className={`text-sm font-medium ${
-                            darkMode ? "text-gray-400" : "text-gray-600"
-                          }`}
-                        >
-                          🧪 Mata Pelajaran Kurikulum 2013 - IPA
-                        </p>
-                        <span
-                          className={`transform transition-transform duration-200 ${
-                            expandedCurriculums.kurikulum_2013_ipa
-                              ? "rotate-180"
-                              : "rotate-0"
-                          }`}
-                        >
-                          <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M19 9l-7 7-7-7"
-                            />
-                          </svg>
-                        </span>
-                      </button>
-                      {expandedCurriculums.kurikulum_2013_ipa && (
-                        <p
-                          className={`mt-3 ${
-                            darkMode ? "text-gray-300" : "text-gray-700"
-                          }`}
-                        >
-                          {formatSubjects(
-                            student.chosen_major.kurikulum_2013_ipa_subjects
-                          )}
-                        </p>
-                      )}
-                    </div>
-                  )}
+                    if (!hasCurriculumSubjects) return null;
 
-                  {(() => {
-                    const subjects: string[] | string | null | undefined = student.chosen_major.kurikulum_2013_ips_subjects;
-                    if (!subjects) return false;
-                    if (Array.isArray(subjects)) {
-                      return subjects.length > 0 && subjects.some(s => s && String(s).trim().length > 0);
-                    }
-                    if (typeof subjects === 'string') {
-                      return subjects.trim().length > 0;
-                    }
-                    return false;
-                  })() && (
-                    <div className="border border-gray-200 rounded-lg p-4 bg-gradient-to-r from-teal-50 to-cyan-50">
-                      <button
-                        onClick={() => toggleCurriculum("kurikulum_2013_ips")}
-                        className="flex items-center justify-between w-full text-left"
-                      >
-                        <p
-                          className={`text-sm font-medium ${
-                            darkMode ? "text-gray-400" : "text-gray-600"
-                          }`}
-                        >
-                          📊 Mata Pelajaran Kurikulum 2013 - IPS
-                        </p>
-                        <span
-                          className={`transform transition-transform duration-200 ${
-                            expandedCurriculums.kurikulum_2013_ips
-                              ? "rotate-180"
-                              : "rotate-0"
-                          }`}
-                        >
-                          <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M19 9l-7 7-7-7"
-                            />
-                          </svg>
-                        </span>
-                      </button>
-                      {expandedCurriculums.kurikulum_2013_ips && (
-                        <p
-                          className={`mt-3 ${
-                            darkMode ? "text-gray-300" : "text-gray-700"
-                          }`}
-                        >
-                          {formatSubjects(
-                            student.chosen_major.kurikulum_2013_ips_subjects
-                          )}
-                        </p>
-                      )}
-                    </div>
-                  )}
-
-                  {(() => {
-                    const subjects: string[] | string | null | undefined = student.chosen_major.kurikulum_2013_bahasa_subjects;
-                    if (!subjects) return false;
-                    if (Array.isArray(subjects)) {
-                      return subjects.length > 0 && subjects.some(s => s && String(s).trim().length > 0);
-                    }
-                    if (typeof subjects === 'string') {
-                      return subjects.trim().length > 0;
-                    }
-                    return false;
-                  })() && (
-                    <div className="border border-gray-200 rounded-lg p-4 bg-gradient-to-r from-indigo-50 to-red-50">
-                      <button
-                        onClick={() =>
-                          toggleCurriculum("kurikulum_2013_bahasa")
+                    const parseSubjectsToArray = (subjects: string | string[] | null | undefined): string[] => {
+                      if (!subjects) return [];
+                      if (Array.isArray(subjects)) {
+                        return subjects.filter(s => s && String(s).trim().length > 0).map(s => String(s).trim());
+                      }
+                      if (typeof subjects === 'string') {
+                        const trimmed = subjects.trim();
+                        if (trimmed.length === 0) return [];
+                        try {
+                          const parsed = JSON.parse(trimmed);
+                          if (Array.isArray(parsed)) {
+                            return parsed.filter((s: unknown) => s !== null && s !== undefined && String(s).trim().length > 0).map((s: unknown) => String(s).trim());
+                          }
+                        } catch {
+                          return trimmed.split(',').map(s => s.trim()).filter(s => s.length > 0);
                         }
-                        className="flex items-center justify-between w-full text-left"
-                      >
-                        <p
-                          className={`text-sm font-medium ${
-                            darkMode ? "text-gray-400" : "text-gray-600"
-                          }`}
-                        >
-                          📝 Mata Pelajaran Kurikulum 2013 - Bahasa
-                        </p>
-                        <span
-                          className={`transform transition-transform duration-200 ${
-                            expandedCurriculums.kurikulum_2013_bahasa
-                              ? "rotate-180"
-                              : "rotate-0"
-                          }`}
-                        >
+                      }
+                      return [];
+                    };
+
+                    const merdekaSubjects = parseSubjectsToArray(student.chosen_major.kurikulum_merdeka_subjects);
+                    const ipaSubjects = parseSubjectsToArray(student.chosen_major.kurikulum_2013_ipa_subjects);
+                    const ipsSubjects = parseSubjectsToArray(student.chosen_major.kurikulum_2013_ips_subjects);
+                    const bahasaSubjects = parseSubjectsToArray(student.chosen_major.kurikulum_2013_bahasa_subjects);
+
+                    return (
+                      <div className="mt-6">
+                        <h5 className={`text-md font-semibold mb-4 flex items-center ${
+                          darkMode ? "text-white" : "text-gray-900"
+                        }`}>
                           <svg
-                            className="w-4 h-4"
+                            className={`w-5 h-5 mr-2 ${
+                              darkMode ? "text-purple-400" : "text-purple-500"
+                            }`}
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -860,24 +705,136 @@ export default function StudentDetailModal({
                               strokeLinecap="round"
                               strokeLinejoin="round"
                               strokeWidth={2}
-                              d="M19 9l-7 7-7-7"
+                              d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
                             />
                           </svg>
-                        </span>
-                      </button>
-                      {expandedCurriculums.kurikulum_2013_bahasa && (
-                        <p
-                          className={`mt-3 ${
-                            darkMode ? "text-gray-300" : "text-gray-700"
-                          }`}
-                        >
-                          {formatSubjects(
-                            student.chosen_major.kurikulum_2013_bahasa_subjects
+                          Mata Pelajaran Wajib Berdasarkan Kurikulum
+                        </h5>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                          {/* Kurikulum Merdeka */}
+                          {merdekaSubjects.length > 0 && (
+                            <div className={`rounded-lg p-4 border ${
+                              darkMode 
+                                ? "border-purple-600/50 bg-gradient-to-br from-purple-900/20 to-indigo-900/20" 
+                                : "border-purple-200 bg-gradient-to-br from-purple-50 to-indigo-50"
+                            }`}>
+                              <h6 className={`font-semibold mb-2 text-sm ${
+                                darkMode ? "text-white" : "text-gray-900"
+                              }`}>
+                                Kurikulum Merdeka
+                              </h6>
+                              <ul className="space-y-1">
+                                {merdekaSubjects.map((subject, index) => (
+                                  <li
+                                    key={index}
+                                    className={`text-xs flex items-center ${
+                                      darkMode ? "text-gray-300" : "text-gray-700"
+                                    }`}
+                                  >
+                                    <span className={`w-1.5 h-1.5 rounded-full mr-2 flex-shrink-0 ${
+                                      darkMode ? "bg-purple-400" : "bg-purple-500"
+                                    }`}></span>
+                                    {subject}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
                           )}
-                        </p>
-                      )}
-                    </div>
-                  )}
+
+                          {/* Kurikulum 2013 IPA */}
+                          {ipaSubjects.length > 0 && (
+                            <div className={`rounded-lg p-4 border ${
+                              darkMode 
+                                ? "border-orange-600/50 bg-gradient-to-br from-orange-900/20 to-red-900/20" 
+                                : "border-orange-200 bg-gradient-to-br from-orange-50 to-red-50"
+                            }`}>
+                              <h6 className={`font-semibold mb-2 text-sm ${
+                                darkMode ? "text-white" : "text-gray-900"
+                              }`}>
+                                Kurikulum 2013 - IPA
+                              </h6>
+                              <ul className="space-y-1">
+                                {ipaSubjects.map((subject, index) => (
+                                  <li
+                                    key={index}
+                                    className={`text-xs flex items-center ${
+                                      darkMode ? "text-gray-300" : "text-gray-700"
+                                    }`}
+                                  >
+                                    <span className={`w-1.5 h-1.5 rounded-full mr-2 flex-shrink-0 ${
+                                      darkMode ? "bg-orange-400" : "bg-orange-500"
+                                    }`}></span>
+                                    {subject}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+
+                          {/* Kurikulum 2013 IPS */}
+                          {ipsSubjects.length > 0 && (
+                            <div className={`rounded-lg p-4 border ${
+                              darkMode 
+                                ? "border-teal-600/50 bg-gradient-to-br from-teal-900/20 to-cyan-900/20" 
+                                : "border-teal-200 bg-gradient-to-br from-teal-50 to-cyan-50"
+                            }`}>
+                              <h6 className={`font-semibold mb-2 text-sm ${
+                                darkMode ? "text-white" : "text-gray-900"
+                              }`}>
+                                Kurikulum 2013 - IPS
+                              </h6>
+                              <ul className="space-y-1">
+                                {ipsSubjects.map((subject, index) => (
+                                  <li
+                                    key={index}
+                                    className={`text-xs flex items-center ${
+                                      darkMode ? "text-gray-300" : "text-gray-700"
+                                    }`}
+                                  >
+                                    <span className={`w-1.5 h-1.5 rounded-full mr-2 flex-shrink-0 ${
+                                      darkMode ? "bg-teal-400" : "bg-teal-500"
+                                    }`}></span>
+                                    {subject}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+
+                          {/* Kurikulum 2013 Bahasa */}
+                          {bahasaSubjects.length > 0 && (
+                            <div className={`rounded-lg p-4 border ${
+                              darkMode 
+                                ? "border-indigo-600/50 bg-gradient-to-br from-indigo-900/20 to-blue-900/20" 
+                                : "border-indigo-200 bg-gradient-to-br from-indigo-50 to-blue-50"
+                            }`}>
+                              <h6 className={`font-semibold mb-2 text-sm ${
+                                darkMode ? "text-white" : "text-gray-900"
+                              }`}>
+                                Kurikulum 2013 - Bahasa
+                              </h6>
+                              <ul className="space-y-1">
+                                {bahasaSubjects.map((subject, index) => (
+                                  <li
+                                    key={index}
+                                    className={`text-xs flex items-center ${
+                                      darkMode ? "text-gray-300" : "text-gray-700"
+                                    }`}
+                                  >
+                                    <span className={`w-1.5 h-1.5 rounded-full mr-2 flex-shrink-0 ${
+                                      darkMode ? "bg-indigo-400" : "bg-indigo-500"
+                                    }`}></span>
+                                    {subject}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })()}
 
                   {student.chosen_major.choice_date && (
                     <div>
