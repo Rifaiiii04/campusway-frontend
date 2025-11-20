@@ -869,10 +869,6 @@ export default function TeacherDashboard() {
             students={students}
             darkMode={darkMode}
             onAddClass={openAddClassModal}
-            onClassAdded={() => {
-              // Refresh students data to update class list
-              loadStudents(true);
-            }}
             refreshTrigger={classesRefreshTrigger}
             newlyAddedClass={newlyAddedClassName}
           />

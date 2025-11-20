@@ -16,7 +16,6 @@ interface ClassesContentProps {
   students: Student[];
   darkMode: boolean;
   onAddClass: () => void;
-  onClassAdded?: () => void; // Callback to refresh data
   refreshTrigger?: number; // Trigger to force refresh classes
   newlyAddedClass?: string | null; // Newly added class name to add immediately
 }
@@ -25,7 +24,6 @@ export default function ClassesContent({
   students,
   darkMode,
   onAddClass,
-  onClassAdded,
   refreshTrigger,
   newlyAddedClass,
 }: ClassesContentProps) {
@@ -94,6 +92,7 @@ export default function ClassesContent({
     };
 
     loadClasses();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refreshTrigger]); // Only reload when refreshTrigger changes, not when students change
 
   // Add newly added class immediately if not already in list
@@ -384,7 +383,7 @@ export default function ClassesContent({
           ) : classSummary.length === 0 ? (
             <div className="p-8 text-center">
               <p className={darkMode ? "text-gray-400" : "text-gray-600"}>
-                Belum ada kelas yang terdaftar. Klik "Tambah Kelas" untuk menambahkan kelas baru.
+                Belum ada kelas yang terdaftar. Klik &quot;Tambah Kelas&quot; untuk menambahkan kelas baru.
               </p>
             </div>
           ) : (

@@ -4,11 +4,6 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Sidebar from "../layout/Sidebar";
 import TkaScheduleContent from "./TkaScheduleContent";
-import {
-  apiService,
-  studentApiService,
-  TkaSchedule,
-} from "../../services/api";
 
 export default function TeacherTkaScheduleClient() {
   const router = useRouter();
