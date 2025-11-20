@@ -19,6 +19,10 @@ export default function StudentDetailModal({
   if (!isOpen || !student) return null;
 
   // Debug: Log student data to see what we're receiving
+  console.log("🔍 StudentDetailModal - Full student data:", student);
+  console.log("🔍 has_choice:", student?.has_choice);
+  console.log("🔍 chosen_major:", student?.chosen_major);
+  
   if (student?.chosen_major) {
     console.log("📚 StudentDetailModal - chosen_major:", student.chosen_major);
     console.log("📚 Required subjects:", student.chosen_major.required_subjects);
@@ -28,6 +32,8 @@ export default function StudentDetailModal({
     console.log("📚 Optional subjects:", student.chosen_major.optional_subjects);
     console.log("📚 Kurikulum Merdeka:", student.chosen_major.kurikulum_merdeka_subjects);
     console.log("📚 Kurikulum 2013 IPA:", student.chosen_major.kurikulum_2013_ipa_subjects);
+  } else {
+    console.warn("⚠️ chosen_major is missing! has_choice:", student?.has_choice);
   }
 
   return (
