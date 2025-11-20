@@ -719,16 +719,26 @@ export const apiService = {
         ? JSON.parse(schoolData).id
         : "unknown";
 
-    // If force refresh, bypass cache
+    // If force refresh, bypass cache completely
     if (forceRefresh) {
       console.log("🔄 Force refreshing students data (bypassing cache)");
-      const response = await fetch(`${API_BASE_URL}/students`, {
+      
+      // Clear cache first
+      clientCache.remove(cacheKeys.students(schoolId));
+      
+      // Make fresh request with cache-busting timestamp
+      const response = await fetch(`${API_BASE_URL}/students?t=${Date.now()}`, {
         headers: getAuthHeaders(),
+        cache: 'no-store',
       });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
       const data = await response.json();
 
-      if (!response.ok) {
+      if (!data.success) {
         throw new Error(data.message || "Gagal memuat data siswa");
       }
 
@@ -1088,18 +1098,57 @@ export const apiService = {
 
   // Delete Student
   async deleteStudent(studentId: number) {
-    const response = await fetch(`${API_BASE_URL}/students/${studentId}`, {
-      method: "DELETE",
-      headers: getAuthHeaders(),
-    });
+    try {
+      console.log("🗑️ Deleting student ID:", studentId);
+      console.log("🌐 DELETE URL:", `${API_BASE_URL}/students/${studentId}`);
+      
+      const response = await fetch(`${API_BASE_URL}/students/${studentId}`, {
+        method: "DELETE",
+        headers: {
+          ...getAuthHeaders(),
+          "Content-Type": "application/json",
+        },
+        credentials: "same-origin",
+      });
 
-    const data = await response.json();
+      console.log("📡 Delete response status:", response.status);
+      console.log("📡 Delete response ok:", response.ok);
 
-    if (!response.ok) {
-      throw new Error(data.message || "Gagal menghapus siswa");
+      // Check if response is JSON
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        const text = await response.text();
+        console.error("❌ Non-JSON response:", text);
+        throw new Error("Server mengembalikan response yang tidak valid");
+      }
+
+      const data = await response.json();
+      console.log("📡 Delete response data:", data);
+
+      if (!response.ok) {
+        console.error("❌ Delete failed:", {
+          status: response.status,
+          statusText: response.statusText,
+          data: data
+        });
+        throw new Error(data.message || `Gagal menghapus siswa (${response.status})`);
+      }
+
+      // Double check success flag
+      if (!data.success) {
+        console.error("❌ Delete response success flag is false:", data);
+        throw new Error(data.message || "Gagal menghapus siswa");
+      }
+
+      console.log("✅ Delete successful:", data);
+      return data;
+    } catch (error) {
+      console.error("❌ Error in deleteStudent:", error);
+      if (error instanceof Error) {
+        throw error;
+      }
+      throw new Error("Terjadi kesalahan saat menghapus siswa");
     }
-
-    return data;
   },
 
   // Import Students

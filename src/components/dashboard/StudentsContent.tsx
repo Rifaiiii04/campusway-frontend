@@ -6,6 +6,7 @@ import EditStudentModal from "../modals/EditStudentModal";
 import StudentDetailModal from "../modals/StudentDetailModal";
 import ImportStudentsModal from "../modals/ImportStudentsModal";
 import { Student, apiService } from "../../services/api";
+import { clientCache, cacheKeys } from "../../utils/cache";
 
 interface StudentsContentProps {
   students: Student[];
@@ -89,52 +90,92 @@ export default function StudentsContent({
   };
 
   const handleDeleteConfirm = async () => {
-    if (selectedStudent) {
-      try {
-        console.log("🗑️ Deleting student:", selectedStudent.name);
-        console.log("🆔 Student ID:", selectedStudent.id);
+    if (!selectedStudent) {
+      setShowDeleteModal(false);
+      return;
+    }
 
-        // Call API to delete student
-        const response = await apiService.deleteStudent(selectedStudent.id);
+    const studentToDelete = selectedStudent;
+    setShowDeleteModal(false);
+    setSelectedStudent(null);
 
-        console.log("📡 Delete response:", response);
-        console.log("✅ Response success:", response.success);
-        console.log("📝 Response message:", response.message);
+    try {
+      console.log("🗑️ Deleting student:", studentToDelete.name);
+      console.log("🆔 Student ID:", studentToDelete.id);
 
-        if (response.success) {
-          console.log("🎉 Delete successful, reloading page...");
-          alert(`Siswa ${selectedStudent.name} berhasil dihapus!`);
-          // Refresh the page to show updated data
-          window.location.reload();
+      // Call API to delete student
+      const response = await apiService.deleteStudent(studentToDelete.id);
+
+      console.log("📡 Delete response:", response);
+      console.log("✅ Response success:", response.success);
+      console.log("📝 Response message:", response.message);
+
+      // Double check response
+      if (response && response.success === true) {
+        console.log("🎉 Delete successful, clearing cache and refreshing data...");
+        
+        // Clear students cache to ensure fresh data
+        const schoolData = localStorage.getItem("school_data");
+        const schoolId =
+          schoolData && schoolData !== "undefined" && schoolData !== "null"
+            ? JSON.parse(schoolData).id
+            : "unknown";
+        clientCache.remove(cacheKeys.students(schoolId));
+        console.log("🗑️ Cache cleared for students");
+        
+        // Show success message
+        alert(`Siswa "${studentToDelete.name}" berhasil dihapus!`);
+        
+        // Force refresh students list by calling onImportSuccess if available
+        // This will trigger a data refresh without full page reload
+        if (onImportSuccess) {
+          console.log("🔄 Calling onImportSuccess to refresh data...");
+          onImportSuccess();
         } else {
-          console.log("❌ Delete failed:", response.message);
-          alert(
-            `Gagal menghapus data siswa: ${
-              response.message || "Silakan coba lagi."
-            }`
-          );
+          console.log("🔄 onImportSuccess not available, reloading page...");
+          // Fallback to page reload if callback not available
+          window.location.reload();
         }
-      } catch (error) {
-        console.error("❌ Error deleting student:", error);
-        if (error instanceof Error) {
-          console.error("❌ Error details:", {
-            message: error.message,
-            stack: error.stack,
-          });
+      } else {
+        console.error("❌ Delete failed - response not successful:", response);
+        alert(
+          `Gagal menghapus data siswa: ${
+            response?.message || "Response tidak valid. Silakan coba lagi."
+          }`
+        );
+      }
+    } catch (error) {
+      console.error("❌ Error deleting student:", error);
+      if (error instanceof Error) {
+        console.error("❌ Error details:", {
+          message: error.message,
+          stack: error.stack,
+        });
+        
+        // Check if it's a 404 error (student already deleted)
+        if (error.message.includes("404") || error.message.includes("tidak ditemukan")) {
+          alert(
+            `Siswa tidak ditemukan. Mungkin sudah dihapus sebelumnya. Halaman akan dimuat ulang.`
+          );
+          // Refresh anyway since student might already be deleted
+          if (onImportSuccess) {
+            onImportSuccess();
+          } else {
+            window.location.reload();
+          }
+        } else {
           alert(
             `Terjadi kesalahan saat menghapus data siswa: ${
               error.message || "Silakan coba lagi."
             }`
           );
-        } else {
-          alert(
-            "Terjadi kesalahan saat menghapus data siswa. Silakan coba lagi."
-          );
         }
+      } else {
+        alert(
+          "Terjadi kesalahan saat menghapus data siswa. Silakan coba lagi."
+        );
       }
     }
-    setShowDeleteModal(false);
-    setSelectedStudent(null);
   };
 
   const handleDeleteCancel = () => {
