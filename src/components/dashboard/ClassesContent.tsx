@@ -15,17 +15,13 @@ interface ClassItem {
 interface ClassesContentProps {
   students: Student[];
   darkMode: boolean;
-  onAddClass: () => void;
   refreshTrigger?: number; // Trigger to force refresh classes
-  newlyAddedClass?: string | null; // Newly added class name to add immediately
 }
 
 export default function ClassesContent({
   students,
   darkMode,
-  onAddClass,
   refreshTrigger,
-  newlyAddedClass,
 }: ClassesContentProps) {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedClass, setSelectedClass] = useState<ClassItem | null>(null);
@@ -95,16 +91,6 @@ export default function ClassesContent({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refreshTrigger]); // Only reload when refreshTrigger changes, not when students change
 
-  // Add newly added class immediately if not already in list
-  useEffect(() => {
-    if (newlyAddedClass && !allClasses.includes(newlyAddedClass)) {
-      console.log("➕ Adding newly added class to list immediately:", newlyAddedClass);
-      setAllClasses((prev) => {
-        const updated = [...prev, newlyAddedClass];
-        return updated.sort();
-      });
-    }
-  }, [newlyAddedClass, allClasses]);
 
   // Generate class summary from students data, but include all classes from API
   // Sort classes alphabetically for consistent display
@@ -198,16 +184,6 @@ export default function ClassesContent({
   };
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <button
-          onClick={onAddClass}
-          className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
-        >
-          + Tambah Kelas
-        </button>
-      </div>
-
       {/* Statistik Kelas */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div
@@ -383,7 +359,7 @@ export default function ClassesContent({
           ) : classSummary.length === 0 ? (
             <div className="p-8 text-center">
               <p className={darkMode ? "text-gray-400" : "text-gray-600"}>
-                Belum ada kelas yang terdaftar. Klik &quot;Tambah Kelas&quot; untuk menambahkan kelas baru.
+                Belum ada kelas yang terdaftar. Kelas akan otomatis muncul ketika siswa ditambahkan.
               </p>
             </div>
           ) : (

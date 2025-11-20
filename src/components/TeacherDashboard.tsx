@@ -21,7 +21,6 @@ import ReportsContent from "./dashboard/ReportsContent";
 import SettingsContent from "./dashboard/SettingsContent";
 import Sidebar from "./layout/Sidebar";
 import AddStudentModal from "./modals/AddStudentModal";
-import AddClassModal from "./modals/AddClassModal";
 import {
   apiService,
   studentApiService,
@@ -86,10 +85,8 @@ export default function TeacherDashboard() {
   const [activeMenu, setActiveMenu] = useState("dashboard");
   const [darkMode, setDarkMode] = useState(false);
   const [showAddStudentModal, setShowAddStudentModal] = useState(false);
-  const [showAddClassModal, setShowAddClassModal] = useState(false);
   const [schoolId, setSchoolId] = useState<number | null>(null);
   const [classesRefreshTrigger, setClassesRefreshTrigger] = useState(0);
-  const [newlyAddedClassName, setNewlyAddedClassName] = useState<string | null>(null);
 
   // ArahPotensi Schedules state
   const [tkaSchedules, setTkaSchedules] = useState<TkaSchedule[]>([]);
@@ -419,88 +416,7 @@ export default function TeacherDashboard() {
     setShowAddStudentModal(false);
   };
 
-  const openAddClassModal = () => {
-    setShowAddClassModal(true);
-  };
 
-  const closeAddClassModal = () => {
-    setShowAddClassModal(false);
-  };
-
-  const handleAddClass = async (classData: { name: string }) => {
-    try {
-      console.log("Menambahkan kelas baru:", classData);
-
-      // Call API to add class
-      const response = await apiService.addClass(classData);
-
-      if (response.success) {
-        console.log("✅ Kelas berhasil ditambahkan:", response.data);
-
-        // Tutup modal kelas terlebih dahulu
-        closeAddClassModal();
-
-        // Force refresh classes list IMMEDIATELY by clearing cache
-        const schoolData = localStorage.getItem("school_data");
-        const schoolIdForCache =
-          schoolData && schoolData !== "undefined" && schoolData !== "null"
-            ? JSON.parse(schoolData).id
-            : "unknown";
-        clientCache.delete(cacheKeys.classes(schoolIdForCache));
-        console.log("🗑️ Classes cache cleared immediately");
-
-        // Set newly added class name to add immediately to UI
-        setNewlyAddedClassName(classData.name);
-        console.log("➕ Setting newly added class name:", classData.name);
-
-        // Trigger refresh of classes list IMMEDIATELY
-        setClassesRefreshTrigger((prev) => {
-          const newValue = prev + 1;
-          console.log("🔄 Classes refresh trigger updated immediately:", newValue);
-          return newValue;
-        });
-
-        // Tampilkan notifikasi sukses dengan instruksi (setelah refresh trigger)
-        const userConfirmed = window.confirm(
-          `Kelas "${classData.name}" berhasil ditambahkan!\n\n` +
-          `Kelas sekarang sudah tersedia di sistem.\n\n` +
-          `Apakah Anda ingin menambahkan siswa baru dengan kelas "${classData.name}" sekarang?`
-        );
-
-        // Jika user ingin langsung menambahkan siswa
-        if (userConfirmed) {
-          // Buka modal tambah siswa dengan kelas yang sudah dipilih
-          setShowAddStudentModal(true);
-          
-          // Simpan nama kelas ke localStorage untuk digunakan di AddStudentModal
-          localStorage.setItem('preselected_class', classData.name);
-        }
-
-        // Refresh data siswa untuk memastikan data terbaru
-        await loadStudents(true);
-        
-        // Juga refresh dashboard data untuk update statistik
-        await loadDataFromAPI();
-        
-        // Additional refresh trigger after a short delay to ensure data is loaded
-        setTimeout(() => {
-          console.log("⏰ Delayed refresh trigger after class addition");
-          setClassesRefreshTrigger((prev) => prev + 1);
-          // Clear newly added class name after refresh
-          setNewlyAddedClassName(null);
-        }, 2000);
-      } else {
-        throw new Error(response.message || "Gagal menambahkan kelas");
-      }
-    } catch (error) {
-      console.error("Error handling add class:", error);
-      alert(
-        error instanceof Error
-          ? error.message
-          : `Gagal menambahkan kelas "${classData.name}". Silakan coba lagi.`
-      );
-    }
-  };
 
   const handleLogout = useCallback(() => {
     try {
@@ -868,9 +784,7 @@ export default function TeacherDashboard() {
           <ClassesContent
             students={students}
             darkMode={darkMode}
-            onAddClass={openAddClassModal}
             refreshTrigger={classesRefreshTrigger}
-            newlyAddedClass={newlyAddedClassName}
           />
         );
       case "tka-schedules":
@@ -1095,12 +1009,6 @@ export default function TeacherDashboard() {
           />
         )}
 
-        <AddClassModal
-          isOpen={showAddClassModal}
-          onClose={closeAddClassModal}
-          onAddClass={handleAddClass}
-          darkMode={darkMode}
-        />
       </div>
     </>
   );
