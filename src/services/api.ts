@@ -1183,19 +1183,13 @@ export const apiService = {
   // Get Classes List
   async getClasses(): Promise<{
     success: boolean;
-    data: { classes: Array<{ name: string; value: string }> };
+    data: { classes: Array<{ name: string; value: string }>; total_classes?: number };
   }> {
     try {
       const token = getToken();
       if (!token) {
         throw new Error("Token tidak ditemukan");
       }
-
-      const schoolData = localStorage.getItem("school_data");
-      const schoolId =
-        schoolData && schoolData !== "undefined" && schoolData !== "null"
-          ? JSON.parse(schoolData).id
-          : "unknown";
 
       // Add timeout controller
       const controller = new AbortController();
@@ -1230,7 +1224,7 @@ export const apiService = {
         );
         return {
           success: false,
-          data: { classes: [], total_classes: 0 }
+          data: { classes: [] }
         };
       }
       
@@ -1238,7 +1232,7 @@ export const apiService = {
       // Return empty array instead of throwing error to prevent frontend crash
       return {
         success: false,
-        data: { classes: [], total_classes: 0 }
+        data: { classes: [] }
       };
     }
   },

@@ -16,54 +16,6 @@ export default function StudentDetailModal({
   student,
   darkMode,
 }: StudentDetailModalProps) {
-  // State for collapsible curriculum sections
-  const [expandedCurriculums, setExpandedCurriculums] = useState({
-    merdeka: false,
-    kurikulum_2013_ipa: false,
-    kurikulum_2013_ips: false,
-    kurikulum_2013_bahasa: false,
-  });
-
-  // Helper function to format subjects with proper spacing
-  const formatSubjects = (subjects: string | string[] | null | undefined) => {
-    if (!subjects) return "";
-
-    if (Array.isArray(subjects)) {
-      // Filter out empty strings and null values
-      const filtered = subjects.filter(s => s && s.trim().length > 0);
-      return filtered.length > 0 ? filtered.join(", ") : "";
-    }
-
-    if (typeof subjects === "string") {
-      // If empty string, return empty
-      if (subjects.trim().length === 0) return "";
-      
-      // If it's a JSON string, try to parse it
-      try {
-        const parsed = JSON.parse(subjects);
-        if (Array.isArray(parsed)) {
-          const filtered = parsed.filter((s: string | number | boolean | null) => s !== null && s !== undefined && String(s).trim().length > 0);
-          return filtered.length > 0 ? filtered.join(", ") : "";
-        }
-        // If parsed but not array, convert to string
-        return String(parsed).trim();
-      } catch {
-        // If parsing fails, return as is (might be comma-separated string)
-        const parts = subjects.split(',').map(s => s.trim()).filter(s => s.length > 0);
-        return parts.length > 0 ? parts.join(", ") : subjects;
-      }
-    }
-
-    return "";
-  };
-
-  // Toggle curriculum section
-  const toggleCurriculum = (curriculum: keyof typeof expandedCurriculums) => {
-    setExpandedCurriculums((prev) => ({
-      ...prev,
-      [curriculum]: !prev[curriculum],
-    }));
-  };
   if (!isOpen || !student) return null;
 
   // Debug: Log student data to see what we're receiving
