@@ -88,6 +88,7 @@ export default function TeacherDashboard() {
   const [showAddStudentModal, setShowAddStudentModal] = useState(false);
   const [showAddClassModal, setShowAddClassModal] = useState(false);
   const [schoolId, setSchoolId] = useState<number | null>(null);
+  const [classesRefreshTrigger, setClassesRefreshTrigger] = useState(0);
 
   // ArahPotensi Schedules state
   const [tkaSchedules, setTkaSchedules] = useState<TkaSchedule[]>([]);
@@ -342,6 +343,19 @@ export default function TeacherDashboard() {
       console.log("🔄 ArahPotensi menu selected, refreshing schedules...");
       refreshTkaSchedules();
     }
+
+    // Refresh classes when classes menu is selected
+    if (menuId === "classes") {
+      console.log("🔄 Classes menu selected, refreshing classes list...");
+      // Clear cache and trigger refresh
+      const schoolData = localStorage.getItem("school_data");
+      const schoolIdForCache =
+        schoolData && schoolData !== "undefined" && schoolData !== "null"
+          ? JSON.parse(schoolData).id
+          : "unknown";
+      clientCache.delete(cacheKeys.classes(schoolIdForCache));
+      setClassesRefreshTrigger((prev) => prev + 1);
+    }
   };
 
   const openAddStudentModal = () => {
@@ -454,6 +468,20 @@ export default function TeacherDashboard() {
             ? JSON.parse(schoolData).id
             : "unknown";
         clientCache.delete(cacheKeys.classes(schoolIdForCache));
+        console.log("🗑️ Classes cache cleared, triggering refresh...");
+        
+        // Trigger refresh of classes list
+        setClassesRefreshTrigger((prev) => {
+          const newValue = prev + 1;
+          console.log("🔄 Classes refresh trigger updated:", newValue);
+          return newValue;
+        });
+        
+        // Small delay to ensure API has processed the new class
+        setTimeout(() => {
+          console.log("⏰ Delayed refresh trigger after class addition");
+          setClassesRefreshTrigger((prev) => prev + 1);
+        }, 500);
       } else {
         throw new Error(response.message || "Gagal menambahkan kelas");
       }
@@ -838,6 +866,7 @@ export default function TeacherDashboard() {
               // Refresh students data to update class list
               loadStudents(true);
             }}
+            refreshTrigger={classesRefreshTrigger}
           />
         );
       case "tka-schedules":

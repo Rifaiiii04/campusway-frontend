@@ -17,6 +17,7 @@ interface ClassesContentProps {
   darkMode: boolean;
   onAddClass: () => void;
   onClassAdded?: () => void; // Callback to refresh data
+  refreshTrigger?: number; // Trigger to force refresh classes
 }
 
 export default function ClassesContent({
@@ -24,6 +25,7 @@ export default function ClassesContent({
   darkMode,
   onAddClass,
   onClassAdded,
+  refreshTrigger,
 }: ClassesContentProps) {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedClass, setSelectedClass] = useState<ClassItem | null>(null);
@@ -39,22 +41,28 @@ export default function ClassesContent({
     const loadClasses = async () => {
       try {
         setLoadingClasses(true);
+        console.log("🔄 Loading classes from API...", { refreshTrigger, studentsCount: students.length });
         // Force refresh to get latest classes including newly added ones
         const response = await apiService.getClasses(true);
-        if (response.success && response.data.classes) {
+        console.log("📡 Classes API response:", response);
+        if (response.success && response.data && response.data.classes) {
           const classNames = response.data.classes.map((cls) => cls.name);
           setAllClasses(classNames);
-          console.log("✅ Classes loaded:", classNames.length, "classes");
+          console.log("✅ Classes loaded:", classNames.length, "classes", classNames);
+        } else {
+          console.warn("⚠️ Classes response not successful:", response);
+          setAllClasses([]);
         }
       } catch (error) {
-        console.error("Error loading classes:", error);
+        console.error("❌ Error loading classes:", error);
+        setAllClasses([]);
       } finally {
         setLoadingClasses(false);
       }
     };
 
     loadClasses();
-  }, [students]); // Reload when students change
+  }, [students, refreshTrigger]); // Reload when students change or refreshTrigger changes
 
   // Generate class summary from students data, but include all classes from API
   const classSummary: ClassItem[] = allClasses.map((className) => {
@@ -68,6 +76,13 @@ export default function ClassesContent({
       students_with_choice: studentsWithChoice,
     };
   });
+
+  // Debug logging
+  useEffect(() => {
+    console.log("📊 ClassesContent - allClasses:", allClasses);
+    console.log("📊 ClassesContent - classSummary:", classSummary);
+    console.log("📊 ClassesContent - students count:", students.length);
+  }, [allClasses, classSummary, students]);
 
   const handleDeleteClick = (classItem: ClassItem) => {
     setSelectedClass(classItem);
