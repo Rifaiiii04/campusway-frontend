@@ -279,15 +279,34 @@ export default function SchoolLogin({
         }
 
         // Handle non-JSON responses (like 404 HTML pages)
+        let errorData;
         if (
           response.headers.get("content-type")?.includes("application/json")
         ) {
-          const data = await response.json();
-          throw new Error(
-            data.message || `HTTP ${response.status}: ${response.statusText}`
-          );
+          errorData = await response.json();
         } else {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          // If not JSON, create a basic error object
+          errorData = { message: `HTTP ${response.status}: ${response.statusText}` };
+        }
+
+        // Handle specific error cases for better user experience
+        if (response.status === 401) {
+          // 401 Unauthorized - password salah atau kredensial tidak valid
+          const errorMessage = errorData.message || "Kredensial tidak valid";
+          if (
+            errorMessage.toLowerCase().includes("password") ||
+            errorMessage.toLowerCase().includes("salah")
+          ) {
+            throw new Error("Password salah. Silakan periksa kembali password Anda.");
+          } else {
+            throw new Error("NPSN atau password salah. Silakan periksa kembali kredensial Anda.");
+          }
+        } else if (response.status === 404) {
+          throw new Error("NPSN tidak ditemukan. Silakan periksa kembali NPSN sekolah Anda.");
+        } else {
+          throw new Error(
+            errorData.message || `HTTP ${response.status}: ${response.statusText}`
+          );
         }
       }
 
@@ -423,10 +442,15 @@ export default function SchoolLogin({
           message.includes("unauthorized") ||
           message.includes("401")
         ) {
-          errorMessage =
-            userType === "guru"
-              ? "NPSN atau password salah. Silakan periksa kembali kredensial Anda."
-              : "NISN atau password salah. Silakan periksa kembali kredensial Anda.";
+          // Check if it's specifically a password error
+          if (message.includes("password salah") || message.includes("password")) {
+            errorMessage = "Password salah. Silakan periksa kembali password Anda.";
+          } else {
+            errorMessage =
+              userType === "guru"
+                ? "NPSN atau password salah. Silakan periksa kembali kredensial Anda."
+                : "NISN atau password salah. Silakan periksa kembali kredensial Anda.";
+          }
         } else if (message.includes("not found") || message.includes("404")) {
           errorMessage =
             userType === "guru"
