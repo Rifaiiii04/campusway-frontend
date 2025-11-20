@@ -17,24 +17,76 @@ export default function StudentDetailModal({
 }: StudentDetailModalProps) {
   if (!isOpen || !student) return null;
 
-  // Helper function to parse subjects to array
+  // Helper function to parse subjects to array - handle escaped JSON strings and remove all escape characters
   const parseSubjectsToArray = (subjects: string | string[] | null | undefined): string[] => {
     if (!subjects) return [];
+    
+    // Clean function to remove all escape characters and quotes
+    const cleanSubject = (s: string): string => {
+      return String(s)
+        .trim()
+        .replace(/^["'`]+|["'`]+$/g, '') // Remove surrounding quotes
+        .replace(/^\\+|\\+$/g, '') // Remove leading/trailing backslashes
+        .replace(/\\"/g, '"') // Replace \" with "
+        .replace(/\\'/g, "'") // Replace \' with '
+        .replace(/^\[|\]$/g, '') // Remove brackets
+        .trim();
+    };
+    
     if (Array.isArray(subjects)) {
-      return subjects.filter(s => s && String(s).trim().length > 0).map(s => String(s).trim());
+      return subjects
+        .filter(s => s && String(s).trim().length > 0)
+        .map(s => cleanSubject(String(s)));
     }
+    
     if (typeof subjects === 'string') {
-      const trimmed = subjects.trim();
+      let trimmed = subjects.trim();
       if (trimmed.length === 0) return [];
+      
+      // Try JSON decode first
       try {
         const parsed = JSON.parse(trimmed);
         if (Array.isArray(parsed)) {
-          return parsed.filter((s: unknown) => s !== null && s !== undefined && String(s).trim().length > 0).map((s: unknown) => String(s).trim());
+          return parsed
+            .filter((s: unknown) => s !== null && s !== undefined && String(s).trim().length > 0)
+            .map((s: unknown) => cleanSubject(String(s)));
+        }
+        // If parsed but not array, try parsing again (double-encoded case like "[\"Ekonomi\"]")
+        if (typeof parsed === 'string') {
+          try {
+            const doubleParsed = JSON.parse(parsed);
+            if (Array.isArray(doubleParsed)) {
+              return doubleParsed
+                .filter((s: unknown) => s !== null && s !== undefined && String(s).trim().length > 0)
+                .map((s: unknown) => cleanSubject(String(s)));
+            }
+            // If still a string, return as single item
+            return [cleanSubject(doubleParsed)];
+          } catch {
+            // If double parse fails, treat parsed string as single item
+            return [cleanSubject(parsed)];
+          }
         }
       } catch {
-        return trimmed.split(',').map(s => s.trim()).filter(s => s.length > 0);
+        // If JSON parse fails, treat as comma-separated or literal string
       }
+      
+      // Remove surrounding quotes and brackets if present
+      trimmed = trimmed.replace(/^["'`\[\(]+|["'`\]\)]+$/g, '');
+      
+      // Comma-separated fallback
+      if (trimmed.includes(',')) {
+        return trimmed
+          .split(',')
+          .map(s => cleanSubject(s))
+          .filter(s => s.length > 0);
+      }
+      
+      // Single item
+      const cleaned = cleanSubject(trimmed);
+      return cleaned.length > 0 ? [cleaned] : [];
     }
+    
     return [];
   };
 
@@ -92,27 +144,45 @@ export default function StudentDetailModal({
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
-          {/* Status Badge */}
-          <div className="flex items-center gap-3">
-            <span className={`px-3 py-1.5 rounded-full text-sm font-medium ${
+          {/* Status Badge - Improved Visibility */}
+          <div className="flex flex-wrap items-center gap-3">
+            <div className={`flex items-center gap-2 px-4 py-2.5 rounded-lg font-semibold text-sm shadow-sm ${
               student.has_choice
-                ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
-                : "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"
+                ? "bg-green-500 text-white dark:bg-green-600"
+                : "bg-yellow-500 text-white dark:bg-yellow-600"
             }`}>
-              {student.has_choice ? "✓ Sudah Memilih Jurusan" : "⏳ Belum Memilih Jurusan"}
-            </span>
+              {student.has_choice ? (
+                <>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span>Sudah Memilih Jurusan</span>
+                </>
+              ) : (
+                <>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>Belum Memilih Jurusan</span>
+                </>
+              )}
+            </div>
             {student.has_choice && student.chosen_major?.rumpun_ilmu && (
-              <span className={`px-3 py-1.5 rounded-full text-sm font-medium ${
+              <div className={`px-4 py-2.5 rounded-lg font-semibold text-sm shadow-sm ${
                 student.chosen_major.rumpun_ilmu === "ILMU ALAM"
-                  ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+                  ? "bg-red-500 text-white dark:bg-red-600"
                   : student.chosen_major.rumpun_ilmu === "ILMU SOSIAL"
-                  ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                  ? "bg-green-500 text-white dark:bg-green-600"
                   : student.chosen_major.rumpun_ilmu === "HUMANIORA"
-                  ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400"
-                  : "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300"
+                  ? "bg-purple-500 text-white dark:bg-purple-600"
+                  : student.chosen_major.rumpun_ilmu === "ILMU FORMAL"
+                  ? "bg-orange-500 text-white dark:bg-orange-600"
+                  : student.chosen_major.rumpun_ilmu === "ILMU TERAPAN"
+                  ? "bg-blue-500 text-white dark:bg-blue-600"
+                  : "bg-gray-500 text-white dark:bg-gray-600"
               }`}>
                 {student.chosen_major.rumpun_ilmu}
-              </span>
+              </div>
             )}
           </div>
 
