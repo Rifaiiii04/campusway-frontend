@@ -549,18 +549,21 @@ export const apiService = {
       });
 
       clearTimeout(timeoutId);
-      console.log("🔍 School login response status:", response.status);
-      console.log("🔍 School login response ok:", response.ok);
 
       const data = await response.json();
-      console.log("🔍 School login response data:", data);
 
       if (!response.ok) {
-        console.error("❌ School login failed:", {
-          status: response.status,
-          statusText: response.statusText,
-          data: data,
-        });
+        // Determine if this is a validation/credential error (should not be logged)
+        const isValidationError = response.status === 401 || response.status === 422 || response.status === 404;
+
+        // Only log non-validation errors to console
+        if (!isValidationError) {
+          console.error("❌ School login failed:", {
+            status: response.status,
+            statusText: response.statusText,
+            data: data,
+          });
+        }
 
         // Provide more specific error messages based on status code
         if (response.status === 401) {
@@ -584,15 +587,28 @@ export const apiService = {
       return data;
     } catch (error: unknown) {
       clearTimeout(timeoutId);
-      console.error("💥 API Service login error:", {
-        error,
-        errorType: typeof error,
-        errorConstructor: error?.constructor?.name,
-        errorMessage: error instanceof Error ? error.message : String(error),
-        errorStack: error instanceof Error ? error.stack : undefined,
-        url: `${API_BASE_URL}/login`,
-        npsn: npsn.substring(0, 3) + "***",
-      });
+      
+      // Determine if this is a validation/credential error (should not be logged)
+      const isValidationError = error instanceof Error && (
+        error.message.includes("NPSN") ||
+        error.message.includes("password") ||
+        error.message.includes("tidak ditemukan") ||
+        error.message.includes("tidak valid") ||
+        error.message.includes("Data tidak valid")
+      );
+
+      // Only log non-validation errors to console
+      if (!isValidationError) {
+        console.error("💥 API Service login error:", {
+          error,
+          errorType: typeof error,
+          errorConstructor: error?.constructor?.name,
+          errorMessage: error instanceof Error ? error.message : String(error),
+          errorStack: error instanceof Error ? error.stack : undefined,
+          url: `${API_BASE_URL}/login`,
+          npsn: npsn.substring(0, 3) + "***",
+        });
+      }
 
       if (error instanceof Error && error.name === "AbortError") {
         throw new Error("Timeout: Server tidak merespons dalam 15 detik");

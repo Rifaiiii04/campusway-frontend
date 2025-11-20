@@ -256,11 +256,6 @@ export default function SchoolLogin({
 
       // Validasi normal untuk guru - use consistent API URL
       const apiBaseUrl = "http://103.23.198.101/super-admin/api/school";
-      console.log("🌐 Using consistent API Base URL:", apiBaseUrl);
-      console.log(
-        "🌐 Current hostname:",
-        typeof window !== "undefined" ? window.location.hostname : "server-side"
-      );
       setLoadingMessage("Memverifikasi data sekolah...");
 
       // Tambahkan timeout untuk mencegah loading terlalu lama
