@@ -92,19 +92,39 @@ export default function TeacherDashboardClient() {
 
   const handleLogout = useCallback(() => {
     try {
-      // Hapus token dan data dari localStorage
-      localStorage.removeItem("school_token");
-      localStorage.removeItem("school_data");
-      
-      // Clear any other related data
-      localStorage.removeItem("darkMode");
-      
-      // Redirect ke halaman login dengan replace untuk mencegah back button
-      router.replace("/login");
+      if (typeof window !== "undefined") {
+        // Clear all localStorage
+        localStorage.clear();
+        
+        // Clear all sessionStorage
+        sessionStorage.clear();
+        
+        // Clear any cookies that might contain sensitive data
+        document.cookie.split(";").forEach((c) => {
+          document.cookie = c
+            .replace(/^ +/, "")
+            .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+        });
+        
+        // Clear client cache if available
+        try {
+          const { clientCache } = require("@/utils/cache");
+          if (clientCache && typeof clientCache.clear === 'function') {
+            clientCache.clear();
+          }
+        } catch (e) {
+          // Cache utility might not be available, ignore
+        }
+        
+        // Redirect ke halaman login dengan replace untuk mencegah back button
+        router.replace("/login");
+      }
     } catch (error) {
       console.error("Error during logout:", error);
-      // Even if there's an error, try to redirect
+      // Even if there's an error, try to redirect and clear storage
       if (typeof window !== "undefined") {
+        localStorage.clear();
+        sessionStorage.clear();
         window.location.href = "/login";
       }
     }

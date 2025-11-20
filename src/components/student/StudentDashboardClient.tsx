@@ -529,8 +529,28 @@ export default function StudentDashboardClient() {
   // Handle logout
   const handleLogout = useCallback(() => {
     if (typeof window !== "undefined") {
-      localStorage.removeItem("student_token");
-      localStorage.removeItem("student_data");
+      // Clear all localStorage
+      localStorage.clear();
+      
+      // Clear all sessionStorage
+      sessionStorage.clear();
+      
+      // Clear any cookies that might contain sensitive data
+      document.cookie.split(";").forEach((c) => {
+        document.cookie = c
+          .replace(/^ +/, "")
+          .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+      });
+      
+      // Clear client cache if available
+      try {
+        const { clientCache } = require("@/utils/cache");
+        if (clientCache && typeof clientCache.clear === 'function') {
+          clientCache.clear();
+        }
+      } catch (e) {
+        // Cache utility might not be available, ignore
+      }
     }
     router.push("/student");
   }, [router]);

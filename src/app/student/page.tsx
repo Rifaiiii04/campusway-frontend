@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import SchoolLogin from "../../components/SchoolLogin";
 import StudentRegistration from "../../components/StudentRegistration";
@@ -8,6 +8,28 @@ import PageTitle from "../../components/PageTitle";
 
 export default function StudentLoginPage() {
   const router = useRouter();
+
+  // Security: Clear any sensitive data from storage on page mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      // Clear any potentially sensitive data from previous sessions
+      const sensitiveKeys = ['token', 'password', 'credential', 'secret', 'key', 'auth'];
+      sensitiveKeys.forEach(key => {
+        Object.keys(localStorage).forEach(localKey => {
+          if (localKey.toLowerCase().includes(key)) {
+            console.warn(`🔒 Security: Removing sensitive data from localStorage: ${localKey}`);
+            localStorage.removeItem(localKey);
+          }
+        });
+        Object.keys(sessionStorage).forEach(sessionKey => {
+          if (sessionKey.toLowerCase().includes(key)) {
+            console.warn(`🔒 Security: Removing sensitive data from sessionStorage: ${sessionKey}`);
+            sessionStorage.removeItem(sessionKey);
+          }
+        });
+      });
+    }
+  }, []);
   const [showRegistration, setShowRegistration] = useState(false);
 
   const handleLoginSuccess = () => {

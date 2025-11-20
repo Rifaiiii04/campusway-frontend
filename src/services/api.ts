@@ -603,18 +603,52 @@ export const apiService = {
 
   // Logout
   async logout() {
-    const response = await fetch(`${API_BASE_URL}/logout`, {
-      method: "POST",
-      headers: getAuthHeaders(),
-    });
+    try {
+      const response = await fetch(`${API_BASE_URL}/logout`, {
+        method: "POST",
+        headers: getAuthHeaders(),
+      });
 
-    const data = await response.json();
+      const data = await response.json();
 
-    if (!response.ok) {
-      throw new Error(data.message || "Logout gagal");
+      if (!response.ok) {
+        throw new Error(data.message || "Logout gagal");
+      }
+
+      // Security: Clear all client-side storage after successful logout
+      if (typeof window !== "undefined") {
+        // Clear all localStorage
+        localStorage.clear();
+        
+        // Clear all sessionStorage
+        sessionStorage.clear();
+        
+        // Clear any cookies that might contain sensitive data
+        document.cookie.split(";").forEach((c) => {
+          document.cookie = c
+            .replace(/^ +/, "")
+            .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+        });
+        
+        // Clear client cache
+        try {
+          if (clientCache && typeof clientCache.clear === 'function') {
+            clientCache.clear();
+          }
+        } catch (e) {
+          // Cache utility might not be available, ignore
+        }
+      }
+
+      return data;
+    } catch (error) {
+      // Even if logout fails, clear client-side storage for security
+      if (typeof window !== "undefined") {
+        localStorage.clear();
+        sessionStorage.clear();
+      }
+      throw error;
     }
-
-    return data;
   },
 
   // Get Profile

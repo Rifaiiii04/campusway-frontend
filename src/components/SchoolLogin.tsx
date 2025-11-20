@@ -23,6 +23,28 @@ export default function SchoolLogin({
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorTitle, setErrorTitle] = useState("");
 
+  // Security: Clear any sensitive data from storage on component mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      // Clear any potentially sensitive data from previous sessions
+      const sensitiveKeys = ['token', 'password', 'credential', 'secret', 'key', 'auth'];
+      sensitiveKeys.forEach(key => {
+        Object.keys(localStorage).forEach(localKey => {
+          if (localKey.toLowerCase().includes(key)) {
+            console.warn(`🔒 Security: Removing sensitive data from localStorage: ${localKey}`);
+            localStorage.removeItem(localKey);
+          }
+        });
+        Object.keys(sessionStorage).forEach(sessionKey => {
+          if (sessionKey.toLowerCase().includes(key)) {
+            console.warn(`🔒 Security: Removing sensitive data from sessionStorage: ${sessionKey}`);
+            sessionStorage.removeItem(sessionKey);
+          }
+        });
+      });
+    }
+  }, []);
+
   // Monitor network connectivity
   useEffect(() => {
     const handleOnline = () => {
@@ -290,6 +312,7 @@ export default function SchoolLogin({
         }
 
         // Handle specific error cases for better user experience
+        // Note: Don't log validation/credential errors to console to avoid cluttering
         if (response.status === 401) {
           // 401 Unauthorized - password salah atau kredensial tidak valid
           const errorMessage = errorData.message || "Kredensial tidak valid";
@@ -300,6 +323,23 @@ export default function SchoolLogin({
             throw new Error("Password salah. Silakan periksa kembali password Anda.");
           } else {
             throw new Error("NPSN atau password salah. Silakan periksa kembali kredensial Anda.");
+          }
+        } else if (response.status === 422) {
+          // 422 Unprocessable Entity - validation error (wrong password, invalid format, etc.)
+          const errorMessage = errorData.message || errorData.error || "Validasi gagal";
+          if (
+            errorMessage.toLowerCase().includes("password") ||
+            errorMessage.toLowerCase().includes("salah") ||
+            errorMessage.toLowerCase().includes("invalid")
+          ) {
+            throw new Error("Password salah. Silakan periksa kembali password Anda.");
+          } else if (
+            errorMessage.toLowerCase().includes("npsn") ||
+            errorMessage.toLowerCase().includes("tidak ditemukan")
+          ) {
+            throw new Error("NPSN tidak ditemukan. Silakan periksa kembali NPSN sekolah Anda.");
+          } else {
+            throw new Error("Kredensial tidak valid. Silakan periksa kembali NPSN dan password Anda.");
           }
         } else if (response.status === 404) {
           throw new Error("NPSN tidak ditemukan. Silakan periksa kembali NPSN sekolah Anda.");
@@ -321,22 +361,34 @@ export default function SchoolLogin({
         throw new Error(data.message || "Login gagal");
       }
     } catch (err: unknown) {
-      // Enhanced error logging with request tracking
-      console.error(
-        `💥 [${requestId || "unknown"}] Error during ${userType} login:`,
-        {
-          error: err,
-          errorType: typeof err,
-          errorConstructor: err?.constructor?.name,
-          errorMessage: err instanceof Error ? err.message : String(err),
-          errorStack: err instanceof Error ? err.stack : undefined,
-          retryCount,
-          npsn: npsn.substring(0, 3) + "***",
-          timestamp: new Date().toISOString(),
-          userAgent: navigator.userAgent,
-          online: navigator.onLine,
-        }
+      // Determine if this is a validation/credential error (should not be logged to console)
+      const isValidationError = err instanceof Error && (
+        err.message.includes("Password salah") ||
+        err.message.includes("NPSN tidak ditemukan") ||
+        err.message.includes("NISN tidak ditemukan") ||
+        err.message.includes("Kredensial tidak valid") ||
+        err.message.includes("Validasi gagal")
       );
+
+      // Only log non-validation errors to console to avoid cluttering
+      if (!isValidationError) {
+        // Enhanced error logging with request tracking (only for non-validation errors)
+        console.error(
+          `💥 [${requestId || "unknown"}] Error during ${userType} login:`,
+          {
+            error: err,
+            errorType: typeof err,
+            errorConstructor: err?.constructor?.name,
+            errorMessage: err instanceof Error ? err.message : String(err),
+            errorStack: err instanceof Error ? err.stack : undefined,
+            retryCount,
+            npsn: npsn.substring(0, 3) + "***",
+            timestamp: new Date().toISOString(),
+            userAgent: navigator.userAgent,
+            online: navigator.onLine,
+          }
+        );
+      }
 
       // Retry for timeout and network errors up to 2 times
       if (
@@ -450,6 +502,22 @@ export default function SchoolLogin({
               userType === "guru"
                 ? "NPSN atau password salah. Silakan periksa kembali kredensial Anda."
                 : "NISN atau password salah. Silakan periksa kembali kredensial Anda.";
+          }
+        } else if (
+          message.includes("validasi gagal") ||
+          message.includes("422") ||
+          message.includes("unprocessable")
+        ) {
+          // 422 validation error - handle silently (don't log to console)
+          if (message.includes("password") || message.includes("salah")) {
+            errorMessage = "Password salah. Silakan periksa kembali password Anda.";
+          } else if (message.includes("npsn") || message.includes("nisn")) {
+            errorMessage =
+              userType === "guru"
+                ? "NPSN tidak ditemukan dalam sistem."
+                : "NISN tidak ditemukan dalam sistem.";
+          } else {
+            errorMessage = "Kredensial tidak valid. Silakan periksa kembali NPSN dan password Anda.";
           }
         } else if (message.includes("not found") || message.includes("404")) {
           errorMessage =
