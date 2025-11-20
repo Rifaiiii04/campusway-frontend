@@ -544,27 +544,18 @@ export default function SchoolLogin({
         errorMessage = `Terjadi kesalahan tidak terduga: ${String(err)}`;
       }
 
-      // Show modal for critical errors, inline for minor ones
+      // Always show error inline below form (no modal for credential errors)
+      // Only show modal for critical system errors
       if (
-        errorMessage.includes("Password") ||
-        errorMessage.includes("NPSN") ||
-        errorMessage.includes("NISN") ||
         errorMessage.includes("diblokir oleh browser") ||
         errorMessage.includes("ERR_BLOCKED_BY_CLIENT")
       ) {
-        setErrorTitle(
-          errorMessage.includes("Password")
-            ? "Password Salah"
-            : errorMessage.includes("NPSN") || errorMessage.includes("NISN")
-            ? "Kredensial Tidak Ditemukan"
-            : errorMessage.includes("diblokir oleh browser") ||
-              errorMessage.includes("ERR_BLOCKED_BY_CLIENT")
-            ? "Request Diblokir"
-            : "Login Gagal"
-        );
+        // Critical system errors - show modal
+        setErrorTitle("Request Diblokir");
         setError(errorMessage);
         setShowErrorModal(true);
       } else {
+        // All other errors (including password/NPSN/NISN) - show inline below form
         setError(errorMessage);
       }
     } finally {
@@ -638,14 +629,21 @@ export default function SchoolLogin({
                   name="npsn"
                   type="text"
                   required
-                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-black transition-all duration-200 placeholder-black/50"
+                  className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-black transition-all duration-200 placeholder-gray-400 ${
+                    error && (error.includes("NPSN") || error.includes("NISN") || error.includes("tidak ditemukan"))
+                      ? "border-red-300 bg-red-50"
+                      : "border-gray-300"
+                  }`}
                   placeholder={
                     userType === "guru"
                       ? "Masukkan NPSN sekolah"
                       : "Masukkan NISN siswa"
                   }
                   value={npsn}
-                  onChange={(e) => setNpsn(e.target.value)}
+                  onChange={(e) => {
+                    setNpsn(e.target.value);
+                    if (error) setError(""); // Clear error when user starts typing
+                  }}
                 />
               </div>
             </div>
@@ -679,10 +677,17 @@ export default function SchoolLogin({
                   name="password"
                   type={showPassword ? "text" : "password"}
                   required
-                  className="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-black transition-all duration-200 placeholder-black/50"
+                  className={`block w-full pl-10 pr-12 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-black transition-all duration-200 placeholder-gray-400 ${
+                    error && error.includes("Password")
+                      ? "border-red-300 bg-red-50"
+                      : "border-gray-300"
+                  }`}
                   placeholder="Masukkan password"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    if (error) setError(""); // Clear error when user starts typing
+                  }}
                 />
                 <button
                   type="button"
@@ -729,45 +734,62 @@ export default function SchoolLogin({
               </div>
             </div>
 
-            {/* Error Message */}
+            {/* Error Message - Inline below form */}
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4 animate-in slide-in-from-top-2 duration-300">
-                <div className="flex">
+              <div className="bg-gradient-to-r from-red-50 to-orange-50 border-l-4 border-red-500 rounded-lg p-4 shadow-sm animate-in slide-in-from-top-2 duration-300">
+                <div className="flex items-start">
                   <div className="flex-shrink-0">
-                    <svg
-                      className="h-5 w-5 text-red-500"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
+                    <div className="flex items-center justify-center h-8 w-8 rounded-full bg-red-100">
+                      <svg
+                        className="h-5 w-5 text-red-600"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                    </div>
                   </div>
-                  <div className="ml-3">
-                    <h3 className="text-sm font-medium text-red-800 mb-1">
-                      {error.includes("Password")
+                  <div className="ml-3 flex-1">
+                    <h3 className="text-sm font-semibold text-red-800 mb-1">
+                      {error.includes("Password") || error.includes("password")
                         ? "Password Salah"
-                        : error.includes("NPSN") || error.includes("NISN")
+                        : error.includes("NPSN") || error.includes("NISN") || error.includes("tidak ditemukan")
                         ? "Kredensial Tidak Ditemukan"
-                        : error.includes("Server")
+                        : error.includes("Server") || error.includes("server")
                         ? "Masalah Koneksi"
+                        : error.includes("Kredensial") || error.includes("tidak valid")
+                        ? "Kredensial Tidak Valid"
                         : "Login Gagal"}
                     </h3>
-                    <p className="text-sm text-red-600">{error}</p>
-                    <div className="mt-2">
-                      <button
-                        type="button"
-                        onClick={() => setError("")}
-                        className="text-xs text-red-500 hover:text-red-700 underline"
+                    <p className="text-sm text-red-700 leading-relaxed">{error}</p>
+                  </div>
+                  <div className="ml-4 flex-shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => setError("")}
+                      className="inline-flex items-center justify-center rounded-md p-1.5 text-red-400 hover:text-red-600 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors duration-200"
+                      aria-label="Tutup pesan error"
+                    >
+                      <svg
+                        className="h-5 w-5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
                       >
-                        Tutup pesan
-                      </button>
-                    </div>
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M6 18L18 6M6 6l12 12"
+                        />
+                      </svg>
+                    </button>
                   </div>
                 </div>
               </div>
