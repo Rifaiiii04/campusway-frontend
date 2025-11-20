@@ -43,28 +43,58 @@ export default function ClassesContent({
     const loadClasses = async () => {
       try {
         setLoadingClasses(true);
-        console.log("🔄 Loading classes from API...", { refreshTrigger, studentsCount: students.length });
+        console.log("🔄 Loading classes from API...", { 
+          refreshTrigger, 
+          studentsCount: students.length,
+          currentAllClassesCount: allClasses.length,
+          currentAllClasses: allClasses
+        });
         // Force refresh to get latest classes including newly added ones
         const response = await apiService.getClasses(true);
         console.log("📡 Classes API response:", response);
         if (response.success && response.data && response.data.classes) {
           const classNames = response.data.classes.map((cls) => cls.name);
+          console.log("📋 Class names from API:", classNames);
+          console.log("📋 Total classes from API:", classNames.length);
+          
+          // Set all classes - this includes classes with 0 students
           setAllClasses(classNames);
-          console.log("✅ Classes loaded:", classNames.length, "classes", classNames);
+          console.log("✅ Classes loaded and set:", classNames.length, "classes", classNames);
+          
+          // Verify all classes are included
+          const classesWithStudents = students.reduce((acc: string[], student) => {
+            const studentClass = student.class || student.kelas || '';
+            if (studentClass && !acc.includes(studentClass)) {
+              acc.push(studentClass);
+            }
+            return acc;
+          }, []);
+          
+          const classesWithoutStudents = classNames.filter(c => !classesWithStudents.includes(c));
+          console.log("📊 Classes breakdown:", {
+            totalFromAPI: classNames.length,
+            withStudents: classesWithStudents.length,
+            withoutStudents: classesWithoutStudents.length,
+            classesWithoutStudents: classesWithoutStudents
+          });
         } else {
           console.warn("⚠️ Classes response not successful:", response);
-          setAllClasses([]);
+          // Don't clear allClasses if response fails, keep existing data
+          if (response.data && response.data.classes) {
+            const classNames = response.data.classes.map((cls: { name: string; value: string }) => cls.name);
+            setAllClasses(classNames);
+          }
         }
       } catch (error) {
         console.error("❌ Error loading classes:", error);
-        setAllClasses([]);
+        // Don't clear allClasses on error, keep existing data
       } finally {
         setLoadingClasses(false);
       }
     };
 
     loadClasses();
-  }, [students, refreshTrigger]); // Reload when students change or refreshTrigger changes
+  }, [refreshTrigger]); // Only reload when refreshTrigger changes, not when students change
 
   // Add newly added class immediately if not already in list
   useEffect(() => {
@@ -82,8 +112,11 @@ export default function ClassesContent({
   const sortedClasses = [...allClasses].sort();
   
   const classSummary: ClassItem[] = sortedClasses.map((className) => {
-    // Find students in this class
-    const classStudents = students.filter((s) => s.class === className);
+    // Find students in this class - check both 'class' and 'kelas' fields
+    const classStudents = students.filter((s) => {
+      const studentClass = s.class || s.kelas || '';
+      return studentClass === className;
+    });
     const studentsWithChoice = classStudents.filter((s) => s.has_choice).length;
 
     return {
@@ -92,13 +125,30 @@ export default function ClassesContent({
       students_with_choice: studentsWithChoice,
     };
   });
+  
+  // Ensure all classes from API are included, even if they have 0 students
+  // This is already handled by using allClasses.map(), but let's add explicit logging
+  console.log("📋 Class Summary Generated:", {
+    totalClasses: classSummary.length,
+    classesWithStudents: classSummary.filter(c => c.student_count > 0).length,
+    classesWithoutStudents: classSummary.filter(c => c.student_count === 0).length,
+    allClassNames: classSummary.map(c => c.kelas)
+  });
 
   // Debug logging
   useEffect(() => {
     console.log("📊 ClassesContent - allClasses:", allClasses);
+    console.log("📊 ClassesContent - allClasses count:", allClasses.length);
     console.log("📊 ClassesContent - classSummary:", classSummary);
+    console.log("📊 ClassesContent - classSummary count:", classSummary.length);
     console.log("📊 ClassesContent - students count:", students.length);
-  }, [allClasses, classSummary, students]);
+    console.log("📊 ClassesContent - refreshTrigger:", refreshTrigger);
+    console.log("📊 ClassesContent - newlyAddedClass:", newlyAddedClass);
+    
+    // Log classes with 0 students
+    const classesWithZeroStudents = classSummary.filter(c => c.student_count === 0);
+    console.log("📊 ClassesContent - Classes with 0 students:", classesWithZeroStudents);
+  }, [allClasses, classSummary, students, refreshTrigger, newlyAddedClass]);
 
   const handleDeleteClick = (classItem: ClassItem) => {
     setSelectedClass(classItem);
