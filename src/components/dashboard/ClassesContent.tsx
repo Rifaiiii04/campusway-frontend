@@ -18,6 +18,7 @@ interface ClassesContentProps {
   onAddClass: () => void;
   onClassAdded?: () => void; // Callback to refresh data
   refreshTrigger?: number; // Trigger to force refresh classes
+  newlyAddedClass?: string | null; // Newly added class name to add immediately
 }
 
 export default function ClassesContent({
@@ -26,6 +27,7 @@ export default function ClassesContent({
   onAddClass,
   onClassAdded,
   refreshTrigger,
+  newlyAddedClass,
 }: ClassesContentProps) {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedClass, setSelectedClass] = useState<ClassItem | null>(null);
@@ -64,8 +66,22 @@ export default function ClassesContent({
     loadClasses();
   }, [students, refreshTrigger]); // Reload when students change or refreshTrigger changes
 
+  // Add newly added class immediately if not already in list
+  useEffect(() => {
+    if (newlyAddedClass && !allClasses.includes(newlyAddedClass)) {
+      console.log("➕ Adding newly added class to list immediately:", newlyAddedClass);
+      setAllClasses((prev) => {
+        const updated = [...prev, newlyAddedClass];
+        return updated.sort();
+      });
+    }
+  }, [newlyAddedClass, allClasses]);
+
   // Generate class summary from students data, but include all classes from API
-  const classSummary: ClassItem[] = allClasses.map((className) => {
+  // Sort classes alphabetically for consistent display
+  const sortedClasses = [...allClasses].sort();
+  
+  const classSummary: ClassItem[] = sortedClasses.map((className) => {
     // Find students in this class
     const classStudents = students.filter((s) => s.class === className);
     const studentsWithChoice = classStudents.filter((s) => s.has_choice).length;
@@ -294,15 +310,34 @@ export default function ClassesContent({
             darkMode ? "border-gray-700" : "border-gray-200"
           }`}
         >
-          <h3
-            className={`text-lg font-semibold ${
-              darkMode ? "text-white" : "text-gray-900"
-            }`}
-          >
-            Daftar Kelas
-          </h3>
+          <div className="flex items-center justify-between">
+            <h3
+              className={`text-lg font-semibold ${
+                darkMode ? "text-white" : "text-gray-900"
+              }`}
+            >
+              Daftar Kelas
+            </h3>
+            {loadingClasses && (
+              <span className={`text-sm ${darkMode ? "text-gray-400" : "text-gray-600"}`}>
+                Memuat...
+              </span>
+            )}
+          </div>
         </div>
         <div className="overflow-x-auto">
+          {loadingClasses ? (
+            <div className="p-8 text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto mb-2"></div>
+              <p className={darkMode ? "text-gray-400" : "text-gray-600"}>Memuat daftar kelas...</p>
+            </div>
+          ) : classSummary.length === 0 ? (
+            <div className="p-8 text-center">
+              <p className={darkMode ? "text-gray-400" : "text-gray-600"}>
+                Belum ada kelas yang terdaftar. Klik "Tambah Kelas" untuk menambahkan kelas baru.
+              </p>
+            </div>
+          ) : (
           <table
             className={`min-w-full divide-y ${
               darkMode ? "divide-gray-700" : "divide-gray-200"
@@ -485,6 +520,7 @@ export default function ClassesContent({
               })}
             </tbody>
           </table>
+          )}
         </div>
       </div>
 
