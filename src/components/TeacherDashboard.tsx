@@ -416,46 +416,54 @@ export default function TeacherDashboard() {
     try {
       console.log("Menambahkan kelas baru:", classData);
 
-      // Catatan: Di sistem ini, kelas bukan entity terpisah
-      // Kelas hanya muncul ketika ada siswa dengan kelas tersebut
-      // Jadi kita hanya perlu menyimpan nama kelas untuk referensi
-      // dan memberikan feedback yang jelas kepada user
+      // Call API to add class
+      const response = await apiService.addClass(classData);
 
-      // Tampilkan notifikasi sukses dengan instruksi
-      const userConfirmed = window.confirm(
-        `Kelas "${classData.name}" telah ditambahkan ke sistem!\n\n` +
-        `Catatan: Kelas akan muncul di daftar setelah ada siswa yang terdaftar di kelas tersebut.\n\n` +
-        `Apakah Anda ingin menambahkan siswa baru dengan kelas "${classData.name}" sekarang?`
-      );
+      if (response.success) {
+        console.log("✅ Kelas berhasil ditambahkan:", response.data);
 
-      // Jika user ingin langsung menambahkan siswa
-      if (userConfirmed) {
-        // Tutup modal kelas dulu
-        closeAddClassModal();
-        
-        // Buka modal tambah siswa dengan kelas yang sudah dipilih
-        setShowAddStudentModal(true);
-        
-        // Simpan nama kelas ke localStorage untuk digunakan di AddStudentModal
-        localStorage.setItem('preselected_class', classData.name);
-      } else {
+        // Tampilkan notifikasi sukses dengan instruksi
+        const userConfirmed = window.confirm(
+          `Kelas "${classData.name}" berhasil ditambahkan!\n\n` +
+          `Kelas sekarang sudah tersedia di sistem.\n\n` +
+          `Apakah Anda ingin menambahkan siswa baru dengan kelas "${classData.name}" sekarang?`
+        );
+
         // Tutup modal kelas
         closeAddClassModal();
-      }
 
-      // Refresh data siswa untuk memastikan data terbaru
-      await loadStudents(true);
-      
-      // Juga refresh dashboard data untuk update statistik
-      await loadDataFromAPI();
+        // Jika user ingin langsung menambahkan siswa
+        if (userConfirmed) {
+          // Buka modal tambah siswa dengan kelas yang sudah dipilih
+          setShowAddStudentModal(true);
+          
+          // Simpan nama kelas ke localStorage untuk digunakan di AddStudentModal
+          localStorage.setItem('preselected_class', classData.name);
+        }
+
+        // Refresh data siswa untuk memastikan data terbaru
+        await loadStudents(true);
+        
+        // Juga refresh dashboard data untuk update statistik
+        await loadDataFromAPI();
+        
+        // Force refresh classes list by clearing cache
+        const schoolData = localStorage.getItem("school_data");
+        const schoolIdForCache =
+          schoolData && schoolData !== "undefined" && schoolData !== "null"
+            ? JSON.parse(schoolData).id
+            : "unknown";
+        clientCache.delete(cacheKeys.classes(schoolIdForCache));
+      } else {
+        throw new Error(response.message || "Gagal menambahkan kelas");
+      }
     } catch (error) {
       console.error("Error handling add class:", error);
       alert(
-        `Kelas "${classData.name}" telah ditambahkan!\n\n` +
-        `Catatan: Kelas akan muncul di daftar setelah ada siswa yang terdaftar di kelas tersebut. ` +
-        `Silakan tambahkan siswa baru dengan kelas "${classData.name}" untuk melihat kelas di daftar.`
+        error instanceof Error
+          ? error.message
+          : `Gagal menambahkan kelas "${classData.name}". Silakan coba lagi.`
       );
-      closeAddClassModal();
     }
   };
 
@@ -826,6 +834,10 @@ export default function TeacherDashboard() {
             students={students}
             darkMode={darkMode}
             onAddClass={openAddClassModal}
+            onClassAdded={() => {
+              // Refresh students data to update class list
+              loadStudents(true);
+            }}
           />
         );
       case "tka-schedules":

@@ -1229,8 +1229,56 @@ export const apiService = {
     return data;
   },
 
+  // Add Class
+  async addClass(classData: { name: string }): Promise<{
+    success: boolean;
+    message?: string;
+    data?: { class: { id: number; name: string; school_id: number; is_active: boolean } };
+  }> {
+    try {
+      const token = getToken();
+      if (!token) {
+        throw new Error("Token tidak ditemukan");
+      }
+
+      const response = await fetch(`${API_BASE_URL}/classes`, {
+        method: "POST",
+        headers: getAuthHeaders(),
+        body: JSON.stringify({
+          name: classData.name,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      // Clear classes cache after adding class
+      if (data.success) {
+        const schoolData = localStorage.getItem("school_data");
+        const schoolId =
+          schoolData && schoolData !== "undefined" && schoolData !== "null"
+            ? JSON.parse(schoolData).id
+            : "unknown";
+        clientCache.delete(cacheKeys.classes(schoolId));
+        console.log("🗑️ Classes cache cleared after adding new class");
+      }
+      
+      return data;
+    } catch (error: unknown) {
+      console.error("❌ Error in addClass:", error);
+      if (error instanceof Error) {
+        throw new Error(`Gagal menambahkan kelas: ${error.message}`);
+      }
+      throw new Error("Terjadi kesalahan tidak dikenal saat menambahkan kelas.");
+    }
+  },
+
   // Get Classes List
-  async getClasses(): Promise<{
+  async getClasses(forceRefresh: boolean = false): Promise<{
     success: boolean;
     data: { classes: Array<{ name: string; value: string }>; total_classes?: number };
   }> {
@@ -1238,6 +1286,24 @@ export const apiService = {
       const token = getToken();
       if (!token) {
         throw new Error("Token tidak ditemukan");
+      }
+
+      const schoolData = localStorage.getItem("school_data");
+      const schoolId =
+        schoolData && schoolData !== "undefined" && schoolData !== "null"
+          ? JSON.parse(schoolData).id
+          : "unknown";
+
+      // Check cache first (unless force refresh)
+      if (!forceRefresh) {
+        const cached = clientCache.get<{
+          success: boolean;
+          data: { classes: Array<{ name: string; value: string }>; total_classes?: number };
+        }>(cacheKeys.classes(schoolId));
+        if (cached) {
+          console.log("📦 Using cached classes data");
+          return cached;
+        }
       }
 
       // Add timeout controller
@@ -1248,6 +1314,7 @@ export const apiService = {
         headers: getAuthHeaders(),
         signal: controller.signal,
         credentials: "same-origin",
+        cache: forceRefresh ? 'no-store' : 'default',
       });
 
       clearTimeout(timeoutId);
@@ -1257,6 +1324,12 @@ export const apiService = {
       }
 
       const data = await response.json();
+      
+      // Cache the result
+      if (data.success) {
+        clientCache.set(cacheKeys.classes(schoolId), data, 3 * 60 * 1000);
+      }
+      
       return data;
     } catch (error: unknown) {
       // Handle connection reset and network errors gracefully
@@ -1269,8 +1342,25 @@ export const apiService = {
           error.message.includes("NetworkError"))
       ) {
         console.warn(
-          "⚠️ Connection error (timeout/reset) for classes. Returning empty array."
+          "⚠️ Connection error (timeout/reset) for classes. Trying cache..."
         );
+        
+        // Try to get from cache if available
+        const schoolData = localStorage.getItem("school_data");
+        const schoolId =
+          schoolData && schoolData !== "undefined" && schoolData !== "null"
+            ? JSON.parse(schoolData).id
+            : "unknown";
+        const cached = clientCache.get<{
+          success: boolean;
+          data: { classes: Array<{ name: string; value: string }>; total_classes?: number };
+        }>(cacheKeys.classes(schoolId));
+        
+        if (cached) {
+          console.log("📦 Using cached classes data due to network error");
+          return cached;
+        }
+        
         return {
           success: false,
           data: { classes: [] }

@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import DeleteConfirmationModal from "../modals/DeleteConfirmationModal";
 import ClassDetailModal from "../modals/ClassDetailModal";
 import EditClassModal from "../modals/EditClassModal";
-import { Student } from "../../services/api";
+import { Student, apiService } from "../../services/api";
 
 interface ClassItem {
   kelas: string;
@@ -16,12 +16,14 @@ interface ClassesContentProps {
   students: Student[];
   darkMode: boolean;
   onAddClass: () => void;
+  onClassAdded?: () => void; // Callback to refresh data
 }
 
 export default function ClassesContent({
   students,
   darkMode,
   onAddClass,
+  onClassAdded,
 }: ClassesContentProps) {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedClass, setSelectedClass] = useState<ClassItem | null>(null);
@@ -29,24 +31,43 @@ export default function ClassesContent({
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [editingClass, setEditingClass] = useState<ClassItem | null>(null);
   const [viewingClass, setViewingClass] = useState<ClassItem | null>(null);
+  const [allClasses, setAllClasses] = useState<string[]>([]);
+  const [loadingClasses, setLoadingClasses] = useState(false);
 
-  // Generate class summary from students data
-  const classSummary = students.reduce((acc: ClassItem[], student) => {
-    const existingClass = acc.find((cls) => cls.kelas === student.class);
-    if (existingClass) {
-      existingClass.student_count++;
-      if (student.has_choice) {
-        existingClass.students_with_choice++;
+  // Load classes from API
+  useEffect(() => {
+    const loadClasses = async () => {
+      try {
+        setLoadingClasses(true);
+        // Force refresh to get latest classes including newly added ones
+        const response = await apiService.getClasses(true);
+        if (response.success && response.data.classes) {
+          const classNames = response.data.classes.map((cls) => cls.name);
+          setAllClasses(classNames);
+          console.log("✅ Classes loaded:", classNames.length, "classes");
+        }
+      } catch (error) {
+        console.error("Error loading classes:", error);
+      } finally {
+        setLoadingClasses(false);
       }
-    } else {
-      acc.push({
-        kelas: student.class,
-        student_count: 1,
-        students_with_choice: student.has_choice ? 1 : 0,
-      });
-    }
-    return acc;
-  }, []);
+    };
+
+    loadClasses();
+  }, [students]); // Reload when students change
+
+  // Generate class summary from students data, but include all classes from API
+  const classSummary: ClassItem[] = allClasses.map((className) => {
+    // Find students in this class
+    const classStudents = students.filter((s) => s.class === className);
+    const studentsWithChoice = classStudents.filter((s) => s.has_choice).length;
+
+    return {
+      kelas: className,
+      student_count: classStudents.length,
+      students_with_choice: studentsWithChoice,
+    };
+  });
 
   const handleDeleteClick = (classItem: ClassItem) => {
     setSelectedClass(classItem);
