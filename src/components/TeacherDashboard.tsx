@@ -357,6 +357,22 @@ export default function TeacherDashboard() {
         "📡 Loading students data...",
         forceRefresh ? "(force refresh)" : ""
       );
+      
+      // Clear cache if force refresh
+      if (forceRefresh) {
+        const schoolData = localStorage.getItem("school_data");
+        const schoolId =
+          schoolData && schoolData !== "undefined" && schoolData !== "null"
+            ? JSON.parse(schoolData).id
+            : "unknown";
+        // Dynamic import to avoid circular dependency
+        const cacheModule = await import("../../utils/cache");
+        cacheModule.clientCache.delete(cacheModule.cacheKeys.students(schoolId));
+        cacheModule.clientCache.delete(cacheModule.cacheKeys.dashboard(schoolId));
+        cacheModule.clientCache.delete(cacheModule.cacheKeys.majorStatistics(schoolId));
+        console.log("🗑️ All caches cleared before loading students");
+      }
+      
       const studentsResponse = await apiService.getStudents(forceRefresh);
       console.log("📡 Students response:", studentsResponse);
       
@@ -367,6 +383,7 @@ export default function TeacherDashboard() {
           "students"
         );
         setStudents(studentsResponse.data.students);
+        setError(null); // Clear any previous errors
       } else {
         console.warn("⚠️ Students response not successful:", studentsResponse);
         setStudents([]);

@@ -163,14 +163,29 @@ export default function StudentsContent({
         
         // Check if it's a 404 error (student already deleted)
         if (error.message.includes("404") || error.message.includes("tidak ditemukan")) {
-          alert(
-            `Siswa tidak ditemukan. Mungkin sudah dihapus sebelumnya. Halaman akan dimuat ulang.`
-          );
-          // Refresh anyway since student might already be deleted
+          console.log("⚠️ Student not found - might already be deleted, refreshing data...");
+          // Clear cache and refresh data anyway since student might already be deleted
+          const schoolData = localStorage.getItem("school_data");
+          const schoolId =
+            schoolData && schoolData !== "undefined" && schoolData !== "null"
+              ? JSON.parse(schoolData).id
+              : "unknown";
+          
+          // Clear all related caches
+          clientCache.delete(cacheKeys.students(schoolId));
+          clientCache.delete(cacheKeys.dashboard(schoolId));
+          clientCache.delete(cacheKeys.majorStatistics(schoolId));
+          
+          // Don't show error alert if student might already be deleted
+          // Just refresh the data silently
           if (onImportSuccess) {
-            onImportSuccess();
+            setTimeout(() => {
+              onImportSuccess();
+            }, 500);
           } else {
-            window.location.reload();
+            setTimeout(() => {
+              window.location.reload();
+            }, 500);
           }
         } else {
           alert(
