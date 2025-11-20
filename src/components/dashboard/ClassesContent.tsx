@@ -420,13 +420,6 @@ export default function ClassesContent({
                     darkMode ? "text-gray-300" : "text-gray-500"
                   }`}
                 >
-                  Tingkat Penyelesaian
-                </th>
-                <th
-                  className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
-                    darkMode ? "text-gray-300" : "text-gray-500"
-                  }`}
-                >
                   Aksi
                 </th>
               </tr>
@@ -438,17 +431,10 @@ export default function ClassesContent({
                   : "bg-white divide-gray-200"
               } divide-y`}
             >
-              {classSummary.map((classItem, index) => {
-                const completionRate =
-                  classItem.student_count > 0
-                    ? (classItem.students_with_choice /
-                        classItem.student_count) *
-                      100
-                    : 0;
-
+              {classSummary.map((classItem) => {
                 return (
                   <tr
-                    key={index}
+                    key={classItem.kelas}
                     className={`${
                       darkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"
                     }`}
@@ -475,27 +461,6 @@ export default function ClassesContent({
                       }`}
                     >
                       {classItem.students_with_choice}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div
-                          className={`w-16 rounded-full h-2 mr-2 ${
-                            darkMode ? "bg-gray-600" : "bg-gray-200"
-                          }`}
-                        >
-                          <div
-                            className="bg-green-600 h-2 rounded-full"
-                            style={{ width: `${completionRate}%` }}
-                          ></div>
-                        </div>
-                        <span
-                          className={`text-sm ${
-                            darkMode ? "text-gray-300" : "text-gray-900"
-                          }`}
-                        >
-                          {completionRate.toFixed(1)}%
-                        </span>
-                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium w-32">
                       <div className="flex items-center space-x-2">
