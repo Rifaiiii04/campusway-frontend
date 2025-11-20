@@ -128,12 +128,11 @@ export default function ClassesContent({
     console.log("📊 ClassesContent - classSummary count:", classSummary.length);
     console.log("📊 ClassesContent - students count:", students.length);
     console.log("📊 ClassesContent - refreshTrigger:", refreshTrigger);
-    console.log("📊 ClassesContent - newlyAddedClass:", newlyAddedClass);
     
     // Log classes with 0 students
     const classesWithZeroStudents = classSummary.filter(c => c.student_count === 0);
     console.log("📊 ClassesContent - Classes with 0 students:", classesWithZeroStudents);
-  }, [allClasses, classSummary, students, refreshTrigger, newlyAddedClass]);
+  }, [allClasses, classSummary, students, refreshTrigger]);
 
   const handleDeleteClick = (classItem: ClassItem) => {
     setSelectedClass(classItem);
