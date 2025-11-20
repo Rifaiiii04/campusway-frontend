@@ -1185,25 +1185,62 @@ export const apiService = {
     success: boolean;
     data: { classes: Array<{ name: string; value: string }> };
   }> {
-    const token = getToken();
-    if (!token) {
-      throw new Error("Token tidak ditemukan");
-    }
+    try {
+      const token = getToken();
+      if (!token) {
+        throw new Error("Token tidak ditemukan");
+      }
 
-    const schoolData = localStorage.getItem("school_data");
-    const schoolId =
-      schoolData && schoolData !== "undefined" && schoolData !== "null"
-        ? JSON.parse(schoolData).id
-        : "unknown";
+      const schoolData = localStorage.getItem("school_data");
+      const schoolId =
+        schoolData && schoolData !== "undefined" && schoolData !== "null"
+          ? JSON.parse(schoolData).id
+          : "unknown";
 
-    return fetchWithCache(
-      `${API_BASE_URL}/classes`,
-      {
+      // Add timeout controller
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+
+      const response = await fetch(`${API_BASE_URL}/classes`, {
         headers: getAuthHeaders(),
-      },
-      cacheKeys.classes(schoolId),
-      5 * 60 * 1000 // 5 minutes cache
-    );
+        signal: controller.signal,
+        credentials: "same-origin",
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error: unknown) {
+      // Handle connection reset and network errors gracefully
+      if (
+        error instanceof Error &&
+        (error.name === "AbortError" ||
+          error.message.includes("aborted") ||
+          error.message.includes("ERR_CONNECTION_RESET") ||
+          error.message.includes("Failed to fetch") ||
+          error.message.includes("NetworkError"))
+      ) {
+        console.warn(
+          "⚠️ Connection error (timeout/reset) for classes. Returning empty array."
+        );
+        return {
+          success: false,
+          data: { classes: [], total_classes: 0 }
+        };
+      }
+      
+      console.error("❌ Error in getClasses:", error);
+      // Return empty array instead of throwing error to prevent frontend crash
+      return {
+        success: false,
+        data: { classes: [], total_classes: 0 }
+      };
+    }
   },
 
   // Get ArahPotensi Schedules

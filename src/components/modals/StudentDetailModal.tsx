@@ -70,8 +70,12 @@ export default function StudentDetailModal({
   if (student?.chosen_major) {
     console.log("📚 StudentDetailModal - chosen_major:", student.chosen_major);
     console.log("📚 Required subjects:", student.chosen_major.required_subjects);
+    console.log("📚 Required subjects type:", typeof student.chosen_major.required_subjects);
+    console.log("📚 Required subjects isArray:", Array.isArray(student.chosen_major.required_subjects));
     console.log("📚 Preferred subjects:", student.chosen_major.preferred_subjects);
     console.log("📚 Optional subjects:", student.chosen_major.optional_subjects);
+    console.log("📚 Kurikulum Merdeka:", student.chosen_major.kurikulum_merdeka_subjects);
+    console.log("📚 Kurikulum 2013 IPA:", student.chosen_major.kurikulum_2013_ipa_subjects);
   }
 
   return (
