@@ -30,6 +30,7 @@ import {
   MajorStatistics,
   TkaSchedule,
 } from "../services/api";
+import { clientCache, cacheKeys } from "../utils/cache";
 // import TkaScheduleCard from "./TkaScheduleCard";
 
 // Interface untuk export data
@@ -365,11 +366,10 @@ export default function TeacherDashboard() {
           schoolData && schoolData !== "undefined" && schoolData !== "null"
             ? JSON.parse(schoolData).id
             : "unknown";
-        // Dynamic import to avoid circular dependency
-        const cacheModule = await import("../../utils/cache");
-        cacheModule.clientCache.delete(cacheModule.cacheKeys.students(schoolId));
-        cacheModule.clientCache.delete(cacheModule.cacheKeys.dashboard(schoolId));
-        cacheModule.clientCache.delete(cacheModule.cacheKeys.majorStatistics(schoolId));
+        // Clear all related caches
+        clientCache.delete(cacheKeys.students(schoolId));
+        clientCache.delete(cacheKeys.dashboard(schoolId));
+        clientCache.delete(cacheKeys.majorStatistics(schoolId));
         console.log("🗑️ All caches cleared before loading students");
       }
       
