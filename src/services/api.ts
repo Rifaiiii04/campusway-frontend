@@ -635,7 +635,7 @@ export const apiService = {
           if (clientCache && typeof clientCache.clear === 'function') {
             clientCache.clear();
           }
-        } catch (e) {
+        } catch {
           // Cache utility might not be available, ignore
         }
       }

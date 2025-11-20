@@ -13,6 +13,7 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { useApi } from "@/hooks/useApi";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { usePerformance } from "@/components/providers/PerformanceProvider";
+import { clientCache } from "@/utils/cache";
 
 interface StudentData {
   id: number;
@@ -544,11 +545,10 @@ export default function StudentDashboardClient() {
       
       // Clear client cache if available
       try {
-        const { clientCache } = require("@/utils/cache");
         if (clientCache && typeof clientCache.clear === 'function') {
           clientCache.clear();
         }
-      } catch (e) {
+      } catch {
         // Cache utility might not be available, ignore
       }
     }

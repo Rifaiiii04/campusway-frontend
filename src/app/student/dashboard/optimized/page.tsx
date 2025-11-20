@@ -6,6 +6,7 @@ import PageTitle from "../../../../components/PageTitle";
 import { useMajors, useStudentChoice } from "../../../../hooks/useMajors";
 import { studentApiService } from "../../../../services/api";
 import StudentSubjectsDisplay from "../../../../components/student/StudentSubjectsDisplay";
+import { clientCache } from "@/utils/cache";
 
 interface StudentData {
   id: number;
@@ -274,11 +275,10 @@ export default function OptimizedStudentDashboardPage() {
       
       // Clear client cache if available
       try {
-        const { clientCache } = require("@/utils/cache");
         if (clientCache && typeof clientCache.clear === 'function') {
           clientCache.clear();
         }
-      } catch (e) {
+      } catch {
         // Cache utility might not be available, ignore
       }
     }

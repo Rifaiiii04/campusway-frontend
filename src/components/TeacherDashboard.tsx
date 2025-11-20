@@ -436,11 +436,10 @@ export default function TeacherDashboard() {
         
         // Clear client cache if available
         try {
-          const { clientCache } = require("@/utils/cache");
           if (clientCache && typeof clientCache.clear === 'function') {
             clientCache.clear();
           }
-        } catch (e) {
+        } catch {
           // Cache utility might not be available, ignore
         }
         

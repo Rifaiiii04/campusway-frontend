@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Sidebar from "../layout/Sidebar";
 import TkaScheduleContent from "./TkaScheduleContent";
+import { clientCache } from "@/utils/cache";
 
 export default function TeacherTkaScheduleClient() {
   const router = useRouter();
@@ -96,11 +97,10 @@ export default function TeacherTkaScheduleClient() {
         
         // Clear client cache if available
         try {
-          const { clientCache } = require("@/utils/cache");
           if (clientCache && typeof clientCache.clear === 'function') {
             clientCache.clear();
           }
-        } catch (e) {
+        } catch {
           // Cache utility might not be available, ignore
         }
         router.replace("/login");

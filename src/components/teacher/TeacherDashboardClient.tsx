@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import TeacherDashboard from "../TeacherDashboard";
 import { usePerformance } from "@/components/providers/PerformanceProvider";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
+import { clientCache } from "@/utils/cache";
 
 interface SchoolData {
   id: number;
@@ -108,11 +109,10 @@ export default function TeacherDashboardClient() {
         
         // Clear client cache if available
         try {
-          const { clientCache } = require("@/utils/cache");
           if (clientCache && typeof clientCache.clear === 'function') {
             clientCache.clear();
           }
-        } catch (e) {
+        } catch {
           // Cache utility might not be available, ignore
         }
         
