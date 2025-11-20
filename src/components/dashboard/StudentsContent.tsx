@@ -120,7 +120,7 @@ export default function StudentsContent({
           schoolData && schoolData !== "undefined" && schoolData !== "null"
             ? JSON.parse(schoolData).id
             : "unknown";
-        clientCache.remove(cacheKeys.students(schoolId));
+        clientCache.delete(cacheKeys.students(schoolId));
         console.log("🗑️ Cache cleared for students");
         
         // Show success message

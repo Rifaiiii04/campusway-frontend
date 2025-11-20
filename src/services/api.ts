@@ -724,7 +724,7 @@ export const apiService = {
       console.log("🔄 Force refreshing students data (bypassing cache)");
       
       // Clear cache first
-      clientCache.remove(cacheKeys.students(schoolId));
+      clientCache.delete(cacheKeys.students(schoolId));
       
       // Make fresh request with cache-busting timestamp
       const response = await fetch(`${API_BASE_URL}/students?t=${Date.now()}`, {
