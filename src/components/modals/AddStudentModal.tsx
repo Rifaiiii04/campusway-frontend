@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { apiService } from "../../services/api";
 
 interface AddStudentModalProps {
@@ -30,6 +30,33 @@ export default function AddStudentModal({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+
+  // Load preselected class from localStorage when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      const preselectedClass = localStorage.getItem('preselected_class');
+      if (preselectedClass) {
+        setFormData((prev) => ({
+          ...prev,
+          kelas: preselectedClass,
+        }));
+        // Clear the preselected class after using it
+        localStorage.removeItem('preselected_class');
+      }
+    } else {
+      // Reset form when modal closes
+      setFormData({
+        nisn: "",
+        name: "",
+        kelas: "",
+        email: "",
+        phone: "",
+        parent_phone: "",
+        password: "",
+        confirmPassword: "",
+      });
+    }
+  }, [isOpen]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;

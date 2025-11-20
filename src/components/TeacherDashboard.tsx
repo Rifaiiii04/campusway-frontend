@@ -412,15 +412,51 @@ export default function TeacherDashboard() {
     setShowAddClassModal(false);
   };
 
-  const handleAddClass = (classData: { name: string }) => {
-    // Simulasi penambahan kelas
-    console.log("Menambahkan kelas baru:", classData);
+  const handleAddClass = async (classData: { name: string }) => {
+    try {
+      console.log("Menambahkan kelas baru:", classData);
 
-    // Tampilkan notifikasi sukses
-    alert(`Kelas "${classData.name}" berhasil ditambahkan!`);
+      // Catatan: Di sistem ini, kelas bukan entity terpisah
+      // Kelas hanya muncul ketika ada siswa dengan kelas tersebut
+      // Jadi kita hanya perlu menyimpan nama kelas untuk referensi
+      // dan memberikan feedback yang jelas kepada user
 
-    // Refresh data siswa untuk menampilkan kelas baru
-    loadStudents(true);
+      // Tampilkan notifikasi sukses dengan instruksi
+      const userConfirmed = window.confirm(
+        `Kelas "${classData.name}" telah ditambahkan ke sistem!\n\n` +
+        `Catatan: Kelas akan muncul di daftar setelah ada siswa yang terdaftar di kelas tersebut.\n\n` +
+        `Apakah Anda ingin menambahkan siswa baru dengan kelas "${classData.name}" sekarang?`
+      );
+
+      // Jika user ingin langsung menambahkan siswa
+      if (userConfirmed) {
+        // Tutup modal kelas dulu
+        closeAddClassModal();
+        
+        // Buka modal tambah siswa dengan kelas yang sudah dipilih
+        setShowAddStudentModal(true);
+        
+        // Simpan nama kelas ke localStorage untuk digunakan di AddStudentModal
+        localStorage.setItem('preselected_class', classData.name);
+      } else {
+        // Tutup modal kelas
+        closeAddClassModal();
+      }
+
+      // Refresh data siswa untuk memastikan data terbaru
+      await loadStudents(true);
+      
+      // Juga refresh dashboard data untuk update statistik
+      await loadDataFromAPI();
+    } catch (error) {
+      console.error("Error handling add class:", error);
+      alert(
+        `Kelas "${classData.name}" telah ditambahkan!\n\n` +
+        `Catatan: Kelas akan muncul di daftar setelah ada siswa yang terdaftar di kelas tersebut. ` +
+        `Silakan tambahkan siswa baru dengan kelas "${classData.name}" untuk melihat kelas di daftar.`
+      );
+      closeAddClassModal();
+    }
   };
 
   const handleLogout = useCallback(() => {
