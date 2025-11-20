@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { apiService } from "../../services/api";
 
 interface AddStudentModalProps {
   isOpen: boolean;
@@ -128,45 +129,28 @@ export default function AddStudentModal({
           : "NOT FOUND"
       );
 
-      // Panggil API untuk menambah siswa
-      const response = await fetch(
-        `${
-          process.env.NEXT_PUBLIC_API_BASE_URL ||
-          "http://127.0.0.1:8001/api/school"
-        }/students`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${
-              localStorage.getItem("school_token") || ""
-            }`,
-          },
-          body: JSON.stringify(requestData),
-        }
-      );
+      // Panggil API untuk menambah siswa menggunakan apiService
+      const data = await apiService.addStudent({
+        name: requestData.name,
+        nisn: requestData.nisn,
+        kelas: requestData.kelas,
+        email: requestData.email || undefined,
+        phone: requestData.phone || undefined,
+        parent_phone: requestData.parent_phone || undefined,
+        password: requestData.password,
+      });
 
-      console.log("📡 Response status:", response.status);
-      console.log("📡 Response ok:", response.ok);
-
-      const data = await response.json();
       console.log("📄 Response data:", data);
 
-      if (!response.ok) {
-        console.log("❌ Response not OK:", response.status);
-        console.log("❌ Response data:", data);
-
-        // Handle validation errors
-        if (data.errors) {
-          console.log("❌ Validation errors:", data.errors);
-          let errorMessage = "Validasi gagal:\n";
-          Object.keys(data.errors).forEach((field) => {
-            errorMessage += `- ${field}: ${data.errors[field].join(", ")}\n`;
-          });
-          throw new Error(errorMessage);
-        }
-
-        throw new Error(data.message || "Gagal menambahkan siswa");
+      // apiService.addStudent akan throw error jika gagal, jadi jika sampai sini berarti berhasil
+      // Handle validation errors jika ada di response
+      if (data.errors) {
+        console.log("❌ Validation errors:", data.errors);
+        let errorMessage = "Validasi gagal:\n";
+        Object.keys(data.errors).forEach((field) => {
+          errorMessage += `- ${field}: ${data.errors[field].join(", ")}\n`;
+        });
+        throw new Error(errorMessage);
       }
 
       setSuccess("Siswa berhasil ditambahkan!");
