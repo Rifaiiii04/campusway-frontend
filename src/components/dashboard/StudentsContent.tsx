@@ -120,8 +120,12 @@ export default function StudentsContent({
           schoolData && schoolData !== "undefined" && schoolData !== "null"
             ? JSON.parse(schoolData).id
             : "unknown";
+        
+        // Clear all related caches
         clientCache.delete(cacheKeys.students(schoolId));
-        console.log("🗑️ Cache cleared for students");
+        clientCache.delete(cacheKeys.dashboard(schoolId));
+        clientCache.delete(cacheKeys.majorStatistics(schoolId));
+        console.log("🗑️ All caches cleared for students");
         
         // Show success message
         alert(`Siswa "${studentToDelete.name}" berhasil dihapus!`);
@@ -130,11 +134,16 @@ export default function StudentsContent({
         // This will trigger a data refresh without full page reload
         if (onImportSuccess) {
           console.log("🔄 Calling onImportSuccess to refresh data...");
-          onImportSuccess();
+          // Add small delay to ensure backend has processed the deletion
+          setTimeout(() => {
+            onImportSuccess();
+          }, 500);
         } else {
           console.log("🔄 onImportSuccess not available, reloading page...");
           // Fallback to page reload if callback not available
-          window.location.reload();
+          setTimeout(() => {
+            window.location.reload();
+          }, 500);
         }
       } else {
         console.error("❌ Delete failed - response not successful:", response);
