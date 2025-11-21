@@ -67,7 +67,7 @@ export default function StudentsContent({
       (student.email &&
         student.email.toLowerCase().includes(searchTerm.toLowerCase()));
 
-    const matchesClass = !selectedClass || student.kelas === selectedClass;
+    const matchesClass = !selectedClass || (student.kelas || student.class) === selectedClass;
 
     const matchesMajor =
       !selectedMajor ||
@@ -650,7 +650,7 @@ export default function StudentsContent({
                       darkMode ? "text-gray-100" : "text-gray-900"
                     }`}
                   >
-                    {student.kelas}
+                    {student.kelas || student.class || "-"}
                   </td>
                   <td
                     className={`px-6 py-4 whitespace-nowrap text-sm ${
