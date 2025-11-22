@@ -225,7 +225,7 @@ export default function StudentsContent({
       const updateData = {
         name: updatedStudent.name,
         nisn: updatedStudent.nisn,
-        kelas: updatedStudent.class,
+        kelas: updatedStudent.kelas || updatedStudent.class || "",
         email: updatedStudent.email || "",
         phone: updatedStudent.phone || "",
         parent_phone: updatedStudent.parent_phone || "",
@@ -239,12 +239,39 @@ export default function StudentsContent({
       );
 
       if (response.success) {
+        console.log("✅ Student updated successfully, clearing cache and refreshing data...");
+        
+        // Clear students cache to ensure fresh data
+        const schoolData = localStorage.getItem("school_data");
+        const schoolId =
+          schoolData && schoolData !== "undefined" && schoolData !== "null"
+            ? JSON.parse(schoolData).id
+            : "unknown";
+        
+        // Clear all related caches
+        clientCache.delete(cacheKeys.students(schoolId));
+        clientCache.delete(cacheKeys.dashboard(schoolId));
+        clientCache.delete(cacheKeys.majorStatistics(schoolId));
+        console.log("🗑️ All caches cleared for students");
+        
         alert(`Siswa ${updatedStudent.name} berhasil diupdate!`);
         setShowEditModal(false);
         setEditingStudent(null);
 
-        // Refresh the page to show updated data
-        window.location.reload();
+        // Refresh data using callback instead of page reload
+        if (onImportSuccess) {
+          console.log("🔄 Calling onImportSuccess to refresh data...");
+          // Add small delay to ensure backend has processed the update
+          setTimeout(() => {
+            onImportSuccess();
+          }, 500);
+        } else {
+          console.log("🔄 onImportSuccess not available, reloading page...");
+          // Fallback to page reload if callback not available
+          setTimeout(() => {
+            window.location.reload();
+          }, 500);
+        }
       } else {
         alert("Gagal mengupdate data siswa. Silakan coba lagi.");
       }

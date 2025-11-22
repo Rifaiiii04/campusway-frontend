@@ -25,13 +25,27 @@ export default function EditStudentModal({
 
   useEffect(() => {
     if (student) {
-      setEditedStudent({ ...student });
+      // Ensure both class and kelas fields are populated
+      setEditedStudent({ 
+        ...student,
+        class: student.kelas || student.class || "",
+        kelas: student.kelas || student.class || ""
+      });
     }
   }, [student]);
 
   const handleInputChange = (field: keyof Student, value: string) => {
     if (editedStudent) {
-      setEditedStudent((prev) => ({ ...prev!, [field]: value }));
+      // When class is changed, also update kelas field for consistency
+      if (field === 'class') {
+        setEditedStudent((prev) => ({ 
+          ...prev!, 
+          [field]: value,
+          kelas: value
+        }));
+      } else {
+        setEditedStudent((prev) => ({ ...prev!, [field]: value }));
+      }
     }
   };
 
